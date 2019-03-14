@@ -1,6 +1,12 @@
 require 'args/version'
 
 module Args
+  class << self
+    def or(*checks)
+      Or.new(checks)
+    end
+  end
+
   class Error < ArgumentError
     attr_reader :cause
     def initialize(msg: nil, cause: nil)
@@ -94,12 +100,10 @@ module Args
     end
   end
 
-  class Or < Check
-    include Args
+  Or = Struct.new(:checks)
 
-    def new(*checks)
-      @checks = checks
-    end
+  class OrCheck < Check
+    include Args
 
     def self.can_be_from?(check)
       check.is_a? Or
@@ -113,7 +117,8 @@ module Args
     end
 
     def check_value
-      @checks
+      @check
+        .checks
         .map(&method(:safe_check_with))
         .any?(&:nil?) ||
         raise_error!
@@ -124,14 +129,11 @@ module Args
     end
   end
 
-  def self.or(*checks)
-    Or.new(*checks)
-  end
-
   Checks = [
     IsNotType,
     IsNotArrayOf,
     IsNotStructOf,
+    OrCheck,
   ].freeze
 
   def check(name, check)
