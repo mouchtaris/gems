@@ -61,11 +61,11 @@ module Args
     end
 
     def check_value
-      @value.tap(&check(@name, Array))
-      @value.each_with_index do |element, index|
-        name = "#{@name}-#{index}"
-        element.tap(&check(name, @check.first))
-      end
+      @value.respond_to?(:each) &&
+        @value.to_enum.each_with_index do |element, index|
+          name = "#{@name}[#{index}]"
+          element.tap(&check(name, @check.first))
+        end
     end
 
     def error_message
