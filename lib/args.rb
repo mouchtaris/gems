@@ -94,6 +94,40 @@ module Args
     end
   end
 
+  class Or < Check
+    include Args
+
+    def new(*checks)
+      @checks = checks
+    end
+
+    def self.can_be_from?(check)
+      check.is_a? Or
+    end
+
+    def safe_check_with(check)
+      @value.tap(&check(@name, check))
+      nil
+    rescue ArgumentError => e
+      e
+    end
+
+    def check_value
+      @checks
+        .map(&method(:safe_check_with))
+        .any?(&:nil?) ||
+        raise_error!
+    end
+
+    def error_message
+      "All checks failed for #{@name}:\n- #{@checks.join("\n- ")}"
+    end
+  end
+
+  def self.or(*checks)
+    Or.new(*checks)
+  end
+
   Checks = [
     IsNotType,
     IsNotArrayOf,
