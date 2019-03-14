@@ -2,9 +2,14 @@ require 'args/version'
 
 module Args
   class Error < ArgumentError
+    attr_reader :cause
+    def initialize(msg: nil, cause: nil)
+      super(msg)
+      @cause = cause
+    end
   end
 
-  class Check < Error
+  class Check
     class << self
       alias_method :can_be_from?, :===
       def optionally_create(name, value, check)
@@ -13,8 +18,14 @@ module Args
       end
     end
 
+    def raise_error!(cause: nil)
+      raise Error.new(msg: error_message, cause: cause)
+    end
+
     def check_or_raise!
-      check_value || (raise self)
+      check_value || raise_error!
+    rescue ArgumentError => e
+      raise_error! cause: e
     end
 
     def initialize(name, value, check)
@@ -58,7 +69,7 @@ module Args
     end
 
     def error_message
-      'Not an array of'
+      "#{@name} !=~ (Array) #{@check}"
     end
   end
 
@@ -79,7 +90,7 @@ module Args
     end
 
     def error_message
-      'Not a hash of'
+      "#{@name} !=~ (Hash) #{@check}"
     end
   end
 
