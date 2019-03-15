@@ -1,8 +1,0 @@
-#!/usr/bin/bash
-
-bundle exec rake \
-  --backtrace \
-  --libdir lib \
-  --no-system \
-  --rakefile Rakefile \
-  "$@"
