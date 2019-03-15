@@ -8,6 +8,6 @@ module Buffer
   extend self
 
   def create(back)
-    Buffer::Buffer.new(back)
+    Buffer.new(back)
   end
 end
