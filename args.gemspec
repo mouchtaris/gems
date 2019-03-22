@@ -5,7 +5,7 @@ require "args/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "args"
-  spec.version       = Args::VERSION
+  spec.version       = Args::Version.version
   spec.authors       = ["Nikos"]
   spec.email         = ["n.mouchtaris@youngcapital.nl"]
 
