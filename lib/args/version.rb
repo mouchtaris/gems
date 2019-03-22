@@ -2,7 +2,7 @@
 
 module Args
   class Version
-    DEFAULT_BUMP_LEVEL = 1
+    DEFAULT_BUMP_LEVEL = 2
 
     VERSION_PATH = File.join 'etc', 'version.yaml'
     attr_reader :version
@@ -18,7 +18,11 @@ module Args
       end
 
       def bump!(level = nil)
-        self.load.bump!(level || DEFAULT_BUMP_LEVEL).save!
+        level = (level || DEFAULT_BUMP_LEVEL).to_i
+        self
+          .load
+          .bump(level)
+          .save!
       end
     end
 
@@ -26,17 +30,19 @@ module Args
       @version = version
     end
 
-    def bump!(level)
-      @version.each_with_index do |ver, index|
-        @version[index] =
-          if index == level
-            @version[index] = ver + 1
-          elsif index > level
-            @version[index] = 0
-          else
-            ver
+    def bump(level)
+      eq = ->(index) { index == level }
+      gt = ->(index) { index  > level }
+      Version.new(@version
+        .each_with_index
+        .map do |ver, index|
+          case index
+          when eq then ver + 1
+          when gt then 0
+          else ver
           end
-      end
+        end
+      )
     end
 
     def save!
