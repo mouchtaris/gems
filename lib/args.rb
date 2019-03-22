@@ -17,9 +17,21 @@ module Args
     end
   end
 
+  module ClassDecorations
+    def check(name = self.name)
+      Args.check(name, self)
+    end
+  end
+
   class << self
     def or(*checks)
       Or.new(checks)
+    end
+
+    def included(by_this_guy)
+      class << by_this_guy
+        include ClassDecorations
+      end
     end
   end
 
