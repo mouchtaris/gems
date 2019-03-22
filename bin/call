@@ -33,6 +33,10 @@ function dispatch() {
         | wc -l \
         | xargs test 1 =
       ;;
+    oc)
+      env BUNDLE_GEMFILE=.overcommit_gems.rb \
+        bundle exec .overcommit/bin/overcommit "$@"
+      ;;
     call)
       dispatch "$@"
       ;;
