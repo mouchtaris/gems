@@ -13,4 +13,7 @@ bundle check &&
 git add Gemfile.lock etc/version.yaml &&
 git commit --message "Version $current_version" &&
 git tag "args/v$current_version" &&
-git log --oneline --graph -10
+git log --oneline --graph -1 --patch &&
+git log --oneline --graph -4 HEAD^ &&
+
+true
