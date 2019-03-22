@@ -10,6 +10,9 @@ module Args
       SCHEMA.each do |name, chk|
         value = params[name].tap(&check(name, chk))
         instance_variable_set(:"@#{name}", value)
+        self.class.class_exec do
+          attr_reader name
+        end
       end
     end
   end

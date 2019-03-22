@@ -47,6 +47,10 @@ RSpec.describe Args do
         it "#{name} is initialized" do
           expect(subject.instance_variable_get :"@#{name}").not_to be nil
         end
+
+        it "exposes #{name} through a reader" do
+          expect(subject.send name).to be subject.instance_variable_get(:"@#{name}")
+        end
       end
     end
 
