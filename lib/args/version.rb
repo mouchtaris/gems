@@ -14,7 +14,7 @@ module Args
       end
 
       def version
-        self.load.version.join('.')
+        self.load.version_string
       end
 
       def bump!(level = nil)
@@ -22,12 +22,17 @@ module Args
         self
           .load
           .bump(level)
-          .save!
+          .tap(&:save!)
+          .version_string
       end
     end
 
     def initialize(version)
       @version = version
+    end
+
+    def version_string
+      @version.join('.')
     end
 
     def bump(level)

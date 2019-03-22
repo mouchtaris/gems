@@ -1,7 +1,11 @@
-#!/usr/bin/env ruby
-# frozen_string_literal: true
+#!/usr/bin/env bash
 
-require 'bundler/setup'
-require 'args'
+current_version="$(
+  ruby \
+    -r'bundler/setup' \
+    -r'args/version' \
+    -e'puts Args::Version.bump!(*ARGV)' \
+    "$@"
+)"
 
-Args::Version.bump!(*ARGV)
+echo $current_version
