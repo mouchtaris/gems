@@ -4,7 +4,7 @@ module Args
   class Version
     DEFAULT_BUMP_LEVEL = 2
 
-    VERSION_PATH = File.join 'etc', 'version.yaml'
+    VERSION_PATH = File.join __dir__, '..', '..', 'etc', 'version.yaml'
     attr_reader :version
 
     class << self
