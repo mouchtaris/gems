@@ -165,11 +165,10 @@ module Args
 
   def check(name, check)
     -> (value) {
-      Checks.each do |c|
-        c
-          .optionally_create(name, value, check)
-          &.check_or_raise!
-      end
+      Checks.to_enum.reduce(nil) do |accum, chk|
+        accum ||
+          chk.optionally_create(name, value, check)&.tap(&:check_or_raise!)
+      end || (raise "No check found for #{value.inspect}")
     }
   end
 
