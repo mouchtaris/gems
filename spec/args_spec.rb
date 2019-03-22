@@ -42,6 +42,11 @@ RSpec.describe Args do
       end
     }
 
+    describe '.from_data' do
+      subject { schematic.from_data passing }
+      it { expect { subject }.not_to raise_error }
+    end
+
     describe 'initializing with passing args' do
       subject { schematic.new(passing) }
       it { expect { subject }.not_to raise_error }

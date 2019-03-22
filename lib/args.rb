@@ -6,6 +6,12 @@ module Args
   class Schematic
     include Args
 
+    class << self
+      def from_data(data)
+        new(**data.map { |k,v| [k.to_sym, v] }.to_h)
+      end
+    end
+
     def initialize(**params)
       SCHEMA.each do |name, chk|
         value = (params[name] || params[name.to_sym])
@@ -27,10 +33,6 @@ module Args
   module ClassDecorations
     def check(name = self.name)
       Args.check(name, self)
-    end
-
-    def from_data(data)
-      new(**data.map { |k,v| [k.to_sym, v] }.to_h)
     end
   end
 
