@@ -40,6 +40,9 @@ function dispatch() {
     call)
       dispatch "$@"
       ;;
+    rk)
+      rake -f Rakefile "$@"
+      ;;
     *)
       echo nada
       ;;
