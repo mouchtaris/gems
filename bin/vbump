@@ -6,6 +6,11 @@ current_version="$(
     -r'args/version' \
     -e'puts Args::Version.bump!(*ARGV)' \
     "$@"
-)"
+)" &&
 
-echo $current_version
+bundle check &&
+
+git add Gemfile.lock etc/version.yaml &&
+git commit --message "Version $current_version" &&
+git tag "args/v$current_version" &&
+git log --oneline --graph -10
