@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+function error() {
+  printf 'error: ' 1>&2
+  printf "$@" 1>&2
+  printf '\n' 1>&2
+  exit 1
+}
+
+function dispatch() {
+  local command_name="$1" && shift \
+  && case "$command_name" in
+    setup)
+      dispatch gem::is_installed bundler \
+      || gem install \
+        --user \
+        --no-document \
+        bundler \
+      && bundle install \
+        --path _bundler_gems \
+        --binstubs=.bundle/bin \
+      && bundle cache --all
+      ;;
+    gem::is_installed)
+      local gem_name="$1" && shift \
+      && gem list --local \
+        | grep "$gem_name" \
+        | wc -l \
+        | xargs test 1 =
+      ;;
+    *)
+      dispatch "$@"
+      ;;
+  esac
+}
+
+if test "$0" = "${BASH_SOURCE[0]}"
+then
+  dispatch "$0" "$@"
+fi
