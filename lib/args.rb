@@ -16,6 +16,12 @@ module Args
         end
       end
     end
+
+    def to_hash
+      SCHEMA
+        .map { |k, _| [k.to_sym, instance_variable_get =:"@#{k}"] }
+        .to_h
+    end
   end
 
   module ClassDecorations
