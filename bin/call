@@ -18,8 +18,13 @@ function dispatch() {
         bundler \
       && bundle install \
         --path _bundler_gems \
+        --binstubs=.overcommit/bin \
+      && bundle cache --all \
+      && bundle install \
+        --path _bundler_gems \
         --binstubs=.bundle/bin \
-      && bundle cache --all
+      && bundle cache --all \
+      ;
       ;;
     gem::is_installed)
       local gem_name="$1" && shift \
