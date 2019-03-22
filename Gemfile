@@ -7,6 +7,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 gem 'args', github: 'mouchtaris/gems', branch: 'args/master'
 
 group :development do
+  gem 'overcommit'
   gem 'pry'
   gem 'rake'
   gem 'rspec'
