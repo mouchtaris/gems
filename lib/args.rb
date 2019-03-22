@@ -1,6 +1,19 @@
 require 'args/version'
 
 module Args
+  extend self
+
+  class Schematic
+    include Args
+
+    def initialize(**params)
+      SCHEMA.each do |name, chk|
+        value = params[name].tap(&check(name, chk))
+        instance_variable_set(:"@#{name}", value)
+      end
+    end
+  end
+
   class << self
     def or(*checks)
       Or.new(checks)
@@ -125,7 +138,7 @@ module Args
     end
 
     def error_message
-      "All checks failed for #{@name}:\n- #{@checks.join("\n- ")}"
+      "All checks failed for #{@name}:\n- #{@check.checks.join("\n- ")}"
     end
   end
 
