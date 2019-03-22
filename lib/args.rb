@@ -28,6 +28,10 @@ module Args
     def check(name = self.name)
       Args.check(name, self)
     end
+
+    def from_data(data)
+      new(**data.map { |k,v| [k.to_sym, v] }.to_h)
+    end
   end
 
   class << self
