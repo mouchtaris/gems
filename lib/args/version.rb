@@ -2,6 +2,8 @@
 
 module Args
   class Version
+    DEFAULT_BUMP_LEVEL = 1
+
     VERSION_PATH = File.join 'etc', 'version.yaml'
     attr_reader :version
 
@@ -16,7 +18,7 @@ module Args
       end
 
       def bump!(level = nil)
-        self.load.bump!(level).save!
+        self.load.bump!(level || DEFAULT_BUMP_LEVEL).save!
       end
     end
 
@@ -24,7 +26,7 @@ module Args
       @version = version
     end
 
-    def bump!(level = 1)
+    def bump!(level)
       @version.each_with_index do |ver, index|
         @version[index] =
           if index == level
