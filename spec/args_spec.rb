@@ -17,6 +17,7 @@ RSpec.describe Args do
         x: Integer,
         y: Integer,
       ],
+      tuple: Array[String, Integer],
       any_of: Args.or(String, Symbol),
       any_combo_deal: Args.or(
         Array[Hash[x: Integer, y: Integer]],
@@ -29,6 +30,7 @@ RSpec.describe Args do
         a_type: SCHEMA[:a_type].new,
         array_of: Array.new(20) { SCHEMA.dig(:array_of, 0).new },
         struct_of: { x: 12, y: 15 },
+        tuple: ['one', 1, 'two', 2],
         any_of: :symbol,
         any_combo_deal: [{x: 12, y: 13}, {x: 22, y: 33}],
       ]

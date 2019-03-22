@@ -83,10 +83,21 @@ module Args
     end
 
     def check_value
-      @value.respond_to?(:each) &&
-        @value.to_enum.each_with_index do |element, index|
-          name = "#{@name}[#{index}]"
-          element.tap(&check(name, @check.first))
+      @value.respond_to?(:each) && @value
+        .to_enum
+        .each_slice(@check.size)
+        .each_with_index
+        .reduce(true) do |slice_accum, slice_pair|
+          next unless slice_accum
+          slice, slice_index = slice_pair
+
+          slice.each_with_index.reduce(true) do |accum, element_pair|
+            next unless accum
+            element, index = element_pair
+
+            name = "#{@name}[#{slice_index}:#{index}]"
+            element.tap(&check(name, @check[index]))
+          end
         end
     end
 
