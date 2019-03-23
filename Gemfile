@@ -8,6 +8,7 @@ gem 'args', github: 'mouchtaris/gems', branch: 'args/master'
 
 group :development do
   gem 'bundle-audit'
+  gem 'factory_bot'
   gem 'fasterer'
   gem 'overcommit'
   gem 'pry'
