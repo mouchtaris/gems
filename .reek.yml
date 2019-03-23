@@ -4,3 +4,4 @@ detectors:
 exclude_paths:
   - vendor/
   - _bundler_gems/
+  - bin/exec.rb
