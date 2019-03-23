@@ -2,9 +2,6 @@ AllCops:
   Exclude:
     - 'vendor/**/*'
     - '_bundler_gems/**/*'
-
-Style/Documentation:
-  Enabled: False
-
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
+Layout/MultilineMethodCallIndentation: { EnforcedStyle: indented }
+Metrics/BlockLength: { Exclude: ['spec/**/*.rb'] }
+Style/Documentation: { Enabled: False }
