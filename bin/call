@@ -43,6 +43,9 @@ function dispatch() {
     rk)
       rake -f Rakefile "$@"
       ;;
+    rbca)
+      call rk rubocop:auto_correct
+      ;;
     *)
       echo nada
       ;;
