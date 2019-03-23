@@ -3,5 +3,8 @@ AllCops:
     - 'vendor/**/*'
     - '_bundler_gems/**/*'
 
+Style/Documentation:
+  Enabled: False
+
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
