@@ -1,5 +1,4 @@
 --format=documentation
---backtrace
 --force-color
 --fail-fast
 --order defined
