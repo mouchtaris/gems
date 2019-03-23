@@ -181,11 +181,26 @@ module Args
     end
   end
 
+  class ArbitraryCheck < Check
+    def self.can_be_from?(check)
+      check.is_a? Proc
+    end
+
+    def check_value
+      @check.call(value)
+    end
+
+    def error_message
+      "#{@name}: Arbitrary #{@check} fails for #{@value.inspect}"
+    end
+  end
+
   Checks = [
     IsNotType,
     IsNotArrayOf,
     IsNotStructOf,
     OrCheck,
+    ArbitraryCheck
   ].freeze
 
   def check(name, check)
