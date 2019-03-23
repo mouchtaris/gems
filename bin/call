@@ -53,11 +53,27 @@ function dispatch() {
       ;;
     t)
       set -x
-      rspec --format=documentation --fail-fast spec
-      rubocop --format=clang
-      reek --progress --format=text
-      bundle-audit check --verbose --update
-      fasterer
+         rspec --format=documentation --fail-fast spec \
+      && rubocop --format=clang \
+      && reek --progress --format=text \
+      && bundle-audit check --verbose --update \
+      && fasterer \
+      ;;
+    exec.rb)
+      env BUNDLE_GEMFILE=Gemfile \
+        ruby -Ilib -rbundler/setup "$@"
+      ;;
+    console)
+      call exec.rb \
+        -rmastoras/console \
+        -e'Mastoras::Console.console!'
+      ;;
+    mlist)
+      call exec.rb \
+        -rmastoras/facade \
+        -e' Mastoras::Facade
+              .new(%q{_sample/good/mastrofile})
+              .list'
       ;;
     *)
       echo nada
