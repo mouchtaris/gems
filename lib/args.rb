@@ -13,7 +13,7 @@ module Args
     end
 
     def initialize(**params)
-      SCHEMA.each do |name, chk|
+      self.class.const_get(:SCHEMA).each do |name, chk|
         value = (params[name] || params[name.to_sym])
           .tap(&check(name, chk))
         instance_variable_set(:"@#{name}", value)
