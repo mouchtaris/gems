@@ -71,8 +71,9 @@ function dispatch() {
     mlist)
       call exec.rb \
         -rmastoras/facade \
+        -rpathname \
         -e' Mastoras::Facade
-              .new(%q{_sample/good/mastrofile})
+              .new(Pathname.new(%q{_sample/good/mastrofile}))
               .list'
       ;;
     *)
