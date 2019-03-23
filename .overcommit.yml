@@ -23,6 +23,8 @@ PreCommit:
     enabled: true
   Fasterer:
     enabled: true
+  BundleAudit:
+    enabled: true
 # Hooks that run during `git push`, after remote refs have been updated but
 # before any objects have been transferred.
 PrePush:
