@@ -2,51 +2,39 @@
 
 require 'pathname'
 require 'args'
-require 'mastoras/mastroroot'
+require 'mastoras/util/f'
+require 'mastoras/scroll'
 
 module Mastoras
   class Workspace
     include Args
 
     CONFIG_DATA_SCHEMA = Hash[
-      'mastrorepo_name': String
+      'mastrorepo_name': String,
+      'packer_yaml_name': String,
     ]
 
-    def initialize(root)
-      @root = root
-        .tap(&check(:root, Pathname))
+    def initialize(mastrofile)
+      @config = mastrofile
+        .tap(&check(:mastrofile, Pathname))
+        .open('r', &Util::F::LoadYaml)
+        .tap(&check(:mastrofile, CONFIG_DATA_SCHEMA))
+        .freeze
+      @mastrorepo = (mastrofile.dirname / @config['mastrorepo_name'])
+        .freeze
     end
 
-    def mastroroot
-      @mastroroot ||=
-        Mastroroot.new(@root)
-    end
+    attr_reader :config
+    attr_reader :mastrorepo
 
-    def config_data
-      @config_data ||=
-        mastroroot
-          .mastrofile
-          .open('r', &YAML.method(:safe_load))
-    end
-
-    def config
-      @config ||=
-        config_data
-          .tap(&check(:config_data, CONFIG_DATA_SCHEMA))
-    end
-
-    def mastrorepo_name
-      @mastrorepo_name ||=
-        config_data['mastrorepo_name']
-    end
-
-    def mastrorepo
-      @mastrorepo ||=
-        @root / mastrorepo_name
-    end
-
-    def each_scroll_name
-      return enum_for :each_scroll_name unless block_given?
+    def scrolls
+      packer_yaml = @config['packer_yaml_name']
+      @scrolls ||= @mastrorepo
+        .enum_for(:each_child)
+        .lazy
+        .map { |child| child / packer_yaml }
+        .map(&Scroll::F.create)
+        .freeze
     end
   end
 end
