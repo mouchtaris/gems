@@ -2,3 +2,6 @@ AllCops:
   Exclude:
     - 'vendor/**/*'
     - '_bundler_gems/**/*'
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
