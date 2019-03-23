@@ -6,7 +6,7 @@ module Mastoras
   class Mastroroot
     include Args
 
-    MASTROFILE_NAME = 'mastroroot'
+    MASTROFILE_NAME = 'mastrofile'
 
     def initialize(mastroroot)
       @root = mastroroot
