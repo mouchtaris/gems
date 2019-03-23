@@ -44,5 +44,9 @@ module Mastoras
       @mastrorepo ||=
         @root / mastrorepo_name
     end
+
+    def each_scroll_name
+      return enum_for :each_scroll_name unless block_given?
+    end
   end
 end
