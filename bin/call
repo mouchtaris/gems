@@ -19,6 +19,7 @@ function dispatch() {
       && bundle install \
         --path _bundler_gems \
         --binstubs=.overcommit/bin \
+        --gemfile=.overcommit_gems.rb \
       && bundle cache --all \
       && bundle install \
         --path _bundler_gems \
