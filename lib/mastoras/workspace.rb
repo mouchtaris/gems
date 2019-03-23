@@ -8,36 +8,41 @@ module Mastoras
   class Workspace
     include Args
 
+    CONFIG_DATA_SCHEMA = Hash[
+      'mastrorepo_name': String
+    ]
+
     def initialize(root)
       @root = root
         .tap(&check(:root, Pathname))
     end
 
-    CONFIG_DATA_SCHEMA = Hash[
-      'mastrorepo_name': String
-    ]
-
     def mastroroot
-      Mastroroot.new(@root)
+      @mastroroot ||=
+        Mastroroot.new(@root)
     end
 
     def config_data
-      @config_data ||= mastroroot
-        .mastrofile
-        .open('r', &YAML.method(:safe_load))
+      @config_data ||=
+        mastroroot
+          .mastrofile
+          .open('r', &YAML.method(:safe_load))
     end
 
     def config
-      config_data
-        .tap(&check(:config_data, CONFIG_DATA_SCHEMA))
+      @config ||=
+        config_data
+          .tap(&check(:config_data, CONFIG_DATA_SCHEMA))
     end
 
     def mastrorepo_name
-      config_data['mastrorepo_name']
+      @mastrorepo_name ||=
+        config_data['mastrorepo_name']
     end
 
     def mastrorepo
-      @root / mastrorepo_name
+      @mastrorepo ||=
+        @root / mastrorepo_name
     end
   end
 end
