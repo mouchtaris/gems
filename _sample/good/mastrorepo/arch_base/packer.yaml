@@ -1,11 +1,7 @@
-version: [0, 0, 1]
-type: vm
-import: []
-packer_yaml:
-  builders:
-    - type: vagrant
-      source: archlinux/archlinux
-  provisioners:
-    - type: shell
-      inline: |
-        echo Hi, bob | sudo tee -a /bob
+builders:
+  - type: vagrant
+    source: archlinux/archlinux
+provisioners:
+  - type: shell
+    inline: |
+      echo Hi, bob | sudo tee -a /bob

@@ -1,12 +1,7 @@
-version: [0, 0, 1]
-type: vm
-import:
-  - arch_base
-packer_yaml:
-  builders:
-    - type: vagrant
-      source: '{{ user `mastoras.artifacts.arch_base.box` }}'
-  provisioners:
-    - type: shell
-      inline: |
-        echo sudo pacman -Syu
+builders:
+  - type: vagrant
+    source: '{{ user `mastoras.artifacts.arch_base.box` }}'
+provisioners:
+  - type: shell
+    inline: |
+      echo sudo pacman -Syu
