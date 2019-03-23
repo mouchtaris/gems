@@ -42,6 +42,18 @@ RSpec.describe Mastoras::Facade do
             it { is_expected.to eq 'mastrorepo' }
           end
         end
+        describe '#each_scroll_name' do
+          subject { facade.ws.each_scroll_name }
+          it { is_expected.to be_a Enumerator }
+          describe 'values' do
+            it 'includes arch_base' do
+              expect subject.include? 'arch_base'
+            end
+            it 'includes arch_updated' do
+              expect subject.include? 'arch_updated'
+            end
+          end
+        end
       end
     end
 
