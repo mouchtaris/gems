@@ -2,17 +2,16 @@
 
 # standard lib
 require 'pathname'
-# private gems
-require 'args'
+# appliocation
+require 'mastoras/mastroroot'
 
 module Mastoras
   ###
   class Facade
     include Args
 
-    def initialize(mastoroot)
-      @mastoroot = mastoroot
-        .tap(&check(:mastoroot, Pathname))
+    def initialize(mastroroot)
+      @root = Mastroroot.new(mastroroot)
     end
   end
 end
