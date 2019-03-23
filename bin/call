@@ -13,17 +13,18 @@ function dispatch() {
     setup)
       dispatch gem::is_installed bundler \
       || gem install \
-        --user \
         --no-document \
+        --user \
         bundler \
       && bundle install \
-        --path _bundler_gems \
         --binstubs=.overcommit/bin \
         --gemfile=.overcommit_gems.rb \
+        --path _bundler_gems \
       && bundle cache --all \
       && bundle install \
-        --path _bundler_gems \
         --binstubs=.bundle/bin \
+        --gemfile=Gemfile \
+        --path _bundler_gems \
       && bundle cache --all \
       ;
       ;;
