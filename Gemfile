@@ -12,6 +12,7 @@ group :development do
   gem 'overcommit'
   gem 'pry'
   gem 'rake'
+  gem 'reek'
   gem 'rspec'
   gem 'rubocop'
 end
