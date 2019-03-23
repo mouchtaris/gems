@@ -17,3 +17,11 @@ PreCommit:
       - '**/*.ru'
       - '**/Gemfile'
       - '**/Rakefile'
+# Hooks that run during `git push`, after remote refs have been updated but
+# before any objects have been transferred.
+PrePush:
+  RSpec:
+    enabled: true
+    description: 'Run RSpec test suite'
+    required_executable: '.bundle/bin/rake'
+    command: [ 'rake', 'spec' ]
