@@ -1,0 +1,4 @@
+exclude_paths:
+  - spec/**/*
+  - _bundler_gems/**/*
+  - vendor/**/*
