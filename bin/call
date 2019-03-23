@@ -47,6 +47,17 @@ function dispatch() {
     rbca)
       call rk rubocop:auto_correct
       ;;
+    lines)
+      find lib spec -iname '*.rb' -print0 | xargs -0 cat | wc -l
+      ;;
+    t)
+      set -x
+      rspec --format=documentation --fail-fast spec
+      rubocop --format=clang
+      reek --progress --format=text
+      bundle-audit check --verbose --update
+      fasterer
+      ;;
     *)
       echo nada
       ;;
