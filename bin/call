@@ -85,7 +85,10 @@ function dispatch() {
         -e' Mastoras::Console.new(ARGV)
               .facade
               .ab
-              .prepare_site!'
+              .tap do |e|
+                e.prepare_site!
+                e.packer_json!
+              end'
       ;;
     *)
       echo nada

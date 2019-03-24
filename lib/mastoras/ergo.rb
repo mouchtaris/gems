@@ -7,6 +7,7 @@ module Mastoras
   # :reek:MissingSafeMethod { exclude: [ prepare_site! ] }
   class Ergo
     include Args
+    PACKER_JSON = 'packer.json'
 
     def initialize(ctx, ws, name)
       @ctx = ctx.tap(&check(:ctx, ::Mastoras::Context::Check))
@@ -30,17 +31,29 @@ module Mastoras
     end
 
     def site
-      @ws.bazaar / @name
+      @site ||= @ws.bazaar / @name
+    end
+
+    def packer_json
+      @packer_json ||= site / PACKER_JSON
     end
 
     def prepare_site!
-      if site.exist?
-        info SKIP: 'site.setup', site: site
-      else
-        info ACTION: 'site.setup', site: site
-        require 'fileutils'
-        FileUtils::Verbose.mkdir_p site.dirname
-        FileUtils::Verbose.cp_r scroll.dir, site
+      return info SKIP: 'site.setup', site: site if site.exist?
+
+      info ACTION: 'site.setup', site: site
+      require 'fileutils'
+      FileUtils::Verbose.mkdir_p site.dirname
+      FileUtils::Verbose.cp_r scroll.dir, site
+    end
+
+    def packer_json!
+      return info SKIP: 'site.packer_json', packer_json: packer_json \
+        if packer_json.exist?
+
+      info ACTION: 'site.packer_json', packer_json: packer_json
+      packer_json.open('w') do |fout|
+        fout.write(JSON.pretty_generate(scroll.packer))
       end
     end
   end
