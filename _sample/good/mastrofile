@@ -1,4 +1,6 @@
 # vim: filetype=yaml
 ---
-mastrorepo_name: mastrorepo
+# Path of mastrorepo relative to mastrofile
+mastrorepo_path: mastrorepo
+# Name of packer.yaml file in each repo item
 packer_yaml_name: packer.yaml

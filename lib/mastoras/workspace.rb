@@ -9,9 +9,12 @@ module Mastoras
   class Workspace
     include Args
 
+    MASTROREPO_PATH = 'mastrorepo_path'
+    PACKER_YAML_NAME = 'packer_yaml_name'
+
     CONFIG_DATA_SCHEMA = Hash[
-      'mastrorepo_name': String,
-      'packer_yaml_name': String,
+      MASTROREPO_PATH => String,
+      PACKER_YAML_NAME => String,
     ]
 
     def initialize(ctx, mastrofile)
@@ -19,11 +22,11 @@ module Mastoras
       @config = mastrofile
         .tap(&check(:mastrofile, Pathname))
         .open('r', &Util::F::LoadYaml)
-        .tap(&check(:mastrofile, CONFIG_DATA_SCHEMA))
+        .tap(&check(mastrofile.to_s, CONFIG_DATA_SCHEMA))
         .freeze
-      @mastrorepo = (mastrofile.dirname / @config['mastrorepo_name'])
+      @mastrorepo = (mastrofile.dirname / @config[MASTROREPO_PATH])
         .freeze
-      @packer_yaml_name = @config['packer_yaml_name']
+      @packer_yaml_name = @config[PACKER_YAML_NAME]
         .freeze
     end
 
@@ -35,11 +38,10 @@ module Mastoras
     end
 
     def scrolls
-      packer_yaml = @config['packer_yaml_name']
       @scrolls ||= @mastrorepo
         .enum_for(:each_child)
         .lazy
-        .map { |child| Scroll.new(@ctx, child / packer_yaml) }
+        .map { |child| Scroll.new(@ctx, child / @packer_yaml_name) }
         .freeze
     end
   end
