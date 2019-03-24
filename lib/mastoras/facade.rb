@@ -5,6 +5,7 @@ require 'pathname'
 # appliocation
 require 'mastoras/workspace'
 require 'mastoras/context'
+require 'mastoras/builder'
 
 module Mastoras
   class Facade
@@ -27,6 +28,14 @@ module Mastoras
                scroll.builder_types.join(','),
                "\n"
       end
+    end
+
+    def build!(name)
+      scroll = ws.scroll_of(name)
+      Builder
+        .all
+        .find { |bldr| bldr.can_build? scroll }
+        .build!
     end
   end
 end
