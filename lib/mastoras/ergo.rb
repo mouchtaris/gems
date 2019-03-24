@@ -35,9 +35,9 @@ module Mastoras
 
     def prepare_site!
       if site.exist?
-        info action: :SKIP, site: site
+        info SKIP: 'site.setup', site: site
       else
-        info action: :SETUP, site: site
+        info ACTION: 'site.setup', site: site
         require 'fileutils'
         FileUtils::Verbose.mkdir_p site.dirname
         FileUtils::Verbose.cp_r scroll.dir, site
