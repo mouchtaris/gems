@@ -23,7 +23,7 @@ module Mastoras
     end
 
     def name
-      @name ||= @packer_yaml.basename.to_s.freeze
+      @name ||= @packer_yaml.dirname.basename.to_s.freeze
     end
 
     def packer
