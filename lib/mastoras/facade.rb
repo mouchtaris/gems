@@ -8,6 +8,7 @@ require 'mastoras/context'
 require 'mastoras/builder'
 
 module Mastoras
+  # :reek:MissingSafeMethod { exclude: [ bravo!, build! ] }
   class Facade
     include Args
 
@@ -35,6 +36,7 @@ module Mastoras
       Builder
         .all
         .find { |bldr| bldr.can_build? scroll }
+        .new
         .build!
     end
   end

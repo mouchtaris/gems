@@ -1,23 +1,20 @@
+# frozen_string_literal: true
+
+require 'json'
 require 'args'
 
 module Mastoras
   module Builders
+    # :reek:MissingSafeMethod { exclude: [ bravo!, build! ] }
     class Vagrant < Builder
       VAGRANT = 'vagrant'
 
-      class << self
-        def can_build?(scroll)
-          scroll
-            .tap(&Args.check(:scroll, Scroll))
-            .build_types
-            .include?(VAGRANT)
-        end
+      def build!(scroll)
+        return unless super
+          .builder_types
+          .include?(VAGRANT)
 
-        alias_method :===, :can_build?
-      end
-
-      def build!
-        raise 'unimplemented'
+        exec '/usr/bin/env', 'packer', 'packer.json'
       end
     end
   end
