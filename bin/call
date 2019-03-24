@@ -65,8 +65,13 @@ function dispatch() {
       ;;
     console)
       call exec.rb \
-        -rmastoras/console \
-        -e'Mastoras::Console.console!'
+        -rpathname \
+        -rpry \
+        -rmastoras/facade \
+        -e' Mastoras::Facade
+              .new(Pathname.new(ARGV[0]))
+              .pry' \
+        "$@"
       ;;
     mlist)
       call exec.rb \
