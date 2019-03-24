@@ -23,10 +23,16 @@ module Mastoras
         .freeze
       @mastrorepo = (mastrofile.dirname / @config['mastrorepo_name'])
         .freeze
+      @packer_yaml_name = @config['packer_yaml_name']
+        .freeze
     end
 
     attr_reader :config
     attr_reader :mastrorepo
+
+    def scroll_of(name)
+      Scroll.new(@ctx, @mastrorepo / name / @packer_yaml_name)
+    end
 
     def scrolls
       packer_yaml = @config['packer_yaml_name']
