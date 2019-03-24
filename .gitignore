@@ -1,4 +1,5 @@
 /.bundle/
 /_bundler_gems/
-/vendor/
 /.overcommit/
+/_sample/good/_artifacts/
+/vendor/
