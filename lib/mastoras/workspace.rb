@@ -14,7 +14,8 @@ module Mastoras
       'packer_yaml_name': String,
     ]
 
-    def initialize(mastrofile)
+    def initialize(ctx, mastrofile)
+      @ctx = ctx
       @config = mastrofile
         .tap(&check(:mastrofile, Pathname))
         .open('r', &Util::F::LoadYaml)
@@ -32,8 +33,7 @@ module Mastoras
       @scrolls ||= @mastrorepo
         .enum_for(:each_child)
         .lazy
-        .map { |child| child / packer_yaml }
-        .map(&Scroll::F.create)
+        .map { |child| Scroll.new(@ctx, child / packer_yaml) }
         .freeze
     end
   end

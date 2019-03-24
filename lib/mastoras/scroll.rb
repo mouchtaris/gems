@@ -17,21 +17,27 @@ module Mastoras
       ],
     ]
 
-    def initialize(packer_yaml)
+    def initialize(ctx, packer_yaml)
+      @ctx = ctx
       @packer_yaml = packer_yaml.freeze
-      @name = packer_yaml.basename.to_s.freeze
-      @packer = packer_yaml
+    end
+
+    def name
+      @name ||= @packer_yaml.basename.to_s.freeze
+    end
+
+    def packer
+      @packer ||= @packer_yaml
         .open('r', &Util::F::LoadYaml)
         .tap(&check(@packer_yaml.to_s, PACKER_YAML_SCHEMA))
     end
 
-    attr_reader :name
-    attr_reader :packer
+    def builders
+      packer['builders']
+    end
 
     def builder_types
-      @packer
-        .dig('builders')
-        .map { |builder| builder['type'] }
+      builders.map { |bldr| bldr['type'] }
     end
   end
 end
