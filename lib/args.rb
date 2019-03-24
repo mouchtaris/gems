@@ -187,7 +187,7 @@ module Args
     end
 
     def check_value
-      @check.call(value)
+      @check.call(@value)
     end
 
     def error_message
