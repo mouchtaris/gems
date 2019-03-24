@@ -35,13 +35,25 @@ RSpec.describe Mastoras::Facade do
           end
         end
         describe '#scrolls.name' do
-          subject { facade.ws.scrolls.map(&:name) }
+          subject { facade.ws.scrolls.map(&:name).to_a }
           describe 'values' do
             it 'includes arch_base' do
-              expect subject.include? 'arch_base'
+              is_expected.to include 'arch_base'
             end
             it 'includes arch_updated' do
-              expect subject.include? 'arch_updated'
+              is_expected.to include 'arch_updated'
+            end
+
+            describe '.arch_base' do
+              let(:scroll) { facade.ws.scroll_of 'arch_base' }
+              describe '#builder_types' do
+                subject(:builder_types) { scroll.builder_types.to_a }
+                it { is_expected.to include 'vagrant' }
+                describe '#size' do
+                  subject(:size) { builder_types.size }
+                  it { is_expected.to be 1 }
+                end
+              end
             end
           end
         end
