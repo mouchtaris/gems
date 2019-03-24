@@ -22,8 +22,12 @@ module Mastoras
       @packer_yaml = packer_yaml.freeze
     end
 
+    def dir
+      @packer_yaml.dirname
+    end
+
     def name
-      @name ||= @packer_yaml.dirname.basename.to_s.freeze
+      @name ||= dir.basename.to_s.freeze
     end
 
     def packer
