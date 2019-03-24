@@ -52,7 +52,10 @@ module Mastoras
     end
 
     def scroll_of(name)
-      Scroll.new(@ctx, library / name / packer_yaml_name)
+      case name
+      when Scroll then name
+      else Scroll.new(@ctx, library / name / packer_yaml_name)
+      end
     end
 
     def scrolls

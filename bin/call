@@ -65,21 +65,27 @@ function dispatch() {
       ;;
     console)
       call exec.rb \
-        -rpathname \
-        -rpry \
-        -rmastoras/facade \
-        -e' Mastoras::Facade
-              .new(Pathname.new(ARGV[0]))
-              .pry' \
+        -rmastoras/console \
+        -e' Mastoras::Console
+              .new(ARGV)
+              .start!' \
         "$@"
       ;;
     mlist)
       call exec.rb \
-        -rmastoras/facade \
-        -rpathname \
-        -e' Mastoras::Facade
-              .new(Pathname.new(%q{_sample/good/mastrofile}))
-              .list'
+        -rmastoras/console \
+        -e' Mastoras::Console
+              .new(ARGV)
+              .facade
+              .list!'
+      ;;
+    prep)
+      call exec.rb \
+        -rmastoras/console \
+        -e' Mastoras::Console.new(ARGV)
+              .facade
+              .ab
+              .prepare_site!'
       ;;
     *)
       echo nada

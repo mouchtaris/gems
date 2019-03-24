@@ -5,8 +5,10 @@ require 'pathname'
 # appliocation
 require 'mastoras/workspace'
 require 'mastoras/context'
+require 'mastoras/ergo'
 
 module Mastoras
+  # :reek:MissingSafeMethod { exclude: [ list! ] }
   class Facade
     include Args
 
@@ -17,16 +19,28 @@ module Mastoras
     end
 
     def ws
-      Workspace.new(@ctx, @mastrofile)
+      @ws ||= Workspace.new(@ctx, @mastrofile)
     end
 
-    def list
+    def list!
       ws.scrolls.each do |scroll|
         printf '%20s:  %10s  %s',
                scroll.name,
                scroll.builder_types.join(','),
                "\n"
       end
+    end
+
+    def ergo(name)
+      Ergo.new(@ctx, ws, name)
+    end
+
+    def ab
+      ergo 'arch_base'
+    end
+
+    def au
+      ergo 'arch_updated'
     end
   end
 end

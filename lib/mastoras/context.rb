@@ -48,5 +48,7 @@ module Mastoras
         @lens_for[name] ||= LensFor.new(self, name)
       end
     end
+
+    Check = Args.check(:ctx, Context)
   end
 end
