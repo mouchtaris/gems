@@ -23,16 +23,20 @@ RSpec.describe Mastoras::Facade do
           subject { facade.ws.config }
           it { is_expected.to be_a Hash }
         end
-        describe '#mastrorepo' do
-          subject { facade.ws.mastrorepo }
+        describe '#library' do
+          subject { facade.ws.library }
           it { is_expected.to be_a Pathname }
           it 'is a child of mastroroot' do
             expect(sample_good.dirname.children).to include subject
           end
           describe '#basename' do
-            subject { facade.ws.mastrorepo.basename.to_s }
+            subject { facade.ws.library.basename.to_s }
             it { is_expected.to eq 'mastrorepo' }
           end
+        end
+        describe '#bazaar' do
+          subject { facade.ws.bazaar.basename.to_s }
+          it { is_expected.to eq '_artifacts' }
         end
         describe '#scrolls.name' do
           subject { facade.ws.scrolls.map(&:name).to_a }
