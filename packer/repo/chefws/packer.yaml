@@ -1,37 +1,12 @@
 ---
-_name: chefws
-_version: [0, 0, 0]
-_import: []
-_description: A Vagrnat Box with chefDK preinstalled
 builders:
   - type: vagrant
     communicator: ssh
-    source_path: bento/ubuntu-18.04
-    box_name: chefws
+    source_path: local/ubuntu-18.04
     checksum: beb570232d96fe7c9909ffd29ea71827121f1c8fe8c8ad14aa57e29100401910
     checksum_type: sha256
-    box_version: 201812.27.0
-    skip_add: true
+    box_version: '20190325.0.0'
 provisioners:
- # Note
- # ====
- # We run `sudo bash` here in order to preserve the exported
- # environment variable we set in the script. This ENV var is
- # required for non-interactive installs of `dpkg`, and it is
- # hard(er) and more uncertain to propagate with sudo.
- #
- # Everything else runs noramlly, without priviledges, in the
- # following provision blocks.
- #
-  - type: shell
-    inline: |
-      sudo bash -x -c '
-        export DEBIAN_FRONTEND=noninteractive &&
-        apt-get update &&
-        apt-get upgrade --yes </dev/null | tee /dev/null &&
-        apt-get install --yes vim fish tmux curl </dev/null | tee /dev/null &&
-        true
-      '
   - type: shell
     inline: |
       bash -x -c '

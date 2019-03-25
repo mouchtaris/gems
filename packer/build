@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
+
 require 'pathname'
 require 'yaml'
 require 'json'
@@ -7,6 +8,7 @@ require 'shellwords'
 require 'bundler/setup'
 require 'pp'
 require 'logger'
+require 'pry'
 
 LoadYaml = YAML.method(:safe_load)
 Esc = Shellwords.method(:shellescape)
@@ -19,11 +21,17 @@ Script = Cwd / Pathname.new(__FILE__)
 Root = Cwd / Script.dirname
 
 ScrollName = Cwd.basename.to_s.freeze
-ArtifactDir = (Root / '_artifacts' / ScrollName).relative_path_from(Cwd)
+ArtifactLib = (Root / '_artifacts').relative_path_from(Cwd)
+ARTIFACT_DIR = (ArtifactLib / ScrollName)
 PackerYamlPath = Pathname.new('packer.yaml')
 PackerJsonPath = Pathname.new('_packer.json')
 
 @logger = Logger.new(STDERR).tap { |l| l.progname = 'Build' }
+
+def inspex(cmd)
+  @logger.info "Bye bye! I'm off to be #{cmd.join ' '} now!"
+  exec(*cmd)
+end
 
 def load_yaml(path)
   @logger.info "Parsing #{path} as YAML"
@@ -44,67 +52,63 @@ def packer_pure
   @packer_pure ||= load_yaml PackerYamlPath
 end
 
-def packer
-  @packer ||= packer_pure.dup.tap do |p|
-    (p['variables'] ||= {}).tap do |vars|
-      vars['artifact_dir'] = ArtifactDir.to_s.freeze
-        .tap { |d| @logger.info "Injecting artifact_dir: #{d}" }
-      vars['artifact_name'] = ScrollName
-        .tap { |n| @logger.info "Injecting artifact_name: #{n}" }
-      vars.freeze
+#
+# Injecting packer builders with stuffz.
+#
+module InjectPackerBuilder
+  Vagrant = lambda { |builder|
+    builder.dup.tap do |b2|
+      b2['output_dir'] = ARTIFACT_DIR.to_s.freeze
+      # b2['skip_add'] = true
     end
+  }
 
-    p['builders'] = (p['builders'] ||= {}).map do |bldr|
-      case bldr['type']
-      when 'vagrant'
-        bldr['output_dir'] = ArtifactDir.to_s.freeze
-        bldr['skip_add'] = true
+  DISPATCH_TABLE = {
+    'vagrant' => Vagrant
+  }.freeze
+
+  Dispatch = lambda { |builder|
+    DISPATCH_TABLE[builder['type']]
+      .tap do |cb|
+        raise "No builder injection found for #{builder['type']}" unless cb
       end
-      bldr
-    end
+      .call(builder)
+  }
 
-    p.freeze
+  module_function
+
+  def to_proc
+    Dispatch
   end
 end
 
-def source_yaml_path
-  @soure_yaml_path ||= Dir['*_source.yaml']
-    .map(&PathnameNew)
-    .first
-end
+VARIABLES = {
+  'artifact_lib' => ArtifactLib.to_s
+}.freeze
 
-def source_json_path
-  @source_json_path ||= (
-    yaml = source_yaml_path || return
-    stem = yaml.basename('.yaml').to_s
-    dir = yaml.dirname
-    json_name = "_#{stem.to_s}.json"
-    yaml.dirname / json_name
-  )
-end
-
-def source
-  @source ||= load_yaml source_yaml_path
+def packer
+  p = packer_pure
+  @packer ||= p
+              .merge(
+                'builders' => (p['builders'] || []).map(&InjectPackerBuilder),
+                'variables' => (p['variables'] || {}).merge(VARIABLES)
+              )
+              .freeze
 end
 
 def dump_packer_json
   dump_json PackerJsonPath, packer
 end
 
-def dump_source_json
-  dump_json source_json_path, source
-end
-
 def packer!
   @logger.info 'I\'m gonna become packer now! Bahbah!'
-  exec *%W[
+  inspex %W[
     /usr/bin/env packer build #{PackerJsonPath}
   ]
 end
 
 def gen
   dump_packer_json
-  dump_source_json
 end
 
 def build!
@@ -117,12 +121,51 @@ def blast
     .each_line
     .map { |l| l.chomp.split(',')[2..3] }
     .select { |type,| type == 'box-name' }
-    .map { |_, mn| "vagrant box remove #{Esc.call mn}" }
+    .map { |_, name| "vagrant box remove #{Esc.call name}" }
     .each(&Puts)
+end
+
+#
+# Bullshit related to Vagrant specific builders
+#
+module Vagrant
+  IS_VAGRANT = lambda { |builder|
+    builder['type'] == 'vagrant'
+  }
+
+  def builder
+    @builder ||= packer['builders']&.find(&IS_VAGRANT)
+  end
+
+  def source_box
+    @source_box ||= builder['source_path']
+  end
+
+  def source_box_exists?
+    @logger.info "Acquiring source box info... #{source_box}"
+    `vagrant box list --machine-readable`
+      .each_line
+      .map { |l| l.chomp.split(',')[2..3] }
+      .select { |type,| type == 'box-name' }
+      .map { |_, name| name }
+      .find { |n| n == source_box }
+  end
+
+  def add_box_if_missing
+    if source_box_exists?
+      @logger.info "Found #{source_box}. Skipping add."
+    else
+      @logger.info 'Didn\'t find shit. Gonna be vagrant now, c you!'
+      inspex %W[
+        /usr/bin/env vagrant box add #{source_box}
+      ]
+    end
+  end
 end
 
 case ARGV[0]
 when 'gen' then gen
 when 'BLAST' then blast
-else build! if __FILE__ == $0
+when 'add_box_if_missing' then add_box_if_missing
+else build! if $PROGRAM_NAME == __FILE__
 end
