@@ -1,0 +1,17 @@
+{
+  "description": "",
+  "short_description": "",
+  "name": "bento/ubuntu-18.04",
+  "versions": [
+    {
+      "version": "201812.27.0",
+      "status": "active",
+      "providers": [
+        {
+          "name": "virtualbox",
+          "url": "https://vagrantcloud.com/bento/boxes/ubuntu-18.04/versions/201812.27.0/providers/virtualbox.box"
+        }
+      ]
+    }
+  ]
+}

@@ -163,9 +163,16 @@ module Vagrant
   end
 end
 
-case ARGV[0]
-when 'gen' then gen
-when 'BLAST' then blast
-when 'add_box_if_missing' then add_box_if_missing
-else build! if $PROGRAM_NAME == __FILE__
+case $PROGRAM_NAME
+when __FILE__
+  case ARGV[0]
+  when 'gen' then gen
+  when 'BLAST' then blast
+  when 'add_box_if_missing' then add_box_if_missing
+  when 'j2y'
+    puts YAML.dump JSON.load STDIN
+  when 'y2j'
+    puts JSON.pretty_generate YAML.load STDIN
+  else build!
+  end
 end
