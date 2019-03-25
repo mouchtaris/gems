@@ -1,32 +1,60 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 require 'pathname'
 require 'yaml'
 require 'json'
 require 'shellwords'
 require 'bundler/setup'
-
-@scroll_name          = Pathname.new(__dir__).basename.to_s
-@packer_yaml_path     = Pathname.new('packer.yaml')
-@packer_json_path     = Pathname.new('_packer.json')
+require 'pp'
+require 'logger'
 
 LoadYaml = YAML.method(:safe_load)
 Esc = Shellwords.method(:shellescape)
 Puts = method(:puts)
 PathnameNew = Pathname.method(:new)
+Pp = method(:pp)
+
+Cwd = Pathname.new(Dir.pwd)
+Script = Cwd / Pathname.new(__FILE__)
+Root = Cwd / Script.dirname
+
+ScrollName = Cwd.basename.to_s.freeze
+ArtifactDir = (Root / '_artifacts' / ScrollName).relative_path_from(Cwd)
+PackerYamlPath = Pathname.new('packer.yaml')
+PackerJsonPath = Pathname.new('_packer.json')
+
+@logger = Logger.new(STDERR).tap { |l| l.progname = 'Build' }
 
 def load_yaml(path)
-  path&.open('r', &LoadYaml)
+  @logger.info "Parsing #{path} as YAML"
+  path&.open('r', &LoadYaml)&.freeze
 end
 
 def dump_json(path, data)
-  return unless data&.is_a?(String) && !data.empty? && path&.is_a?(Pathname)
+  @logger.info "Dumping #{data.inspect[0..20]}... to #{path}"
+
+  return @logger.info 'bailing' unless data && path
+
   path.open('w') do |fout|
     fout.write JSON.pretty_generate data
   end
 end
 
+def packer_pure
+  @packer_pure ||= load_yaml PackerYamlPath
+end
+
 def packer
-  @packer ||= load_yaml @packer_yaml_path
+  @packer ||= packer_pure.dup.tap do |p|
+    (p['variables'] ||= {}).tap do |vars|
+      vars['artifact_dir'] = ArtifactDir.to_s.freeze
+        .tap { |d| @logger.info "Injecting artifact_dir: #{d}" }
+      vars['artifact_name'] = ScrollName
+        .tap { |n| @logger.info "Injecting artifact_name: #{n}" }
+    end
+      .freeze
+  end
+    .freeze
 end
 
 def source_yaml_path
@@ -50,7 +78,7 @@ def source
 end
 
 def dump_packer_json
-  dump_json @packer_json_path, packer
+  dump_json PackerJsonPath, packer
 end
 
 def dump_source_json
@@ -58,8 +86,9 @@ def dump_source_json
 end
 
 def packer!
+  @logger.info 'I\'m gonna become packer now! Bahbah!'
   exec *%W[
-    /usr/bin/env packer build #{@packer_json_path}
+    /usr/bin/env packer build #{PackerJsonPath}
   ]
 end
 

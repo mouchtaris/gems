@@ -3,10 +3,10 @@ builders:
   - type: vagrant
     communicator: ssh
     source_path: bento/ubuntu-18.04
-    box_name: chefws
     checksum: beb570232d96fe7c9909ffd29ea71827121f1c8fe8c8ad14aa57e29100401910
     checksum_type: sha256
     box_version: 201812.27.0
+    output_dir: '{{ user `artifact_dir`}}/{{ user `artifact_name` }}.box'
     skip_add: true
 provisioners:
  # Note

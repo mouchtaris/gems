@@ -1,2 +1,4 @@
 /.bundle/
 /vendor/
+/_artifacts/
+/repo/**/*.json
