@@ -1,7 +1,89 @@
-#!/usr/bin/env bash
+#!/usr/bin/env ruby
+require 'pathname'
+require 'yaml'
+require 'json'
+require 'shellwords'
+require 'bundler/setup'
 
-#export VAGRANT_DEFAULT_PROVIDER=virtualbox
-export PACKER_LOG=0
+@scroll_name          = Pathname.new(__dir__).basename.to_s
+@packer_yaml_path     = Pathname.new('packer.yaml')
+@packer_json_path     = Pathname.new('_packer.json')
 
-ruby build.rb "$@" |
-  bash -x
+LoadYaml = YAML.method(:safe_load)
+Esc = Shellwords.method(:shellescape)
+Puts = method(:puts)
+PathnameNew = Pathname.method(:new)
+
+def load_yaml(path)
+  path&.open('r', &LoadYaml)
+end
+
+def dump_json(path, data)
+  return unless data&.is_a?(String) && !data.empty? && path&.is_a?(Pathname)
+  path.open('w') do |fout|
+    fout.write JSON.pretty_generate data
+  end
+end
+
+def packer
+  @packer ||= load_yaml @packer_yaml_path
+end
+
+def source_yaml_path
+  @soure_yaml_path ||= Dir['*_source.yaml']
+    .map(&PathnameNew)
+    .first
+end
+
+def source_json_path
+  @source_json_path ||= (
+    yaml = source_yaml_path || return
+    stem = yaml.basename('.yaml').to_s
+    dir = yaml.dirname
+    json_name = "_#{stem.to_s}.json"
+    yaml.dirname / json_name
+  )
+end
+
+def source
+  @source ||= load_yaml source_yaml_path
+end
+
+def dump_packer_json
+  dump_json @packer_json_path, packer
+end
+
+def dump_source_json
+  dump_json source_json_path, source
+end
+
+def packer!
+  exec *%W[
+    /usr/bin/env packer build #{@packer_json_path}
+  ]
+end
+
+def gen
+  dump_packer_json
+  dump_source_json
+end
+
+def build!
+  gen
+  packer!
+end
+
+def blast
+  `vagrant box list --machine-readable`
+    .each_line
+    .map { |l| l.chomp.split(',')[2..3] }
+    .select { |type,| type == 'box-name' }
+    .map { |_, mn| "vagrant box remove #{Esc.call mn}" }
+    .each(&Puts)
+end
+
+case ARGV[0]
+when 'gen' then gen
+when 'BLAST' then blast
+else build! if __FILE__ == $0
+end
