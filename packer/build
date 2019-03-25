@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+#export VAGRANT_DEFAULT_PROVIDER=virtualbox
+export PACKER_LOG=0
+
+ruby build.rb "$@" |
+  bash -x

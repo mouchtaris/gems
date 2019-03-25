@@ -1,0 +1,64 @@
+---
+_name: chefws
+_version: [0, 0, 0]
+_import: []
+_description: A Vagrnat Box with chefDK preinstalled
+builders:
+  - type: vagrant
+    communicator: ssh
+    source_path: bento/ubuntu-18.04
+    box_name: chefws
+    checksum: beb570232d96fe7c9909ffd29ea71827121f1c8fe8c8ad14aa57e29100401910
+    checksum_type: sha256
+    box_version: 201812.27.0
+    skip_add: true
+provisioners:
+ # Note
+ # ====
+ # We run `sudo bash` here in order to preserve the exported
+ # environment variable we set in the script. This ENV var is
+ # required for non-interactive installs of `dpkg`, and it is
+ # hard(er) and more uncertain to propagate with sudo.
+ #
+ # Everything else runs noramlly, without priviledges, in the
+ # following provision blocks.
+ #
+  - type: shell
+    inline: |
+      sudo bash -x -c '
+        export DEBIAN_FRONTEND=noninteractive &&
+        apt-get update &&
+        apt-get upgrade --yes </dev/null | tee /dev/null &&
+        apt-get install --yes vim fish tmux curl </dev/null | tee /dev/null &&
+        true
+      '
+  - type: shell
+    inline: |
+      bash -x -c '
+        curl https://omnitruck.chef.io/install.sh |
+          sudo bash -s -- -P chef-workstation -c stable -v 0.2.41 &&
+        sudo mkdir /local &&
+        sudo chmod 777 /local &&
+        true 
+      '
+  - type: file
+    source: lib/install-chef-server.bash
+    destination: /local/install-chef-server.bash
+  - type: shell
+    inline: |
+      bash -x /local/install-chef-server.bash -- -
+  - type: file
+    source: lib/config.rb
+    destination: /home/vagrant/.chef/config.rb
+  - type: shell
+    inline: |
+      bash -x -c '
+        cd /home/vagrant &&
+        mkdir cookbooks &&
+        cd cookbooks &&
+        git clone https://github.com/learn-chef/learn_chef_apache2.git &&
+        true
+      '
+  - type: file
+    source: lib/get_pem_keys.bash
+    destination: /local/get_pem_keys.bash
