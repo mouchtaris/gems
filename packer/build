@@ -51,10 +51,20 @@ def packer
         .tap { |d| @logger.info "Injecting artifact_dir: #{d}" }
       vars['artifact_name'] = ScrollName
         .tap { |n| @logger.info "Injecting artifact_name: #{n}" }
+      vars.freeze
     end
-      .freeze
+
+    p['builders'] = (p['builders'] ||= {}).map do |bldr|
+      case bldr['type']
+      when 'vagrant'
+        bldr['output_dir'] = ArtifactDir.to_s.freeze
+        bldr['skip_add'] = true
+      end
+      bldr
+    end
+
+    p.freeze
   end
-    .freeze
 end
 
 def source_yaml_path
