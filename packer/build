@@ -177,6 +177,10 @@ when __FILE__
     artifact_shelf = ARTIFACT_SHELF.to_s.freeze
     build_id = `git log -1 --format='%H'`.chomp.strip
     puts ERB.new(STDIN.read).result(binding)
-  else build!
+  when 'build' then build!
+  when 'artifact-lib' then puts ArtifactLib.to_s
+  when 'artifact-shelf' then puts ARTIFACT_SHELF.to_s
+  when 'packer' then puts JSON.pretty_generate packer
+  else puts '??'
   end
 end
