@@ -14,23 +14,30 @@ module Util
       )
     end
 
+    def module_loader_meta
+      self::ModuleLoader
+    end
+
     def module_loader_root
       @__module_loader__root ||= (
-        ml = self::ModuleLoader
+        require 'pathname'
+        ml = self.module_loader_meta
         (Pathname.new(ml::FILE).dirname / ml::NAME)
           .tap { |r| module_loader_logger.debug "root => #{r}" }
       )
     end
 
     def load!
-      require 'pathname'
       mod_root = module_loader_root
       logger = module_loader_logger
+      ml = self.module_loader_meta
       logger.info 'Loading . . .'
-      self::ModuleLoader::MODULES.each do |mod_name|
-        logger.info "  + #{mod_name}"
+      ml::MODULES.each do |mod_name|
+        path = mod_root / mod_name
         self.referal = mod_name
-        require_relative (mod_root / mod_name).to_s
+
+        logger.info "  + #{mod_name} (#{path})"
+        require path.to_s
       end
       self
     end

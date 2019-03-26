@@ -11,7 +11,9 @@ class Cli
       prs.instance_exec do
         on '-h', '--help', 'Print this message.'
         on '--out=[TYPE]', "Set output type. (#{OUT.map(&:to_s).join(', ')})", OUT
-        on '-q[QUERY_NAME]', 'Perform a query. No query-name lists queries'
+        on '-q[QUERY_NAME]', 'Perform a query; no query-name lists queries.'
+        on '--scroll=NAME', 'Specify scroll name.'
+        on '--root=PATH', '(mastoric) repository root; where mastoras.yaml is.'
       end
     end
 
@@ -25,6 +27,15 @@ class Cli
 
     def to_s
       parser.to_s
+    end
+
+    def inspect
+      ##<Cli::Options:0x0000565029445ca8
+      # @opts={:q=>"artifact", :scroll=>"ubuntu-18.04"},
+      #  @params=["-qartifact", "--scroll=ubuntu-18.04"],
+      #   @parse=[{:q=>"artifact", :scroll=>"ubuntu-18.04"}, []],
+      #
+      "#<#{self.class.name}:#{object_id} @opts=#{opts.inspect} @args=#{args.inspect}>"
     end
 
     def parse
@@ -59,7 +70,19 @@ class Cli
     end
 
     def list_queries?
-      opts.has_key?(:q)
+      opts.has_key?(:q) && !opts[:q]
+    end
+
+    def query
+      opts[:q]
+    end
+
+    def scroll_name
+      opts[:scroll]
+    end
+
+    def root
+      opts[:root]
     end
   end
 
@@ -84,15 +107,38 @@ class Cli
     puts @opts
   end
 
+  def workspace
+    @workspace ||= (
+      require_relative 'workspace'
+      root = Pathname.new(@opts.root || (raise '--root required'))
+      Workspace.new(root)
+    )
+  end
+
+  def queries
+    @queries ||= (
+      require_relative 'queries'
+      Queries.load!
+    )
+  end
+
   def list_queries!
-    require_relative 'queries'
-    output(Queries.load!.names.to_a)
+    output(queries.names.to_a)
+  end
+
+  def perform_query!
+    q = queries[@opts.query] || (raise "Query not found: #{@opts.query}; try -q to list")
+    q.new(workspace).perform(@opts)
   end
 
   def execute!
     return help! if @opts.help?
     return list_queries! if @opts.list_queries?
+    return perform_query! if @opts.query
     puts '???'
+    pp @opts
+  rescue RuntimeError => e
+    pp e
     pp @opts
   end
 end

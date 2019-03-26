@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/mouchtaris/gems.git
+  revision: ab2290a3808c453079e5a7bcd1af5dccef0ab093
+  branch: args/master
+  specs:
+    args (0.0.10)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -32,6 +39,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  args!
   pry-byebug
   rubocop
 

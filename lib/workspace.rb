@@ -1,9 +1,19 @@
+require 'bundler/setup'
+require 'args'
 require_relative 'constants'
 require_relative 'util'
+
 class Workspace
+  include Args
+
+  CONFIG_SCHEMA = Hash[
+    Constants::SCROLL_REPO_CONFIG_KEY => String
+  ]
+
   def initialize(root)
-    @root = root
+    @root = root.tap(&check(:root, Pathname))
   end
+  attr_reader :root
 
   def config_path
     @config_path ||= (
@@ -13,7 +23,9 @@ class Workspace
 
   def config
     @config ||= (
-      Util.load_yaml config_path
+      Util
+        .load_yaml(config_path)
+        .tap(&check(config_path.to_s, CONFIG_SCHEMA))
     )
   end
 

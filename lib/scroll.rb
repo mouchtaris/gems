@@ -7,11 +7,11 @@ class Scroll
   end
 
   def root
-    @root ||= (@workspace.scroll_repo_path / )
+    @root ||= (@workspace.scroll_repo / @name)
   end
 
   def packer_yaml_path
-    @packer_yaml_path ||= (@root / Constants::PACKER_YAML)
+    @packer_yaml_path ||= (root / Constants::PACKER_YAML)
   end
 
   def packer_pure
