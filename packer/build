@@ -26,22 +26,24 @@ ARTIFACT_SHELF = (ArtifactLib / ScrollName)
 PackerYamlPath = Pathname.new('packer.yaml')
 PackerJsonPath = Pathname.new('_packer.json')
 
-@logger = Logger.new(STDERR).tap { |l| l.progname = 'Build' }
+def logger
+  logger ||= Logger.new(STDERR).tap { |l| l.progname = 'Build' }
+end
 
 def inspex(cmd)
-  @logger.info "Bye bye! I'm off to be #{cmd.join ' '} now!"
+  logger.info "Bye bye! I'm off to be #{cmd.join ' '} now!"
   exec(*cmd)
 end
 
 def load_yaml(path)
-  @logger.info "Parsing #{path} as YAML"
+  logger.info "Parsing #{path} as YAML"
   path&.open('r', &LoadYaml)&.freeze
 end
 
 def dump_json(path, data)
-  @logger.info "Dumping #{data.inspect[0..20]}... to #{path}"
+  logger.info "Dumping #{data.inspect[0..20]}... to #{path}"
 
-  return @logger.info 'bailing' unless data && path
+  return logger.info 'bailing' unless data && path
 
   path.open('w') do |fout|
     fout.write JSON.pretty_generate data
@@ -101,7 +103,7 @@ def dump_packer_json
 end
 
 def packer!
-  @logger.info 'I\'m gonna become packer now! Bahbah!'
+  logger.info 'I\'m gonna become packer now! Bahbah!'
   inspex %W[
     /usr/bin/env packer build #{PackerJsonPath}
   ]
@@ -144,7 +146,7 @@ module Vagrant
   end
 
   def source_box_exists?
-    @logger.info "Acquiring source box info... #{source_box}"
+    logger.info "Acquiring source box info... #{source_box}"
     `vagrant box list --machine-readable`
       .each_line
       .map { |l| l.chomp.split(',')[2..3] }
@@ -155,9 +157,9 @@ module Vagrant
 
   def add_box_if_missing
     if source_box_exists?
-      @logger.info "Found #{source_box}. Skipping add."
+      logger.info "Found #{source_box}. Skipping add."
     else
-      @logger.info 'Didn\'t find shit. Gonna be vagrant now, c you!'
+      logger.info 'Didn\'t find shit. Gonna be vagrant now, c you!'
       inspex %W[
         /usr/bin/env vagrant box add #{source_box}
       ]
@@ -199,8 +201,8 @@ when __FILE__
   when 'artifact-lib' then puts ArtifactLib.to_s
   when 'artifact-shelf' then puts ARTIFACT_SHELF.to_s
   when 'packer' then puts JSON.pretty_generate packer
-  when 'artifact' then artifact
-  when 'artifact-metadata' then artifact_metadata
+  when 'artifact' then puts artifact
+  when 'artifact-metadata' then puts artifact_metadata
   else puts '??'
   end
 end
