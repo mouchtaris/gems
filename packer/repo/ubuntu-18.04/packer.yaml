@@ -23,6 +23,6 @@ provisioners:
         export DEBIAN_FRONTEND=noninteractive &&
         apt-get update &&
         apt-get upgrade --yes </dev/null | tee /dev/null &&
-        apt-get install --yes vim fish tmux curl </dev/null | tee /dev/null &&
+        apt-get install --yes vim fish tmux curl docker-ce </dev/null | tee /dev/null &&
         true
       '

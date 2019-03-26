@@ -22,7 +22,7 @@ Root = Cwd / Script.dirname
 
 ScrollName = Cwd.basename.to_s.freeze
 ArtifactLib = (Root / '_artifacts').relative_path_from(Cwd)
-ARTIFACT_DIR = (ArtifactLib / ScrollName)
+ARTIFACT_SHELF = (ArtifactLib / ScrollName)
 PackerYamlPath = Pathname.new('packer.yaml')
 PackerJsonPath = Pathname.new('_packer.json')
 
@@ -58,7 +58,7 @@ end
 module InjectPackerBuilder
   Vagrant = lambda { |builder|
     builder.dup.tap do |b2|
-      b2['output_dir'] = ARTIFACT_DIR.to_s.freeze
+      b2['output_dir'] = ARTIFACT_SHELF.to_s.freeze
       # b2['skip_add'] = true
     end
   }
@@ -169,10 +169,14 @@ when __FILE__
   when 'gen' then gen
   when 'BLAST' then blast
   when 'add_box_if_missing' then add_box_if_missing
-  when 'j2y'
-    puts YAML.dump JSON.load STDIN
-  when 'y2j'
-    puts JSON.pretty_generate YAML.load STDIN
+  when 'j2y' then puts YAML.dump JSON.load STDIN
+  when 'y2j' then puts JSON.pretty_generate YAML.load STDIN
+  when 'erb' then
+    require 'erb'
+    artifact_lib = ArtifactLib.to_s.freeze
+    artifact_shelf = ARTIFACT_SHELF.to_s.freeze
+    build_id = `git log -1 --format='%H'`.chomp.strip
+    puts ERB.new(STDIN.read).result(binding)
   else build!
   end
 end

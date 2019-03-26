@@ -1,6 +1,9 @@
-build: \
-	_artifacts/ubuntu-18.04/package.box
+ARTIFACT_LIB =
+ARTIFACT_SHELF =
 
-_artifacts/ubuntu-18.04/package.box:
-	cd repo/ubuntu-18.04 && ../../build add_box_if_missing
-	cd repo/ubuntu-18.04 && ../../build
+build: _packer.json _source.json _metadata.json
+	@echo building building
+_%.json: %.yaml
+	../../build y2j <$*.yaml >_$*.json
+%.yaml: %.yaml.erb
+	../../build erb <$*.yaml.erb >$*.yaml
