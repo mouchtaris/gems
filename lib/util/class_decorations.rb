@@ -1,13 +1,13 @@
 module Util
   module ClassDecorations
     def make_safe!(name)
-      unsafe = instance_method(:"!#{name}")
+      unsafe = instance_method(:"#{name}!")
       define_method name do
         unsafe
       end
     end
 
-    def the_perfect_forwarding(pre_checks, name)
+    def the_perfect_forwarding(name, pre_checks)
       old = instance_method(name)
       top_class = self
       define_method name do |*args, **opts|
