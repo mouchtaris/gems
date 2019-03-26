@@ -7,11 +7,11 @@ module Util
       end
     end
 
-    def the_perfect_forwarding(name, pre_checks)
+    def the_perfect_forwarding(name, *pre_checks)
       old = instance_method(name)
       top_class = self
       define_method name do |*args, **opts|
-        pre_checks.each(&:call)
+        pre_checks.each { |chk| chk.call top_class }
         old.bind(self).call(*args, **opts) do |*bargs, **bopts|
           yield(*bargs, **bopts) if (bargs&.empty? == false) || (bopts&.empty? == false)
         end

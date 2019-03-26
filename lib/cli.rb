@@ -3,13 +3,15 @@ require 'optparse'
 
 require 'bundler/setup'
 
-module Cli
-  module_function
-
+class Cli
   class Options
+    OUT = %i[txt json yaml]
+
     SetupParser = lambda do |prs|
       prs.instance_exec do
-        on '-h', '--help', 'Print this message'
+        on '-h', '--help', 'Print this message.'
+        on '--out=[TYPE]', "Set output type. (#{OUT.map(&:to_s).join(', ')})", OUT
+        on '-q[QUERY_NAME]', 'Perform a query. No query-name lists queries'
       end
     end
 
@@ -18,7 +20,7 @@ module Cli
     end
 
     def parser
-      @parser ||= OptionParser.new.tap(&SetupParser)
+      @parser ||= OptionParser.new(&SetupParser)
     end
 
     def to_s
@@ -29,7 +31,10 @@ module Cli
       @parse ||= (
         opts = {}
         args = parser.parse(@params, into: opts)
-        [opts, args]
+        [
+          opts.freeze,
+          args.freeze,
+        ].freeze
       )
     end
 
@@ -42,14 +47,54 @@ module Cli
     end
 
     def help?
-      @help ||= (opts[:help] == true)
+      opts[:help] == true
+    end
+
+    def list?
+      opts[:list] == true
+    end
+
+    def out
+      opts[:out] || :yaml
+    end
+
+    def list_queries?
+      opts.has_key?(:q)
     end
   end
 
-  def cli(args)
-    opts = Options.new(args)
-    return puts opts if opts.help?
+  def initialize(args)
+    @opts = Options.new(args)
+  end
+
+  def output(result)
+    case @opts.out
+    when :txt
+      result.each(&method(:puts))
+    when :json
+      require 'json'
+      puts JSON.pretty_generate(result)
+    when :yaml
+      require 'yaml'
+      YAML.dump(result, STDOUT)
+    end
+  end
+
+  def help!
+    puts @opts
+  end
+
+  def list_queries!
+    require_relative 'queries'
+    output(Queries.load!.names.to_a)
+  end
+
+  def execute!
+    return help! if @opts.help?
+    return list_queries! if @opts.list_queries?
+    puts '???'
+    pp @opts
   end
 end
 
-Cli.cli(ARGV) if __FILE__ == $0
+Cli.new(ARGV).execute! if __FILE__ == $0

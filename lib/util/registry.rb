@@ -5,35 +5,60 @@ module Util
   module Registry
     extend ClassDecorations
 
+    def registry_logger
+      @__registry__logger ||= (
+        require 'logger'
+        Logger.new(STDERR).tap do |logger|
+          logger.progname = "Registry[#{name}]"
+        end
+      )
+    end
+
     def referal=(key)
+      registry_logger.debug "Setting referal=#{key}"
       @registry_referal = key
     end
 
     def register(value)
-      if method(:register).unbind != ::Util::Registry.instance_method(:register)
-        raise '#register() is final -- cannot be overriden'
-      end
       key = referal
       update key do |prev|
         raise "overwritting value #{prev.inspect} for #{key} in #{insopect}" if prev
         value
       end
     end
-    make_final :register
+    #make_final :register
 
     def update(key)
       return LazyBlock.new(method(:update), key) unless block_given?
-      registry[key] = yield registry[key], key
+      registry[key].tap do |previous|
+        registry[key] = yield(previous, key)
+          .tap { |n| registry_logger.debug "Update [#{key}](#{previous.inspect}) := #{n.inspect}" }
+      end
     end
 
     def [](key)
       registry[key]
+        .tap { |r| registry_logger.debug "Accessing #{key} => #{r.inspect}" }
+    end
+
+    def each
+      return to_enum unless block_given?
+      registry.each do |k, v|
+        yield k, v
+      end
+    end
+
+    def names
+      registry.keys
     end
 
     private
 
     def registry
-      @registry ||= {}
+      @registry ||= (
+        registry_logger.debug 'Creating new'
+        {}
+      )
     end
 
     def referal
