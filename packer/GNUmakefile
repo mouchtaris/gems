@@ -1,13 +1,11 @@
 BUILD = ../../build
-ARTIFACT_LIB = ${shell ${BUILD} artifact-lib}
-ARTIFACT_SHELF = ${shell ${BUILD} artifact-shelf}
-ARTIFACT = '${ARTIFACT_SHELF}/package.box'
-METADATA = '${ARTIFACT_SHELF}/metadata.json'
+ARTIFACT = '${shell ${BUILD} artifact}
+METADATA = '${shell ${BUILD} artifact-metadata}
 
 diagnose:
 	@echo BUILD='${BUILD}'
-	@echo ARTIFACT_LIB='${ARTIFACT_LIB}'
-	@echo ARTIFACT_SHELF='${ARTIFACT_SHELF}'
+	@echo ARTIFACT='${ARTIFACT}'
+	@echo METADATA='${METADATA}'
 build: ${ARTIFACT} ${METADATA}
 ${ARTIFACT} ${METADATA}: _packer.json _source.json _metadata.json
 	@packer build _packer.json

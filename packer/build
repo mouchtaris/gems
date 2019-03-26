@@ -129,6 +129,8 @@ end
 # Bullshit related to Vagrant specific builders
 #
 module Vagrant
+  module_function
+
   IS_VAGRANT = lambda { |builder|
     builder['type'] == 'vagrant'
   }
@@ -161,6 +163,22 @@ module Vagrant
       ]
     end
   end
+
+  def artifact
+    builder && (ARTIFACT_SHELF / 'package.box')
+  end
+
+  def artifact_metadata
+    builder && (ARTIFACT_SHELF / '_metadata.json')
+  end
+end
+
+def artifact
+  Vagrant.artifact
+end
+
+def artifact_metadata
+  Vagrant.artifact_metadata
 end
 
 case $PROGRAM_NAME
@@ -181,6 +199,8 @@ when __FILE__
   when 'artifact-lib' then puts ArtifactLib.to_s
   when 'artifact-shelf' then puts ARTIFACT_SHELF.to_s
   when 'packer' then puts JSON.pretty_generate packer
+  when 'artifact' then artifact
+  when 'artifact-metadata' then artifact_metadata
   else puts '??'
   end
 end
