@@ -1,0 +1,6 @@
+name: <%= name_of :'ubuntu-18.04' %>
+versions:
+  - version: <%= build_id %>
+    providers:
+      - name: virtualbox
+        url: <%= artifact_of :'ubuntu-18.04' %>
