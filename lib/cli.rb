@@ -6,12 +6,13 @@ require 'bundler/setup'
 class Cli
   class Options
     OUT = %i[txt json yaml]
+    QUERY_KEY = :q
 
     SetupParser = lambda do |prs|
       prs.instance_exec do
         on '-h', '--help', 'Print this message.'
         on '--out=[TYPE]', "Set output type. (#{OUT.map(&:to_s).join(', ')})", OUT
-        on '-q[QUERY_NAME]', 'Perform a query; no query-name lists queries.'
+        on "-#{QUERY_KEY}[QUERY_NAME]", 'Perform a query; no query-name lists queries.'
         on '--scroll=NAME', 'Specify scroll name.'
         on '--root=PATH', '(mastoric) repository root; where mastoras.yaml is.'
       end
@@ -70,11 +71,11 @@ class Cli
     end
 
     def list_queries?
-      opts.has_key?(:q) && !opts[:q]
+      opts.has_key?(QUERY_KEY) && !opts[QUERY_KEY]
     end
 
     def query
-      opts[:q]
+      opts[QUERY_KEY]
     end
 
     def scroll_name
