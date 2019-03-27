@@ -13,20 +13,14 @@ module Util
       )
     end
 
-    def root_namespace=(ns)
-      raise ArgumentError, :ns unless ns.is_a?(Module)
-      @root_namespace = /^#{ns.name}::/
-    end
-
-    def root_namespace
-      @root_namespace || (
-        raise "root_namespace not set for #{self.name} module loader"
-      )
+    def module_registry_root_namespace
+      @module_registry_root_namespace ||= /^#{name}::/
     end
 
     def register_module(clazz)
-      module_registry_logger.info "  + #{clazz}"
-      key = clazz.name.gsub(root_namespace, '')
+      key = clazz.name.gsub(module_registry_root_namespace, '')
+
+      module_registry_logger.info "  + #{module_registry_root_namespace} :: #{key} -> #{clazz}"
       self.referal = key
       self.register clazz
     end
