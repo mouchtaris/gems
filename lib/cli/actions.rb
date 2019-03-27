@@ -19,3 +19,4 @@ module Cli
   end
 end
 require_relative 'actions/packer'
+require_relative 'actions/recode'

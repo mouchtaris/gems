@@ -18,6 +18,8 @@ module Cli
     when :yaml
       require 'yaml'
       YAML.dump(result, STDOUT)
+    when :erb
+      puts result.to_s
     end
   end
 

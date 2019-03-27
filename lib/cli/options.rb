@@ -1,17 +1,20 @@
 module Cli
   class Options
+    IN = :in
     OUT = :out
-    OUTS = %i[txt json yaml]
+    FORMATS = %i[txt json yaml erb]
     SCROLL = :scroll
     ROOT = :root
     QUERY_KEY = :q
     ACTION_KEY = :a
     BUILDER_KEY = :b
 
+    FORMATS_SUM = " (#{FORMATS.map(&:to_s).join(', ')})"
     SetupParser = lambda do |prs|
       prs.instance_exec do
         on '-h', '--help', 'Print this message.'
-        on "--#{OUT}=[TYPE]", "Set output type. (#{OUTS.map(&:to_s).join(', ')})", OUTS
+        on "--#{IN}=[TYPE]", "Set input type (e.g. in -aRecode).#{FORMATS_SUM}", FORMATS
+        on "--#{OUT}=[TYPE]", "Set output type.#{FORMATS_SUM}", FORMATS
         on "--#{SCROLL}=NAME", 'Specify scroll name.'
         on "--#{ROOT}=PATH", '(mastoric) repository root; where mastoras.yaml is.'
         on "-#{QUERY_KEY}[QUERY_NAME]", 'Perform a query; no query-name lists queries.'
@@ -65,7 +68,11 @@ module Cli
     end
 
     def out
-      opts[:out] || :yaml
+      opts[OUT] || :yaml
+    end
+
+    def in
+      opts[IN] || :yaml
     end
 
     def scroll
