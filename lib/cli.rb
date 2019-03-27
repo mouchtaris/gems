@@ -119,16 +119,22 @@ class Cli
   def queries
     @queries ||= (
       require_relative 'queries'
-      Queries.load!
+      Queries
     )
   end
 
   def list_queries!
-    output(queries.names.to_a)
+    output(
+      queries
+        .registry_keys
+        .map { |k| k.gsub(/^#{Queries}::/, '') }
+    )
   end
 
   def perform_query!
-    q = queries[@opts.query] || (raise "Query not found: #{@opts.query}; try -q to list")
+    q = queries[@opts.query] || (
+      raise "Query not found: #{@opts.query}; try -q to list"
+    )
     q.new(workspace).perform(@opts)
   end
 

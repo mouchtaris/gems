@@ -48,7 +48,7 @@ module Util
       end
     end
 
-    def names
+    def registry_keys
       registry.keys
     end
 

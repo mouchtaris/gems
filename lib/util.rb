@@ -1,19 +1,17 @@
 require 'pathname'
-require_relative 'funcs'
 module Util
   module_function
 
   def load_yaml(source)
     case source
     when ::Pathname
-      source.open('r', &Funcs.load_yaml)
+      source.open('r') { |fin| load_yaml(fin) }
     when ::String
-      File.open('r', source, &Funcs.load_yaml)
+      File.open('r', source) { |fin| load_yaml(fin) }
     when ::IO
-      Funcs.load_yaml.call(source)
+      YAML.safe_load(source)
     else
-      raise ArgumentError, "Cannot handle #{
-        source.inspect} as a YAML source"
+      raise ArgumentError, "Cannot handle #{source.inspect} as a YAML source"
     end
   end
 end
