@@ -48,10 +48,4 @@ class Workspace
       @root / config[Constants::ARTIFACT_REPO_CONFIG_KEY]
     )
   end
-
-  def injection_repo_path
-    @injection_repo_path ||= (
-      @root / config[Constants::INJECTION_REPO_CONFIG_KEY]
-    )
-  end
 end
