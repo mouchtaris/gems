@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+clear &&
+  bundle exec ruby lib/cli.rb --root=packer -aRecode --in=erb --out=erb < GNUmakefile.erb
