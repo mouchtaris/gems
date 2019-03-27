@@ -9,6 +9,7 @@ module Cli
         scroll
           .builders_pure
           .reduce(nil) { |p, bd| p || inject.call(bd) }
+          .to_s
       end
     end
   end

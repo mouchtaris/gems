@@ -19,7 +19,7 @@ module Cli
       require 'yaml'
       YAML.dump(result, STDOUT)
     when :erb
-      puts result.to_s
+      puts result
     end
   end
 
@@ -44,7 +44,7 @@ module Cli
   end
 
   def builders
-    @builder ||= (require_relative 'builders'; Builders)
+    workspace.builders
   end
 
   def list!(what)
@@ -72,6 +72,12 @@ module Cli
     pp e
     pp @opts
   end
+
+  class << self
+    def new(args)
+      Class.new { include Cli }.new(args)
+    end
+  end
 end
 
-Class.new { include Cli }.new(ARGV).execute! if __FILE__ == $0
+Cli.new(ARGV).execute! if __FILE__ == $0

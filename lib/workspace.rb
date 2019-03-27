@@ -48,4 +48,8 @@ class Workspace
       @root / config[Constants::ARTIFACT_REPO_CONFIG_KEY]
     )
   end
+
+  def builders
+    @builder ||= (require_relative 'builders'; Builders)
+  end
 end

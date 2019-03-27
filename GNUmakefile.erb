@@ -1,0 +1,14 @@
+<%
+  @workspace
+  .scroll_repo
+  .each_child
+  .map(&:basename)
+  .map(&:to_s)
+  .map(&@workspace.method(:scroll))
+  .each do |scroll|
+    builder = @workspace.builders['Vagrant'].new(scroll)
+    artifact = builder.artifact(opts)
+%>
+<%= artifact %>: \
+	<%= scroll.packer_yaml_path %> \
+<% end %>
