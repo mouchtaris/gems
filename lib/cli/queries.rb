@@ -19,3 +19,4 @@ module Cli
   end
 end
 require_relative 'queries/artifact'
+require_relative 'queries/detect_artifact'
