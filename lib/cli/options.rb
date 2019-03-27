@@ -6,6 +6,7 @@ module Cli
     ROOT = :root
     QUERY_KEY = :q
     ACTION_KEY = :a
+    BUILDER_KEY = :b
 
     SetupParser = lambda do |prs|
       prs.instance_exec do
@@ -15,6 +16,7 @@ module Cli
         on "--#{ROOT}=PATH", '(mastoric) repository root; where mastoras.yaml is.'
         on "-#{QUERY_KEY}[QUERY_NAME]", 'Perform a query; no query-name lists queries.'
         on "-#{ACTION_KEY}[ACTION_NAME]", 'Perform an action: no action-name lists actions.'
+        on "-#{BUILDER_KEY}[BUILDER}", 'Do not provider BUILDER -- list available builder support.'
       end
     end
 
@@ -66,22 +68,6 @@ module Cli
       opts[:out] || :yaml
     end
 
-    def list_queries?
-      opts.has_key?(QUERY_KEY) && !opts[QUERY_KEY]
-    end
-
-    def query
-      opts[QUERY_KEY]
-    end
-
-    def list_actions?
-      opts.has_key?(ACTION_KEY) && !opts[ACTION_KEY]
-    end
-
-    def action
-      opts[ACTION_KEY]
-    end
-
     def scroll
       opts[SCROLL]
     end
@@ -89,5 +75,19 @@ module Cli
     def root
       opts[ROOT]
     end
+
+    list_or_take = lambda do |names, name, key|
+      define_method :"list_#{names}?" do
+        opts.has_key?(key) && !opts[key]
+      end
+
+      define_method :"#{name}" do
+        opts[key]
+      end
+    end
+
+    list_or_take.call :queries, :query, QUERY_KEY
+    list_or_take.call :actions, :action, ACTION_KEY
+    list_or_take.call :builders, :builder, BUILDER_KEY
   end
 end

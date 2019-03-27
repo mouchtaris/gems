@@ -41,6 +41,10 @@ module Cli
     @actions ||= (require_relative 'cli/actions'; Actions)
   end
 
+  def builders
+    @builder ||= (require_relative 'builders'; Builders)
+  end
+
   def list!(what)
     output(what.module_keys)
   end
@@ -57,6 +61,7 @@ module Cli
     return help! if @opts.help?
     return list! queries if @opts.list_queries?
     return list! actions if @opts.list_actions?
+    return list! builders if @opts.list_builders?
     return perform! queries, @opts.query, 'Query', Options::QUERY_KEY if @opts.query
     return perform! actions, @opts.action, 'Action', Options::ACTION_KEY if @opts.action
     puts '???'
