@@ -10,8 +10,7 @@ module Builders
       return Util::LazyBlock.new(method(:injection), scroll, meth) if builder_def.nil?
       each.reduce(builder_def) do |bdef, builder_pair|
         _, builder = builder_pair
-        case bdef['type']
-        when builder::TYPE
+        if builder.handle? builder: bdef
           binst = builder.new(scroll)
           binst.public_method(meth).call(bdef)
         else
