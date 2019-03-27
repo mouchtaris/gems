@@ -13,6 +13,10 @@ class Scroll
     @artifact_dir ||= (@workspace.artifact_repo / @name)
   end
 
+  def workbench_dir
+    @workbench_dir ||= (@workspace.workbench / @name)
+  end
+
   def packer_yaml_path
     @packer_yaml_path ||= (
       require_relative 'constants'

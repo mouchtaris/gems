@@ -1,3 +1,4 @@
+BUILDER := <%= $0 %> --root=<%= @workspace.root %>
 % targets = []
 %
 % @workspace
@@ -10,14 +11,41 @@
 %   builder = @workspace.builders['Vagrant'].new(scroll)
 %   return unless builder.handle?(scroll: scroll)
 %   artifact = builder.artifact(opts)
+%
+%   packer_json = scroll.workbench_dir / 'packer.json'
+%   source_json = scroll.workbench_dir / 'source.json'
+%   metadata_json = scroll.workbench_dir / 'metadata.json'
+%
+%   packer_yaml = scroll.root / 'packer.yaml'
+%   source_erb = scroll.root / 'source.yaml.erb'
+%   metadata_erb = scroll.root / 'metadata.yaml.erb'
+%
 %   targets << artifact
 %
 <%= artifact %>: \
-	<%= scroll.packer_yaml_path %> \
-	<%= scroll.root / 'source.yaml.erb' %> \
-	<%= scroll.root / 'metadata.yaml.erb' %> \
+	<%= packer_json %> \
+	<%= source_json %> \
+	<%= metadata_json %> \
 
 	mkdir -pv <%= artifact.dirname %>
+
+<%= packer_json %>: <%= packer_yaml %>
+	[ ! -d <%= packer_json.dirname %> ] && mkdir -pv <%= packer_json.dirname %>
+	cat <%= packer_yaml %> | \
+	${BUILDER} --in=yaml --out=json -aRecode 2>/dev/null | \
+	tee <%= packer_json %> >/dev/null
+
+<%= source_json %>: <%= source_erb %>
+	cat <%= source_erb %> \
+	| ${BUILDER} --in=erb --out=erb -aRecode <%= '2>/dev/null' %> \
+	| ${BUILDER} --in=yaml --out=json -aRecode <%= '2>/dev/null' %> \
+	| tee <%= source_json %> <%= '>/dev/null' %>
+
+<%= metadata_json %>: <%= metadata_erb %>
+	cat <%= metadata_erb %> \
+	| ${BUILDER} --in=erb --out=erb -aRecode <%= '2>/dev/null' %> \
+	| ${BUILDER} --in=yaml --out=json -aRecode <%= '2>/dev/null' %> \
+	| tee <%= metadata_json %> <%= '>/dev/null' %>
 % end
 
 all: \
@@ -26,4 +54,4 @@ all: \
 % end
 
 clean:
-	rm -rf <%= @workspace.artifact_repo %>
+	rm -rf <%= @workspace.artifact_repo %> <%= @workspace.workbench %>

@@ -1,0 +1,39 @@
+---
+builders:
+  - type: vagrant
+    communicator: ssh
+    source_path: '{{ user `artifact_lib` }}/ubuntu-18.04/package.box'
+    checksum: e941a15794ceb63b401e07cb2400fa26be57d3857200ba2e78c6facb7709f6dc
+    checksum_type: sha256
+    box_version: '20190325.0.0'
+provisioners:
+  - type: shell
+    inline: |
+      bash -x -c '
+        curl https://omnitruck.chef.io/install.sh |
+          sudo bash -s -- -P chef-workstation -c stable -v 0.2.41 &&
+        sudo mkdir /local &&
+        sudo chmod 777 /local &&
+        true 
+      '
+  - type: file
+    source: lib/install-chef-server.bash
+    destination: /local/install-chef-server.bash
+  - type: shell
+    inline: |
+      bash -x /local/install-chef-server.bash -- -
+  - type: file
+    source: lib/config.rb
+    destination: /home/vagrant/.chef/config.rb
+  - type: shell
+    inline: |
+      bash -x -c '
+        cd /home/vagrant &&
+        mkdir cookbooks &&
+        cd cookbooks &&
+        git clone https://github.com/learn-chef/learn_chef_apache2.git &&
+        true
+      '
+  - type: file
+    source: lib/get_pem_keys.bash
+    destination: /local/get_pem_keys.bash

@@ -9,6 +9,7 @@ class Workspace
   CONFIG_SCHEMA = Hash[
     Constants::SCROLL_REPO_CONFIG_KEY => String,
     Constants::ARTIFACT_REPO_CONFIG_KEY => String,
+    Constants::WORKBENCH_CONFIG_KEY => String,
   ]
 
   def initialize(root)
@@ -51,5 +52,11 @@ class Workspace
 
   def builders
     @builder ||= (require_relative 'builders'; Builders)
+  end
+
+  def workbench
+    @workbench ||= (
+      @root / config[Constants::WORKBENCH_CONFIG_KEY]
+    )
   end
 end

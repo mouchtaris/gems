@@ -2,3 +2,4 @@
 /vendor/
 /_artifacts/
 /repo/**/*.json
+/_workbench/
