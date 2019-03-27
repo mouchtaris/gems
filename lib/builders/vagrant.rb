@@ -2,11 +2,21 @@ module Builders
   class Vagrant < Builder
     TYPE = 'vagrant'
 
+    def output_dir
+      @scroll.artifact_dir
+    end
+
     def inject(builder_def)
-      builder_def.merge(
-        'output_dir' => (@workspace.artifact_repo / @scroll_name).to_s,
-        'skip_add' => false,
-      )
+      @inject ||= builder_def
+        .merge(
+          'output_dir' => output_dir.to_s,
+          'skip_add' => false,
+        )
+        .freeze
+    end
+
+    def artifact(_)
+      @artifact ||= (output_dir / 'package.box')
     end
   end
 end

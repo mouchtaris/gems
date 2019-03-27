@@ -3,9 +3,14 @@ class Scroll
     @workspace = workspace
     @name = name
   end
+  attr_reader :name
 
   def root
     @root ||= (@workspace.scroll_repo / @name)
+  end
+
+  def artifact_dir
+    @artifact_dir ||= (@workspace.artifact_repo / @name)
   end
 
   def packer_yaml_path
@@ -31,7 +36,8 @@ class Scroll
   def packer
     @packer ||= (
       require_relative 'builders'
-      inject = Builders::Injector.new(@workspace, @name).method(:inject)
+      inject = Builders
+        .injection(@workspace, @name, :inject)
       packer_pure.merge(
         BUILDERS => builders_pure.map(&inject),
       )

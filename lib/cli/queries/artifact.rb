@@ -2,8 +2,13 @@ module Cli
   module Queries
     class Artifact < Query
       def perform(opts)
-        scroll = opts.scroll || (raise "--#{Cli::Options::SCROLL} is required")
-        @workspace.scroll(scroll).packer_pure
+        scroll_name = opts.scroll || (raise "--#{Cli::Options::SCROLL} is required")
+        scroll = @workspace.scroll(scroll_name)
+        require_relative '../../builders'
+        inject = Builders.injection(scroll, :artifact)
+        scroll
+          .builders_pure
+          .reduce(nil) { |p, bd| p || inject.call(bd) }
       end
     end
   end
