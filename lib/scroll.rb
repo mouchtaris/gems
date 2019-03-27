@@ -4,6 +4,7 @@ class Scroll
     @name = name
   end
   attr_reader :name
+  attr_reader :workspace
 
   def root
     @root ||= (@workspace.scroll_repo / @name)
@@ -15,6 +16,14 @@ class Scroll
 
   def workbench_dir
     @workbench_dir ||= (@workspace.workbench / @name)
+  end
+
+  def lib_path
+    @lib_path ||= (@root / 'lib')
+  end
+
+  def lib?
+    lib_path.directory?
   end
 
   def packer_yaml_path

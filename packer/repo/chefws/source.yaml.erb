@@ -1,6 +1,7 @@
-name: <%= name_of :'ubuntu-18.04' %>
+% vagrant = rebind 'ubuntu-18.04'
+name: <%= vagrant.source_path %>
 versions:
-  - version: <%= build_id %>
+  - version: <%= vagrant.build_id %>
     providers:
       - name: virtualbox
-        url: <%= artifact_of :'ubuntu-18.04' %>
+        url: <%= vagrant.artifact(nil) %>

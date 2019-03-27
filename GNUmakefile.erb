@@ -8,12 +8,12 @@ BUILDER := <%= $0 %> --root=<%= @workspace.root %>
 % .map(&:to_s)
 % .map(&@workspace.method(:scroll))
 % .each do |scroll|
-%   builder = @workspace.builders['Vagrant'].new(scroll)
-%   return unless builder.handle?(scroll: scroll)
-%   artifact = builder.artifact(opts)
+%   vagrant = @workspace.builders['Vagrant'].new(scroll)
+%   return unless vagrant.handle?(scroll: scroll)
+%   artifact = vagrant.artifact(opts)
 %
 %   packer_json = scroll.workbench_dir / 'packer.json'
-%   source_json = scroll.workbench_dir / 'source.json'
+%   source_json = scroll.workbench_dir / vagrant.source_path
 %   metadata_json = scroll.workbench_dir / 'metadata.json'
 %
 %   packer_yaml = scroll.root / 'packer.yaml'
@@ -27,8 +27,10 @@ BUILDER := <%= $0 %> --root=<%= @workspace.root %>
 	<%= source_json %> \
 	<%= metadata_json %> \
 
-	mkdir -pv <%= artifact.dirname %>
-
+% if scroll.lib?
+	cp -av <%= scroll.lib_path %> <%= scroll.workbench_dir %>
+% end
+	packer build <%= packer_json %>
 <%= packer_json %>: <%= packer_yaml %>
 	[ ! -d <%= packer_json.dirname %> ] && mkdir -pv <%= packer_json.dirname %>
 	cat <%= packer_yaml %> | \
@@ -36,6 +38,7 @@ BUILDER := <%= $0 %> --root=<%= @workspace.root %>
 	tee <%= packer_json %> >/dev/null
 
 <%= source_json %>: <%= source_erb %>
+	[ ! -d <%= source_json.dirname %> ] && mkdir -pv <%= source_json.dirname %>
 	cat <%= source_erb %> \
 	| ${BUILDER} --in=erb --out=erb -aRecode <%= '2>/dev/null' %> \
 	| ${BUILDER} --in=yaml --out=json -aRecode <%= '2>/dev/null' %> \
