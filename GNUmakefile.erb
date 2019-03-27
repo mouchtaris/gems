@@ -30,7 +30,8 @@ BUILDER := <%= $0 %> --root=<%= @workspace.root %>
 % if scroll.lib?
 	cp -av <%= scroll.lib_path %> <%= scroll.workbench_dir %>
 % end
-	packer build <%= packer_json %>
+	cd <%= packer_json.dirname %> && packer build <%=
+    packer_json.relative_path_from(packer_json.dirname) %>
 <%= packer_json %>: <%= packer_yaml %>
 	[ ! -d <%= packer_json.dirname %> ] && mkdir -pv <%= packer_json.dirname %>
 	cat <%= packer_yaml %> | \
