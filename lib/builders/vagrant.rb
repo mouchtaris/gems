@@ -31,6 +31,10 @@ module Builders
       Pathname.new(source&.dig('name') || 'source.json')
     end
 
+    def artifact(_)
+      @artifact ||= (output_dir / 'output-vagrant' / 'package.box')
+    end
+
     def inject(builder_def)
       @inject ||= builder_def
         .merge(
@@ -38,10 +42,6 @@ module Builders
           'skip_add' => false,
         )
         .freeze
-    end
-
-    def artifact(_)
-      @artifact ||= (output_dir / 'package.box')
     end
   end
 end
