@@ -11,7 +11,7 @@ module Cli
           JSON.safe_load STDIN
         when :erb
           require 'erb'
-          ERB.new(STDIN.read).result(binding)
+          ERB.new(STDIN.read, 0, '%').result(binding)
         end
       end
 
