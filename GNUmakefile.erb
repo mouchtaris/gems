@@ -20,7 +20,7 @@ BUILDER := <%= $0 %> --root=<%= @workspace.root %>
 %   source_erb = scroll.root / 'source.yaml.erb'
 %   metadata_erb = scroll.root / 'metadata.yaml.erb'
 %
-%   targets << artifact
+%   targets << vagrant
 %
 <%= artifact %>: \
 	<%= packer_json %> \
@@ -53,9 +53,14 @@ BUILDER := <%= $0 %> --root=<%= @workspace.root %>
 % end
 
 all: \
-% targets.each do |target|
-	<%= target %> \
+% targets.each do |vagrant|
+	<%= vagrant.artifact(nil) %> \
 % end
 
 clean:
 	rm -rf <%= @workspace.artifact_repo %> <%= @workspace.workbench %>
+
+blast:
+% targets.each do |vagrant|
+	vagrant box remove <%= vagrant.source_path %>
+% end
