@@ -3,4 +3,5 @@ module Constants
   ARTIFAT_LIB = '_artifacts'
   PACKER_YAML = 'packer.yaml'
   SCROLL_REPO_CONFIG_KEY = 'scroll_repo'
+  ARTIFACT_REPO_CONFIG_KEY = 'artifact_repo'
 end

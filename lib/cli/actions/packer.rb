@@ -3,7 +3,7 @@ module Cli
     class Packer < Action
       def perform(opts)
         scroll = opts.scroll || (raise "--#{Cli::Options::SCROLL} required")
-        @workspace.scroll(scroll).packer_pure
+        @workspace.scroll(scroll).packer
       end
     end
   end

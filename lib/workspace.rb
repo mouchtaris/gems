@@ -7,7 +7,8 @@ class Workspace
   include Args
 
   CONFIG_SCHEMA = Hash[
-    Constants::SCROLL_REPO_CONFIG_KEY => String
+    Constants::SCROLL_REPO_CONFIG_KEY => String,
+    Constants::ARTIFACT_REPO_CONFIG_KEY => String,
   ]
 
   def initialize(root)
