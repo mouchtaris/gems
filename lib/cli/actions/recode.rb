@@ -7,9 +7,11 @@ module Cli
           require_relative '../../util'
           Util.load_yaml STDIN
         when :json
+          require 'json'
           JSON.safe_load STDIN
         when :erb
-          ERB.new(STDIN).result(@workspace)
+          require 'erb'
+          ERB.new(STDIN.read).result(binding)
         end
       end
 
