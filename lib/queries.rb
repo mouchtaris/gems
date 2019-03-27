@@ -1,7 +1,7 @@
 require_relative 'util/module_registry'
 module Queries
   extend Util::ModuleRegistry
-  self.root_namespace = Queries.name
+  self.root_namespace = Queries
   Base = base
 
   class Query

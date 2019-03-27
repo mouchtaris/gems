@@ -5,16 +5,21 @@ require 'bundler/setup'
 
 class Cli
   class Options
-    OUT = %i[txt json yaml]
+    OUT = :out
+    OUTS = %i[txt json yaml]
+    SCROLL = :scroll
+    ROOT = :root
     QUERY_KEY = :q
+    ACTION_KEY = :a
 
     SetupParser = lambda do |prs|
       prs.instance_exec do
         on '-h', '--help', 'Print this message.'
-        on '--out=[TYPE]', "Set output type. (#{OUT.map(&:to_s).join(', ')})", OUT
+        on "--#{OUT}=[TYPE]", "Set output type. (#{OUTS.map(&:to_s).join(', ')})", OUTS
+        on "--#{SCROLL}=NAME", 'Specify scroll name.'
+        on "--#{ROOT}=PATH", '(mastoric) repository root; where mastoras.yaml is.'
         on "-#{QUERY_KEY}[QUERY_NAME]", 'Perform a query; no query-name lists queries.'
-        on '--scroll=NAME', 'Specify scroll name.'
-        on '--root=PATH', '(mastoric) repository root; where mastoras.yaml is.'
+        on "-#{ACTION_KEY}[ACTION_NAME]", 'Perform an action: no action-name lists actions.'
       end
     end
 
@@ -62,10 +67,6 @@ class Cli
       opts[:help] == true
     end
 
-    def list?
-      opts[:list] == true
-    end
-
     def out
       opts[:out] || :yaml
     end
@@ -78,12 +79,20 @@ class Cli
       opts[QUERY_KEY]
     end
 
-    def scroll_name
-      opts[:scroll]
+    def list_actions?
+      opts.has_key?(ACTION_KEY) && !opts[ACTION_KEY]
+    end
+
+    def action
+      opts[ACTION_KEY]
+    end
+
+    def scroll
+      opts[SCROLL]
     end
 
     def root
-      opts[:root]
+      opts[ROOT]
     end
   end
 
@@ -111,24 +120,21 @@ class Cli
   def workspace
     @workspace ||= (
       require_relative 'workspace'
-      root = Pathname.new(@opts.root || (raise '--root required'))
+      root = Pathname.new(@opts.root || (raise "--#{Options::ROOT} required"))
       Workspace.new(root)
     )
   end
 
   def queries
-    @queries ||= (
-      require_relative 'queries'
-      Queries
-    )
+    @queries ||= (require_relative 'queries'; Queries)
+  end
+
+  def actions
+    @actions ||= (require_relative 'actions'; Actions)
   end
 
   def list_queries!
-    output(
-      queries
-        .registry_keys
-        .map { |k| k.gsub(/^#{Queries}::/, '') }
-    )
+    output(queries.module_keys)
   end
 
   def perform_query!
@@ -138,10 +144,23 @@ class Cli
     q.new(workspace).perform(@opts)
   end
 
+  def list_actions!
+    output(actions.module_keys)
+  end
+
+  def perform_action!
+    a = actions[@opts.action] || (
+      raise "Action not found: #{@opts.action}; try -a to list"
+    )
+    a.new(workspace).perform(@opts)
+  end
+
   def execute!
     return help! if @opts.help?
     return list_queries! if @opts.list_queries?
+    return list_actions! if @opts.list_actions?
     return perform_query! if @opts.query
+    return perform_action! if @opts.action
     puts '???'
     pp @opts
   rescue RuntimeError => e

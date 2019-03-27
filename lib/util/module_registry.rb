@@ -14,8 +14,8 @@ module Util
     end
 
     def root_namespace=(ns)
-      raise ArgumentError, :ns unless ns.is_a?(String) && !ns.empty?
-      @root_namespace = /^#{ns}::/
+      raise ArgumentError, :ns unless ns.is_a?(Module)
+      @root_namespace = /^#{ns.name}::/
     end
 
     def root_namespace
