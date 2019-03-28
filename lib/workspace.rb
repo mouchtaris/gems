@@ -53,4 +53,8 @@ class Workspace
   def builders
     @builder ||= (require_relative 'builders'; Builders)
   end
+
+  def builder(name, scroll_name)
+    builders[name].new(scroll(scroll_name))
+  end
 end

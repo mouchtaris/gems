@@ -20,3 +20,5 @@ module Cli
 end
 require_relative 'queries/artifact'
 require_relative 'queries/detect_artifact'
+require_relative 'queries/packer'
+require_relative 'queries/source'
