@@ -38,7 +38,7 @@ module Builders
     end
 
     def metadata
-      @metadata ||= render(source_tmpl)
+      @metadata ||= render(metadata_tmpl)
     end
 
     def source_path
