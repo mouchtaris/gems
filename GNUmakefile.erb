@@ -34,12 +34,12 @@ BUILD := <%= $0 %> --root=<%= @workspace.root %>
 <%= packer_json %>: <%= packer_yaml %>
 	if [ ! -d <%= packer_json.dirname %> ]; then mkdir -pv <%= packer_json.dirname %>; fi
 	cat <%= packer_yaml %> | \
-	${BUILD} -qPacker --out=json --scroll=<%= scroll.name %> 2>/dev/null | \
-	tee <%= packer_json %> >/dev/null
+	${BUILD} -qPacker --out=json --scroll=<%= scroll.name %> 2>/dev/null \
+	| tee <%= packer_json %> >/dev/null
 
 <%= source_json %>: <%= source_erb %>
 	if [ ! -d <%= source_json.dirname %> ]; then mkdir -pv <%= source_json.dirname %>; fi
-        ${BUILD} -qSource --out=json --scroll=<%= scroll.name %> 2>/dev/null | \
+	${BUILD} -qSource --out=json --scroll=<%= scroll.name %> 2>/dev/null \
 	| tee <%= source_json %> >/dev/null
 
 <%= metadata_json %>: <%= metadata_erb %>
