@@ -5,4 +5,4 @@ versions:
   - version: <%= i.dig('versions', 0, 'version') %>
     providers:
       - name: virtualbox
-        url: <%= u.metadata_json.relative_path_from(output_dir) %>
+        url: <%= u.artifact(nil).relative_path_from(output_dir) %>
