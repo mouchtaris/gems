@@ -1,17 +1,23 @@
-require 'time'
-
 module Builders
   class Vagrant < Builder
     TYPE = 'vagrant'
-    BuildId = Time.now
+
+    class << self
+      def gen_build_id
+        require 'time'
+        d = Time.now
+        "#{d.year}.#{d.month}.#{d.day}#{d.hour}#{d.min}#{d.sec}"
+      end
+    end
 
     def rebind(scroll_name)
       Vagrant.new(@scroll.workspace.scroll(scroll_name))
     end
 
     def build_id
-      d = BuildId
-      "#{d.year}.#{d.month}.#{d.day}#{d.hour}#{d.min}#{d.sec}"
+      ENV['MASTORAS_BUILD_ID'] ||= (
+        raise 'MASTORAS_BUILD_ID not set'
+      )
     end
 
     def output_dir

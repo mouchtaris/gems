@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+cat GNUmakefile.erb \
+  | env \
+      MASTORAS_BUILD_ID="$(lib/cli.rb -qBuildId --root=packer --out=erb)" \
+    lib/cli.rb --root=packer -aRecode --in=erb --out=erb \
+  | tee Makefile

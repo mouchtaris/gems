@@ -1,4 +1,6 @@
-BUILD := <%= $0 %> --root=<%= @workspace.root %>
+BUILD0 := <%= $0 %> --root=<%= @workspace.root %>
+BUILD_ID := $(shell ${BUILD0} -qBuildId --out=erb 2>/dev/null)
+BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 % targets = []
 %
 % @workspace
@@ -77,7 +79,10 @@ blast:
 console:
 	${BUILD} -aConsole
 
-.PHONY: all clean blast console help gen
+.PHONY: all clean blast console help gen hello
+
+hello:
+	@echo Hello!
 
 gen: \
 % targets.each do |vagrant|
