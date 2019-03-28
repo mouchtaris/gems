@@ -77,7 +77,14 @@ blast:
 console:
 	${BUILD} -aConsole
 
-.PHONY: all clean blast console help
+.PHONY: all clean blast console help gen
+
+gen: \
+% targets.each do |vagrant|
+	<%= vagrant.scroll.packer_json %> \
+	<%= vagrant.source_json %> \
+	<%= vagrant.metadata_json %> \
+% end
 
 help:
 	@echo \* all
