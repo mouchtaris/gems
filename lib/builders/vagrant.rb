@@ -35,6 +35,20 @@ module Builders
       @artifact ||= (output_dir / 'output-vagrant' / 'package.box')
     end
 
+    def source_json
+      @source_json ||= (output_dir / 'source.json')
+    end
+
+    def metadata_json
+      @metadata_json ||= (output_dir / 'metaata.json')
+    end
+
+    alias_method :source_erb, :source_tmpl
+
+    def metadata_erb
+      @metadata_erb ||= (@scroll.root / 'metadata.yaml.erb')
+    end
+
     def inject(builder_def)
       @inject ||= builder_def
         .merge(

@@ -17,6 +17,7 @@ module Builders
     def initialize(scroll)
       @scroll = scroll
     end
+    attr_reader :scroll
 
     def handle?(**args)
       self.class.handle?(**args)

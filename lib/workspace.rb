@@ -53,10 +53,4 @@ class Workspace
   def builders
     @builder ||= (require_relative 'builders'; Builders)
   end
-
-  def workbench
-    @workbench ||= (
-      @root / config[Constants::WORKBENCH_CONFIG_KEY]
-    )
-  end
 end

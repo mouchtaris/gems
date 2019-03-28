@@ -1,4 +1,4 @@
-BUILDER := <%= $0 %> --root=<%= @workspace.root %>
+BUILD := <%= $0 %> --root=<%= @workspace.root %>
 % targets = []
 %
 % @workspace
@@ -12,44 +12,44 @@ BUILDER := <%= $0 %> --root=<%= @workspace.root %>
 %   return unless vagrant.handle?(scroll: scroll)
 %   artifact = vagrant.artifact(opts)
 %
-%   packer_json = scroll.workbench_dir / 'packer.json'
-%   source_json = scroll.workbench_dir / vagrant.source_path
-%   metadata_json = scroll.workbench_dir / 'metadata.json'
+%   packer_json = scroll.packer_json
+%   source_json = vagrant.source_json
+%   metadata_json = vagrant.metadata_json
 %
-%   packer_yaml = scroll.root / 'packer.yaml'
-%   source_erb = scroll.root / 'source.yaml.erb'
-%   metadata_erb = scroll.root / 'metadata.yaml.erb'
+%   packer_yaml = scroll.packer_yaml
+%   source_erb = vagrant.source_erb
+%   metadata_erb = vagrant.metadata_erb
 %
 %   targets << vagrant
 %
 <%= artifact %>: \
 	<%= packer_json %> \
 	<%= source_json %> \
-	<%= metadata_json %> \
-
+	<%= metadata_json %>
 % if scroll.lib?
-	cp -av <%= scroll.lib_path %> <%= scroll.workbench_dir %>
+	cp -av <%= scroll.lib_path %> <%= scroll.artifact_dir %>
 % end
-	cd <%= packer_json.dirname %> && packer build <%=
-    packer_json.relative_path_from(packer_json.dirname) %>
+	cd <%= packer_json.dirname %> && packer build <%= packer_json.basename %>
+
 <%= packer_json %>: <%= packer_yaml %>
-	[ ! -d <%= packer_json.dirname %> ] && mkdir -pv <%= packer_json.dirname %>
+	if [ ! -d <%= packer_json.dirname %> ]; then mkdir -pv <%= packer_json.dirname %>; fi
 	cat <%= packer_yaml %> | \
-	${BUILDER} --in=yaml --out=json -aRecode 2>/dev/null | \
+	${BUILD} --in=yaml --out=json -aRecode 2>/dev/null | \
 	tee <%= packer_json %> >/dev/null
 
 <%= source_json %>: <%= source_erb %>
-	[ ! -d <%= source_json.dirname %> ] && mkdir -pv <%= source_json.dirname %>
+	if [ ! -d <%= source_json.dirname %> ]; then mkdir -pv <%= source_json.dirname %>; fi
 	cat <%= source_erb %> \
-	| ${BUILDER} --in=erb --out=erb -aRecode <%= '2>/dev/null' %> \
-	| ${BUILDER} --in=yaml --out=json -aRecode <%= '2>/dev/null' %> \
-	| tee <%= source_json %> <%= '>/dev/null' %>
+	| ${BUILD} --in=erb --out=erb -aRecode 2>/dev/null \
+	| ${BUILD} --in=yaml --out=json -aRecode 2>/dev/null \
+	| tee <%= source_json %> >/dev/null
 
 <%= metadata_json %>: <%= metadata_erb %>
+	if [ ! -d <%= metadata_json.dirname %> ]; then mkdir -pv <%= metadata_json.dirname %>; fi
 	cat <%= metadata_erb %> \
-	| ${BUILDER} --in=erb --out=erb -aRecode <%= '2>/dev/null' %> \
-	| ${BUILDER} --in=yaml --out=json -aRecode <%= '2>/dev/null' %> \
-	| tee <%= metadata_json %> <%= '>/dev/null' %>
+	| ${BUILD} --in=erb --out=erb -aRecode 2>/dev/null \
+	| ${BUILD} --in=yaml --out=json -aRecode 2>/dev/null \
+	| tee <%= metadata_json %> >/dev/null
 % end
 
 all: \
@@ -58,7 +58,16 @@ all: \
 % end
 
 clean:
-	rm -rf <%= @workspace.artifact_repo %> <%= @workspace.workbench %>
+	rm -rf <%= @workspace.artifact_repo %>
+
+Makefile: GNUmakefile.erb \
+% targets.each do |vagrant|
+	<%= vagrant.scroll.packer_yaml %> \
+% end
+
+	cat GNUmakefile.erb | \
+	${BUILD} --in=erb --out=erb -aRecode | \
+	tee Makefile 
 
 blast:
 % targets.each do |vagrant|

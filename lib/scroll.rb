@@ -14,10 +14,6 @@ class Scroll
     @artifact_dir ||= (@workspace.artifact_repo / @name)
   end
 
-  def workbench_dir
-    @workbench_dir ||= (@workspace.workbench / @name)
-  end
-
   def lib_path
     @lib_path ||= (@root / 'lib')
   end
@@ -32,6 +28,7 @@ class Scroll
       root / Constants::PACKER_YAML
     )
   end
+  alias_method :packer_yaml, :packer_yaml_path
 
   def packer_pure
     @packer_pure ||= (
@@ -55,5 +52,9 @@ class Scroll
         BUILDERS => builders_pure.map(&inject),
       )
     )
+  end
+
+  def packer_json
+    @packer_json ||= (artifact_dir / 'packer.json')
   end
 end

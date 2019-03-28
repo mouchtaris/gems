@@ -4,4 +4,4 @@ versions:
   - version: <%= vagrant.build_id %>
     providers:
       - name: virtualbox
-        url: <%= vagrant.artifact(nil) %>
+        url: <%= vagrant.metadata_json %>
