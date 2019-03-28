@@ -1,0 +1,8 @@
+% u = rebind 'chefws'
+% i = u.metadata
+name: <%= i['name'] %>
+versions:
+  - version: <%= i.dig('versions', 0, 'version') %>
+    providers:
+      - name: virtualbox
+        url: <%= u.artifact(nil).relative_path_from(output_dir) %>
