@@ -1,14 +1,16 @@
+require 'time'
+
 module Builders
   class Vagrant < Builder
     TYPE = 'vagrant'
+    BuildId = Time.now
 
     def rebind(scroll_name)
       Vagrant.new(@scroll.workspace.scroll(scroll_name))
     end
 
     def build_id
-      require 'time'
-      d = Time.now
+      d = BuildId
       "#{d.year}.#{d.month}.#{d.day}#{d.hour}#{d.min}#{d.sec}"
     end
 
