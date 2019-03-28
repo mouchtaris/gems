@@ -12,6 +12,8 @@ BUILD := <%= $0 %> --root=<%= @workspace.root %>
 %   return unless vagrant.handle?(scroll: scroll)
 %   artifact = vagrant.artifact(opts)
 %
+%   working_dir = vagrant.output_dir
+%
 %   packer_json = scroll.packer_json
 %   source_json = vagrant.source_json
 %   metadata_json = vagrant.metadata_json
@@ -29,7 +31,7 @@ BUILD := <%= $0 %> --root=<%= @workspace.root %>
 % if scroll.lib?
 	cp -av <%= scroll.lib_path %> <%= scroll.artifact_dir %>
 % end
-	cd <%= packer_json.dirname %> && packer build <%= packer_json.basename %>
+	cd <%= working_dir %> && packer build <%= packer_json.basename %>
 
 <%= packer_json %>: <%= packer_yaml %>
 	if [ ! -d <%= packer_json.dirname %> ]; then mkdir -pv <%= packer_json.dirname %>; fi
