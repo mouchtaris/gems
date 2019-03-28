@@ -37,19 +37,19 @@ BUILD := <%= $0 %> --root=<%= @workspace.root %>
 	if [ ! -d <%= packer_json.dirname %> ]; then mkdir -pv <%= packer_json.dirname %>; fi
 	${BUILD} -qPacker --scroll=<%= scroll.name %> --out=json 2>/dev/null \
 	| tee <%= packer_json %> \
-        | ruby -p -e '$_ = "[packer.json] #{$_}"'
+        | ruby -p -e '$$_ = "[packer.json] #{$$_}"'
 
 <%= source_json %>: <%= source_erb %>
 	if [ ! -d <%= source_json.dirname %> ]; then mkdir -pv <%= source_json.dirname %>; fi
 	${BUILD} -qSource --scroll=<%= scroll.name %> --out=json 2>/dev/null \
 	| tee <%= source_json %> \
-        | ruby -p -e '$_ = "[source.json] #{$_}"'
+        | ruby -p -e '$$_ = "[source.json] #{$$_}"'
 
 <%= metadata_json %>: <%= metadata_erb %>
 	if [ ! -d <%= metadata_json.dirname %> ]; then mkdir -pv <%= metadata_json.dirname %>; fi
 	${BUILD} -qMetadata --scroll=<%= scroll.name %> --out=json 2>/dev/null \
 	| tee <%= metadata_json %> \
-        | ruby -p -e '$_ = "[metadata.json] #{$_}"'
+        | ruby -p -e '$$_ = "[metadata.json] #{$$_}"'
 % end
 
 all: \
