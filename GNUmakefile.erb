@@ -72,14 +72,10 @@ blast:
 	vagrant box remove <%= vagrant.source_path %>
 % end
 
-% targets.each do |vagrant|
-<%= vagrant.scroll.name %>: <%= vagrant.artifact(opts) %>
-% end
-
 console:
 	${BUILD} -aConsole
 
-.PHONY: all clean blast console <%= targets.map { |v| v.artifact(opts) }.map(&:to_s).join(' ') %> help
+.PHONY: all clean blast console help
 
 help:
 	@echo \* all
