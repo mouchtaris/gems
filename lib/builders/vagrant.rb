@@ -54,6 +54,8 @@ module Builders
         .merge(
           'output_dir' => output_dir.to_s,
           'skip_add' => false,
+          'source_path' => source_path.to_s,
+          'version' => build_id
         )
         .freeze
     end

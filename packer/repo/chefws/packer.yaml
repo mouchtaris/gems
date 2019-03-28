@@ -2,10 +2,7 @@
 builders:
   - type: vagrant
     communicator: ssh
-    source_path: '{{ user `artifact_lib` }}/ubuntu-18.04/package.box'
-    checksum: e941a15794ceb63b401e07cb2400fa26be57d3857200ba2e78c6facb7709f6dc
-    checksum_type: sha256
-    box_version: '20190325.0.0'
+    source_path: mastoras/ubuntu
 provisioners:
   - type: shell
     inline: |
