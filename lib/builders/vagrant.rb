@@ -36,11 +36,11 @@ module Builders
     end
 
     def source_json
-      @source_json ||= (output_dir / 'source.json')
+      @source_json ||= (output_dir / source_path)
     end
 
     def metadata_json
-      @metadata_json ||= (output_dir / 'metaata.json')
+      @metadata_json ||= (output_dir / 'metadata.json')
     end
 
     alias_method :source_erb, :source_tmpl
