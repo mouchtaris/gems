@@ -71,7 +71,7 @@ Makefile: GNUmakefile.erb \
 
 blast:
 % targets.each do |vagrant|
-	vagrant box remove <%= vagrant.source_path %>
+	vagrant box remove --all <%= vagrant.source_path %> || true # let is fail
 % end
 
 console:
