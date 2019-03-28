@@ -71,3 +71,17 @@ blast:
 % targets.each do |vagrant|
 	vagrant box remove <%= vagrant.source_path %>
 % end
+
+% targets.each do |vagrant|
+<%= vagrant.scroll.name %>: <%= vagrant.artifact(opts) %>
+% end
+
+.PHONY: all clean blast <%= targets.map { |v| v.artifact(opts) }.map(&:to_s).join(' ') %> help
+
+help:
+	@echo \* all
+	@echo \* clean
+	@echo \* blast
+% targets.each do |vagrant|
+	@echo \* <%= vagrant.scroll.name %>
+% end
