@@ -34,7 +34,7 @@ BUILD := <%= $0 %> --root=<%= @workspace.root %>
 <%= packer_json %>: <%= packer_yaml %>
 	if [ ! -d <%= packer_json.dirname %> ]; then mkdir -pv <%= packer_json.dirname %>; fi
 	cat <%= packer_yaml %> | \
-	${BUILD} -aPacker --scroll=<%= scroll.name %> 2>/dev/null | \
+	${BUILD} --in=yaml --out=json -aPacker --scroll=<%= scroll.name %> 2>/dev/null | \
 	tee <%= packer_json %> >/dev/null
 
 <%= source_json %>: <%= source_erb %>
