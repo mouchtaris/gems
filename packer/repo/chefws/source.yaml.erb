@@ -1,5 +1,5 @@
 % vagrant = rebind 'ubuntu-18.04'
-name: <%= vagrant.source_path %>
+name: <%= vagrant.metadata['name'] %>
 versions:
   - version: <%= vagrant.build_id %>
     providers:

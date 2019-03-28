@@ -20,15 +20,25 @@ module Builders
       @source_tmpl ||= @scroll.root / 'source.yaml.erb'
     end
 
+    def metadata_tmpl
+      @metadata_tmpl ||= @scroll.root / 'metadata.yaml.erb'
+    end
+
+    def render(tmpl_path)
+      require_relative '../util'
+      require 'erb'
+      require 'yaml'
+      YAML.safe_load ERB
+        .new(tmpl_path.read, 0, '%')
+        .result(binding)
+    end
+
     def source
-      @source ||= (
-        require_relative '../util'
-        require 'erb'
-        require 'yaml'
-        YAML.safe_load ERB
-          .new(source_tmpl.read, 0, '%')
-          .result(binding)
-      )
+      @source ||= render(source_tmpl)
+    end
+
+    def metadata
+      @metadata ||= render(source_tmpl)
     end
 
     def source_path
