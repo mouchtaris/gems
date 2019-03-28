@@ -1,15 +1,7 @@
 ---
-_name: chef-server
-_version: [0, 0, 0]
-_import:
-  - _name: chefws
-_description: A Vagrant Box with chef-server preinstalled
 builders:
   - type: vagrant
     communicator: ssh
-    source_path: '{{ user `chefws_artifact_name` }}'
-    box_name: chef-server
-    skip_add: true
 provisioners:
   - type: shell
     inline: |

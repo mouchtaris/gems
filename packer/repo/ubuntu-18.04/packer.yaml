@@ -2,9 +2,6 @@
 builders:
   - type: vagrant
     communicator: ssh
-    checksum: beb570232d96fe7c9909ffd29ea71827121f1c8fe8c8ad14aa57e29100401910
-    checksum_type: sha256
-    box_version: 201812.27.0
 provisioners:
  # Note
  # ====

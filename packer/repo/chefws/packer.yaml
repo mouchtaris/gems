@@ -2,7 +2,6 @@
 builders:
   - type: vagrant
     communicator: ssh
-    source_path: mastoras/ubuntu
 provisioners:
   - type: shell
     inline: |
