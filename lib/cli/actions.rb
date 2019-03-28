@@ -19,3 +19,4 @@ module Cli
   end
 end
 require_relative 'actions/recode'
+require_relative 'actions/console'

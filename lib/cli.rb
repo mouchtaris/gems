@@ -51,9 +51,9 @@ module Cli
     output(what.module_keys)
   end
 
-  def perform!(what, key, desc, optkey)
+  def perform!(what, key, optkey)
     performable_class = what[key] || (
-      raise "#{desc} not found: #{what}; try -#{optkey} to list"
+      raise "#{what} not found: #{key}; try -#{optkey} to list"
     )
     performable = performable_class.new(workspace)
     output(performable.perform(@opts))
@@ -64,8 +64,8 @@ module Cli
     return list! queries if @opts.list_queries?
     return list! actions if @opts.list_actions?
     return list! builders if @opts.list_builders?
-    return perform! queries, @opts.query, 'Query', Options::QUERY_KEY if @opts.query
-    return perform! actions, @opts.action, 'Action', Options::ACTION_KEY if @opts.action
+    return perform! queries, @opts.query, Options::QUERY_KEY if @opts.query
+    return perform! actions, @opts.action, Options::ACTION_KEY if @opts.action
     puts '???'
     pp @opts
   rescue RuntimeError => e

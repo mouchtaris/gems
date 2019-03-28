@@ -1,7 +1,8 @@
 % vagrant = rebind 'ubuntu-18.04'
-name: <%= vagrant.metadata['name'] %>
+% i = vagrant.metadata
+name: <%= i['name'] %>
 versions:
-  - version: <%= vagrant.build_id %>
+  - version: <%= i.dig('versions', 0, 'version') %>
     providers:
       - name: virtualbox
         url: <%= vagrant.metadata_json %>
