@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+#j0l"ay$j0l"by$
+#:wa:!scp debup drop:
+#7gg!!cat install_fish.sh | gzip --best | base64 -w 24255``
+function install_fish_bash() {
+  cat <<-GZIP_BASE
+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
+GZIP_BASE
+}
+
+true &&
+  source <(echo 'export PATH="$HOME/.local/bin:$PATH"' | tee -a ~/.bashrc) &&
+  if test ! -d ~/.rbenv
+  then
+    git clone https://github.com/rbenv/rbenv.git ~/.rbenv &&
+    cd ~/.rbenv && src/configure && make -C src &&
+    cd ~ &&
+    source <(echo 'export PATH="$HOME/.rbenv/bin:$PATH"' | tee -a ~/.bashrc) &&
+    rbenv init &&
+    rbenv init - &&
+    source <(rbenv init 2>&1 | tee -a ~/.bashrc) &&
+    mkdir -p "$(rbenv root)"/plugins &&
+    git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build &&
+    sudo apt-get install -y libssl-dev libreadline-dev zlib1g-dev &&
+    if test "$( rbenv versions 2>/dev/null | grep 2.6.2 | wc -l )" != 1
+    then
+      rbenv install 2.6.2
+    fi &&
+    rbenv local 2.6.2 &&
+    true
+  else
+    true
+  fi &&
+  if test ! -d vagrant
+  then
+    git clone https://github.com/hashicorp/vagrant.git &&
+    cd vagrant &&
+    gem install --user-install --no-document bundler &&
+    ruby ~/.gem/ruby/2.6.0/bin/bundle install --binstubs exec &&
+    source <(echo 'export PATH="$HOME/vagrant/exec:$PATH"' | tee -a ~/.bashrc) &&
+    true
+  else
+    true
+  fi &&
+    install_fish_bash \
+    | base64 --decode \
+    | gzip --decompress \
+    | env \
+        INSTALL_PREFIX=~/.local/share/applications/gofi.sh \
+      bash -x &&
+  source <(echo 'export PATH="$HOME/.local/share/applications/gofi.sh:$PATH"' | tee -a ~/.bashrc) &&
+  mkdir -pv $HOME/.local/bin &&
+  cat <<-'SUDO' | tee $HOME/.local/bin/sudo &&
+#!/usr/bin/env bash
+"$@"
+SUDO
+  chmod 755 $HOME/.local/bin/sudo &&
+  orig_sudo="$(which sudo 2>/dev/null)" &&
+  if test "$orig_sudo" -a ! -f $HOME/.local/bin/ulti
+  then
+    ln -sv "$orig_sudo" $HOME/.local/bin/ulti
+  else
+    true
+  fi &&
+  true
