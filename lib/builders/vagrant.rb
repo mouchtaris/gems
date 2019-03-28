@@ -7,7 +7,9 @@ module Builders
     end
 
     def build_id
-      'HELLO'
+      require 'time'
+      d = Time.now
+      "#{d.year}.#{d.month}.#{d.day}#{d.hour}#{d.min}#{d.sec}"
     end
 
     def output_dir
