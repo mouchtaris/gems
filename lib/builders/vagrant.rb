@@ -21,6 +21,8 @@ module Builders
     def source
       @source ||= (
         require_relative '../util'
+        require 'erb'
+        require 'yaml'
         YAML.safe_load ERB
           .new(source_tmpl.read, 0, '%')
           .result(binding)
@@ -55,7 +57,7 @@ module Builders
           'output_dir' => output_dir.to_s,
           'skip_add' => false,
           'source_path' => source_path.to_s,
-          'version' => build_id
+          'version' => build_id,
         )
         .freeze
     end

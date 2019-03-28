@@ -46,10 +46,9 @@ class Scroll
   def packer
     @packer ||= (
       require_relative 'builders'
-      inject = Builders
-        .injection(@workspace, @name, :inject)
+      inject = Builders.injection(self, :inject)
       packer_pure.merge(
-        BUILDERS => builders_pure.map(&inject),
+        BUILDERS => builders_pure.map(&inject.to_proc),
       )
     )
   end

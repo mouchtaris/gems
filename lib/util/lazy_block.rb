@@ -19,7 +19,7 @@ module Util
     end
 
     def to_proc
-      self
+      method :call
     end
   end
 end
