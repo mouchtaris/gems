@@ -16,12 +16,10 @@ true &&
     cd ~/.rbenv && src/configure && make -C src &&
     cd ~ &&
     source <(echo 'export PATH="$HOME/.rbenv/bin:$PATH"' | tee -a ~/.bashrc) &&
-    rbenv init &&
-    rbenv init - &&
     source <(rbenv init 2>&1 | tee -a ~/.bashrc) &&
     mkdir -p "$(rbenv root)"/plugins &&
     git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build &&
-    sudo apt-get install -y libssl-dev libreadline-dev zlib1g-dev &&
+    sudo apt-get install -y libssl-dev libreadline-dev zlib1g-dev unzip direnv libarchive-tools &&
     if test "$( rbenv versions 2>/dev/null | grep 2.6.2 | wc -l )" != 1
     then
       rbenv install 2.6.2
@@ -36,30 +34,58 @@ true &&
     git clone https://github.com/hashicorp/vagrant.git &&
     cd vagrant &&
     gem install --user-install --no-document bundler &&
-    ruby ~/.gem/ruby/2.6.0/bin/bundle install --binstubs exec &&
-    source <(echo 'export PATH="$HOME/vagrant/exec:$PATH"' | tee -a ~/.bashrc) &&
+    ruby ~/.gem/ruby/2.6.0/bin/bundle install --path=/,/bg --binstubs=exec &&
+    ln -sv $HOME/vagrant/exec/vagrant $HOME/.local/bin &&
     true
   else
     true
   fi &&
-    install_fish_bash \
-    | base64 --decode \
-    | gzip --decompress \
-    | env \
-        INSTALL_PREFIX=~/.local/share/applications/gofi.sh \
-      bash -x &&
-  source <(echo 'export PATH="$HOME/.local/share/applications/gofi.sh:$PATH"' | tee -a ~/.bashrc) &&
-  mkdir -pv $HOME/.local/bin &&
-  cat <<-'SUDO' | tee $HOME/.local/bin/sudo &&
-#!/usr/bin/env bash
-"$@"
-SUDO
-  chmod 755 $HOME/.local/bin/sudo &&
-  orig_sudo="$(which sudo 2>/dev/null)" &&
-  if test "$orig_sudo" -a ! -f $HOME/.local/bin/ulti
+  if test ! -f packer
   then
-    ln -sv "$orig_sudo" $HOME/.local/bin/ulti
+    true &&
+      curl 'https://releases.hashicorp.com/packer/1.3.5/packer_1.3.5_linux_amd64.zip' > packer.zip &&
+      unzip packer.zip &&
+      ln -sv $HOME/packer $HOME/.local/bin &&
+      true
   else
     true
   fi &&
+  if test ! -d mastoras
+  then
+    true &&
+      git clone --origin nikos --branch mastoras/develop git@github.com:mouchtaris/gems.git mastoras &&
+      source <(echo 'eval "$(direnv hook bash)"' | tee -a ~/.bashrc) &&
+      direnv allow mastoras/.envrc &&
+      cd mastoras &&
+      ruby ~/.gem/ruby/2.6.0/bin/bundle install --path=/,/bg --binstubs=vendor/bin &&
+      bash -x makemake &&
+      make gen &&
+      for s in ubuntu-18.04 chefws chef_server
+      do
+        make packer/_artifacts/$s/output-vagrant/package.box
+      done &&
+      true
+  else
+    true
+  fi &&
+if false; then
+  sudo apt-get remove -y docker docker-engine docker.io containerd runc &&
+  sudo apt-get install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common &&
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - &&
+  sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+       stable" &&
+  sudo apt-get update -y &&
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io &&
+true; fi &&
+  echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list &&
+  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 &&
+  sudo apt-get update &&
+  sudo apt-get install sbt &&
   true
