@@ -42,19 +42,19 @@ if [ ! $(which chef-server-ctl) ]; then
   #chef-server-ctl user-create chefadmin Chef Admin admin@4thcoffee.com insecurepassword --filename /drop/chefadmin.pem
 
   sudo chef-server-ctl \
-    org-create spongers \
-    'Spongers United FD' \
-    --association_user=crabs \
-    -f /local/spongers.pem \
-  &&
-
-  sudo chef-server-ctl \
     user-create \
     crabs \
     Craberman Crabs \
     craberman@crabs.bb \
     crabs12121212 \
     -f /local/crabs.pem \
+  &&
+
+  sudo chef-server-ctl \
+    org-create spongers \
+    'Spongers United FD' \
+    --association_user=crabs \
+    -f /local/spongers.pem \
   &&
 
   true
