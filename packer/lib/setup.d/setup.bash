@@ -6,7 +6,7 @@ find /mastoras/setup.d \
 | xargs bash -c '
   for arg;
   do
-    if [ test "$arg" != "setup.bash" ]
+    if test "$arg" != "setup.bash"
     then
       echo "*** $arg"
       bash "$arg" | sed -r -e "s,^,[$arg] ,"
