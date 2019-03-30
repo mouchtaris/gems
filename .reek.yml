@@ -1,0 +1,7 @@
+detectors:
+  IrresponsibleModule:
+    enabled: false
+exclude_paths:
+  - vendor/
+  - _bundler_gems/
+  - bin/exec.rb

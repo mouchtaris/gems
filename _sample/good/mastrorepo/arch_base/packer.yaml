@@ -1,0 +1,7 @@
+builders:
+  - type: vagrant
+    source: archlinux/archlinux
+provisioners:
+  - type: shell
+    inline: |
+      echo Hi, bob | sudo tee -a /bob

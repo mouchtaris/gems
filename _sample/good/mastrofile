@@ -1,0 +1,9 @@
+# vim: filetype=yaml
+---
+# Path to scroll library, relative to this file
+library: mastrorepo
+# Path to repository of artifact results (bazaar),
+# relative to this file
+bazaar: _artifacts
+# Name of packer.yaml file in each repo item
+packer_yaml_name: packer.yaml

@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+function error() {
+  printf 'error: ' 1>&2
+  printf "$@" 1>&2
+  printf '\n' 1>&2
+  exit 1
+}
+
+function dispatch() {
+  local command_name="$( basename "$1" )" && shift \
+  && case "$command_name" in
+    setup)
+      dispatch gem::is_installed bundler \
+      || gem install \
+        --no-document \
+        --user \
+        bundler \
+      && bundle install \
+        --binstubs=.overcommit/bin \
+        --gemfile=.overcommit_gems.rb \
+        --path _bundler_gems \
+      && bundle cache --all \
+      && bundle install \
+        --binstubs=.bundle/bin \
+        --gemfile=Gemfile \
+        --path _bundler_gems \
+      && bundle cache --all \
+      ;
+      ;;
+    gem::is_installed)
+      local gem_name="$1" && shift \
+      && gem list --local \
+        | grep "$gem_name" \
+        | wc -l \
+        | xargs test 1 =
+      ;;
+    oc)
+      env BUNDLE_GEMFILE=.overcommit_gems.rb \
+        bundle exec .overcommit/bin/overcommit "$@"
+      ;;
+    call)
+      dispatch "$@"
+      ;;
+    rk)
+      rake -f Rakefile "$@"
+      ;;
+    rbca)
+      call rk rubocop:auto_correct
+      ;;
+    lines)
+      find lib spec -iname '*.rb' -print0 | xargs -0 cat | wc -l
+      ;;
+    t)
+      set -x
+         rspec --format=documentation --fail-fast spec \
+      && rubocop --format=clang \
+      && reek --progress --format=text \
+      && bundle-audit check --verbose --update \
+      && fasterer \
+      ;;
+    exec.rb)
+      env BUNDLE_GEMFILE=Gemfile \
+        ruby -Ilib -rbundler/setup "$@"
+      ;;
+    console)
+      call exec.rb \
+        -rmastoras/console \
+        -e' Mastoras::Console
+              .new(ARGV)
+              .start!' \
+        "$@"
+      ;;
+    mlist)
+      call exec.rb \
+        -rmastoras/console \
+        -e' Mastoras::Console
+              .new(ARGV)
+              .facade
+              .list!'
+      ;;
+    prep)
+      call exec.rb \
+        -rmastoras/console \
+        -e' Mastoras::Console.new(ARGV)
+              .facade
+              .ab
+              .tap do |e|
+                e.prepare_site!
+                e.packer_json!
+              end'
+      ;;
+    *)
+      echo nada
+      ;;
+  esac
+}
+
+if test "$0" = "${BASH_SOURCE[0]}"
+then
+  dispatch "$0" "$@"
+fi

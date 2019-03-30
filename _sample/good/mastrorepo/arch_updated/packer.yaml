@@ -1,0 +1,7 @@
+builders:
+  - type: vagrant
+    source: '{{ user `mastoras.artifacts.arch_base.box` }}'
+provisioners:
+  - type: shell
+    inline: |
+      echo sudo pacman -Syu

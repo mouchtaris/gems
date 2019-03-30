@@ -1,0 +1,4 @@
+--format=documentation
+--force-color
+--fail-fast
+--order defined
