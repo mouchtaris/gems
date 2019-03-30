@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+vagrant ssh-config 2>/dev/null | sed -n -e'7,$p' | tee ~/.ssh/config
