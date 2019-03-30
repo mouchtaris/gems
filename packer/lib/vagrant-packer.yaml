@@ -5,7 +5,7 @@ builders:
 provisioners:
   - type: shell
     inline: |
-      sudo mkdir /mastoras &&
+      sudo mkdir -pv /mastoras &&
       sudo chmod 777 /mastoras &&
       true
   - type: file
