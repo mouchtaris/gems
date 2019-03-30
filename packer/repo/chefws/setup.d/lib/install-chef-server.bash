@@ -1,7 +1,7 @@
 # https://learn.chef.io/modules/manage-a-node-chef-server/ubuntu/bring-your-own-system/set-up-your-chef-server#/
 #!/bin/bash
 chef_server_deb=chef-server-core_12.19.31-1_amd64.deb
-chef_server_deb_path=/local/downloads/"$chef_server_deb"
+chef_server_deb_path=/mastoras/downloads/"$chef_server_deb"
 chef_server_deb_dir="$( dirname "$chef_server_deb_path" )"
 export DEBIAN_FRONTEND=noninteractive &&
 true&&
@@ -32,31 +32,8 @@ if [ ! $(which chef-server-ctl) ]; then
 
   sudo chef-server-ctl reconfigure &&
 
-  echo "Waiting for services..." &&
-  until (curl -D - http://localhost:8000/_status) | grep "200 OK"; do sleep 15s; done &&
-  while (curl http://localhost:8000/_status) | grep "fail"; do sleep 15s; done &&
-
-  echo "Creating initial user and organization..." &&
-
   #chef-server-ctl org-create 4thcoffee "Fourth Coffee, Inc." --association_user chefadmin --filename 4thcoffee-validator.pem
   #chef-server-ctl user-create chefadmin Chef Admin admin@4thcoffee.com insecurepassword --filename /drop/chefadmin.pem
-
-  sudo chef-server-ctl \
-    user-create \
-    crabs \
-    Craberman Crabs \
-    craberman@crabs.bb \
-    crabs12121212 \
-    -f /local/crabs.pem \
-  &&
-
-  sudo chef-server-ctl \
-    org-create spongers \
-    'Spongers United FD' \
-    --association_user=crabs \
-    -f /local/spongers.pem \
-  &&
-
   true
 fi &&
 

@@ -1,0 +1,11 @@
+---
+builders:
+  - type: vagrant
+    communicator: ssh
+provisioners:
+  - type: file
+    source: setup.d
+    destination: /mastoras/setup.d
+  - type: shell
+    inline: |
+      bash -x /mastoras/setup.d/setup.bash

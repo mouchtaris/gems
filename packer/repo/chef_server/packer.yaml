@@ -1,9 +1,1 @@
----
-builders:
-  - type: vagrant
-    communicator: ssh
-provisioners:
-  - type: shell
-    inline: |
-      sudo hostnamectl set-hostname server.sp.org &&
-      bash -x /local/install-chef-server.bash -- -
+../../lib/vagrant-packer.yaml

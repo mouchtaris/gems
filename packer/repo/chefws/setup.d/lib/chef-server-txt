@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+## Service Management Commands:
+##   graceful-kill
+##     Attempt a graceful stop, then SIGKILL the entire process group.
+##   hup
+##     Send the services a HUP.
+##   int
+##     Send the services an INT.
+##   kill
+##     Send the services a KILL.
+##   once
+##     Start the services if they are down. Do not restart them if they stop.
+##   restart
+##     Stop the services if they are running, then start them again.
+##   service-list
+##     List all the services (enabled services appear with a *.)
+##   start
+##     Start services if they are down, and restart them if they stop.
+##   status
+##     Show the status of all the services.
+##   stop
+##     Stop the services, and do not restart them.
+##   tail
+##     Watch the service logs of all enabled services.
+##   term
+##     Send the services a TERM.
+##   usr1
+##     Send the services a USR1.
+##   usr2
+##     Send the services a USR2.
+##
