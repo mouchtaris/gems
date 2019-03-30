@@ -1,7 +1,8 @@
-if test "${MASTORAS_SETUP_RUNNING:-x}" = 'x'
+if test "${MASTORAS_SETUP_RUNNING:+x}" = 'x'
 then
   exit 0
 fi
+export MASTORAS_SETUP_RUNNING=yes
 
 find /mastoras/setup.d \
   -mindepth 1 \
