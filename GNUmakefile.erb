@@ -31,7 +31,7 @@ BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 	<%= source_json %> \
 	<%= metadata_json %>
 % if scroll.setup_d?
-	cp -av <%= scroll.setup_d_path %> <%= scroll.artifact_dir %>
+	cp --preserve=all --recursive --dereference --verbose <%= scroll.setup_d_path %> <%= scroll.artifact_dir %>
 % end
 	cd <%= working_dir %> && packer build <%= packer_json.basename %>
 
