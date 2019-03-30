@@ -59,10 +59,14 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = 'mastoras/chefws'
 
   Machines.each do |machine_def|
     config.vm.define machine_def.name do |machine|
+      config.vm.box = 
+        case machine_def.name
+        when 'server' then 'mastoras/chef_server'
+        else 'mastoras/chefws'
+        end
       machine.vm.hostname = machine_def.hostname
       machine.vm.network 'private_network', ip: machine_def.ip
       machine.vm.provision 'shell', inline: Machines.provision_hosts
