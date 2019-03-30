@@ -3,6 +3,11 @@ builders:
   - type: vagrant
     communicator: ssh
 provisioners:
+  - type: shell
+    inline: |
+      sudo mkdir /mastoras &&
+      sudo chmod 777 /mastoras &&
+      true
   - type: file
     source: setup.d
     destination: /mastoras/setup.d
