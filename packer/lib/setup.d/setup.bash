@@ -1,3 +1,8 @@
+if test "${MASTORAS_SETUP_RUNNING:-x}" = 'x'
+then
+  exit 0
+fi
+
 find /mastoras/setup.d \
   -mindepth 1 \
   -maxdepth 1 \
@@ -6,9 +11,6 @@ find /mastoras/setup.d \
 | xargs bash -c '
   for arg;
   do
-    if test "$arg" != "setup.bash"
-    then
-      echo "*** $arg"
-      bash "$arg" | sed -r -e "s,^,[$arg] ,"
-    fi
+    echo "*** $arg"
+    bash "$arg" | sed -r -e "s,^,[$arg] ,"
   done' --
