@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+require 'json'
+UBUNTU = {
+  type: :docker,
+  image: :ubuntu,
+  discard: true,
+}
+  .map { |k, v| [k, v].map(&:to_s).map(&:freeze) }
+  .to_h
+  .freeze
+
+BUILDERS = [
+  UBUNTU
+]
+  .freeze
+
+File
+  .open('packer.json', 'r', &JSON.method(:load))
+  .tap do |j| 
+    j['builders'] = BUILDERS
+    File.open('packer.json', 'w') do |fout|
+      fout.write JSON.pretty_generate j
+    end
+  end
