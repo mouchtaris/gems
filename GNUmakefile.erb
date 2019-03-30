@@ -30,8 +30,8 @@ BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 	<%= packer_json %> \
 	<%= source_json %> \
 	<%= metadata_json %>
-% if scroll.lib?
-	cp -av <%= scroll.lib_path %> <%= scroll.artifact_dir %>
+% if scroll.setup_d?
+	cp -av <%= scroll.setup_d_path %> <%= scroll.artifact_dir %>
 % end
 	cd <%= working_dir %> && packer build <%= packer_json.basename %>
 

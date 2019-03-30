@@ -14,12 +14,12 @@ class Scroll
     @artifact_dir ||= (@workspace.artifact_repo / @name)
   end
 
-  def lib_path
-    @lib_path ||= (@root / 'lib')
+  def setup_d_path
+    @setup_d_path ||= (@root / 'setup.d')
   end
 
-  def lib?
-    lib_path.directory?
+  def setup_d?
+    setup_d_path.directory?
   end
 
   def packer_yaml_path
