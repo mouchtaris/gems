@@ -4,6 +4,9 @@ detectors:
   UncommunicativeMethodName:
     accept:
       - f
+  UncommunicativeParameterName:
+    accept:
+      - x
 exclude_paths:
   - vendor/
   - _bundler_gems/
