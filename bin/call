@@ -90,6 +90,9 @@ function dispatch() {
                 e.packer_json!
               end'
       ;;
+    i)
+      call exec.rb lib/adt.rb
+      ;;
     *)
       echo nada
       ;;
