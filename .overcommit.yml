@@ -1,4 +1,4 @@
-gemfile: .overcommit_gems.rb
+gemfile: .overcommit/Gemfile
 
 # Hooks that are run after `git commit` is executed, before the commit message
 # editor is displayed. These hooks are ideal for syntax checkers, linters, and

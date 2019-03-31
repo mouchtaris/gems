@@ -3,6 +3,7 @@ AllCops:
     - 'vendor/**/*'
     - '_bundler_gems/**/*'
     - 'bin/exec.rb'
+    - '.overcommit/Gemfile'
 Layout/MultilineMethodCallIndentation: { EnforcedStyle: indented }
 Metrics/BlockLength: { Exclude: ['spec/**/*.rb'] }
 Style/Documentation: { Enabled: False }

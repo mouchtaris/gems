@@ -17,9 +17,9 @@ function dispatch() {
         --user \
         bundler \
       && bundle install \
-        --binstubs=.overcommit/bin \
-        --gemfile=.overcommit_gems.rb \
-        --path _bundler_gems \
+        --binstubs=bin \
+        --gemfile=.overcommit/Gemfile \
+        --path ../_bundler_gems \
       && bundle cache --all \
       && bundle install \
         --binstubs=.bundle/bin \
@@ -36,7 +36,8 @@ function dispatch() {
         | xargs test 1 =
       ;;
     oc)
-      env BUNDLE_GEMFILE=.overcommit_gems.rb \
+      env \
+        BUNDLE_GEMFILE=.overcommit/Gemfile \
         bundle exec .overcommit/bin/overcommit "$@"
       ;;
     call)
