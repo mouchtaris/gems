@@ -1,6 +1,9 @@
 detectors:
   IrresponsibleModule:
     enabled: false
+  UncommunicativeMethodName:
+    accept:
+      - f
 exclude_paths:
   - vendor/
   - _bundler_gems/
