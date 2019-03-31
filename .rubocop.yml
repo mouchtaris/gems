@@ -8,3 +8,4 @@ Layout/MultilineMethodCallIndentation: { EnforcedStyle: indented }
 Metrics/BlockLength: { Exclude: ['spec/**/*.rb'] }
 Style/Documentation: { Enabled: False }
 Naming/UncommunicativeMethodParamName: { AllowedNames: [ws, x] }
+Style/AccessModifierDeclarations: { EnforcedStyle: inline, Enabled: false }
