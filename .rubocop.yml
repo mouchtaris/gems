@@ -7,4 +7,4 @@ AllCops:
 Layout/MultilineMethodCallIndentation: { EnforcedStyle: indented }
 Metrics/BlockLength: { Exclude: ['spec/**/*.rb'] }
 Style/Documentation: { Enabled: False }
-Naming/UncommunicativeMethodParamName: { AllowedNames: [ws] }
+Naming/UncommunicativeMethodParamName: { AllowedNames: [ws, x] }
