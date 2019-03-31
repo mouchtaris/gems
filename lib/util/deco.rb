@@ -3,12 +3,14 @@
 require 'bundler/setup'
 require 'args'
 
-module Cpp
+module Util
   class Deco
     include Args
 
-    module_function def schema
-      const_get :SCHEMA
+    class << self
+      def schema
+        const_get :SCHEMA
+      end
     end
 
     def initialize(value)
