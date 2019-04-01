@@ -97,7 +97,7 @@ blast:
 console:
 	${BUILD} -aConsole
 
-.PHONY: all clean blast console help gen hello
+.PHONY: all clean blast console help gen regen hello
 
 hello:
 	@echo Hello!
@@ -108,6 +108,8 @@ gen: \
 	<%= vagrant.source_json %> \
 	<%= vagrant.metadata_json %> \
 % end
+
+regen: clean gen
 
 help:
 	@echo \* all
