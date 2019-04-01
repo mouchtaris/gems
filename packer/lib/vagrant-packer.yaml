@@ -4,7 +4,7 @@ builders:
     communicator: ssh
 provisioners:
   - type: file
-    source: mastrinit.bash
+    source: lib/mastrinit.bash
     destination: /tmp/mastrinit.bash
   - type: shell
     inline: |

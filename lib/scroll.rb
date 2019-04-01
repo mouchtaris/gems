@@ -18,8 +18,16 @@ class Scroll
     @setup_d_path ||= (@root / 'setup.d')
   end
 
+  def lib_path
+    @lib_path ||= (@root / 'lib')
+  end
+
   def setup_d?
     setup_d_path.directory?
+  end
+
+  def lib?
+    lib_path.directory?
   end
 
   def packer_yaml_path
