@@ -7,10 +7,11 @@ provisioners:
     inline: |
       sudo mkdir -pv /mastoras &&
       sudo chmod 777 /mastoras &&
+      sudo rm -rfv /mastoras/setup.d &&
       true
   - type: file
     source: setup.d
-    destination: /mastoras/setup.d
+    destination: /mastoras
   - type: shell
     inline: |
       bash -x /mastoras/setup.d/setup.bash
