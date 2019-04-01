@@ -10,6 +10,6 @@ then
 else true
 fi &&
 sudo rm -rfv "$current" &&
-sudo mkdir -pv "$current" &&
-sudo ln -sv "$current" /mastoras/current &&
+mkdir -pv "$current" &&
+ln -sv "$current" /mastoras/current &&
 true
