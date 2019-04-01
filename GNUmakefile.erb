@@ -1,7 +1,7 @@
 BUILD0 := <%= $0 %> --root=<%= @workspace.root %>
 BUILD_ID := $(shell ${BUILD0} -qBuildId --out=erb 2>/dev/null)
 BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
-INSTALL := cp -r -v -L
+INSTALL := cp -r -v
 % targets = []
 %
 % @workspace
