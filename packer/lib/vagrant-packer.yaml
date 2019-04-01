@@ -1,17 +1,19 @@
 ---
+_env: &env
+  - 'MASTORAS_BUILD_ROOT={{ user `mastoras::build_root` }}'
+  - 'MASTORAS_SCROLL_NAME={{ user `mastoras::scroll_name` }}'
 builders:
   - type: vagrant
     communicator: ssh
 provisioners:
-  - type: file
-    source: lib/mastrinit.bash
-    destination: /tmp/mastrinit.bash
   - type: shell
-    inline: |
-      bash -x /tmp/mastrinit.bash '{{ user `mastoras::artifact_name` }}'
+    script: '{{ user `mastoras::mastrinit_local` }}'
+    remote_path: '{{ user `mastoras::mastrinit_remote` }}'
+    environment_vars: *env
   - type: file
     source: setup.d
     destination: /mastoras/current
   - type: shell
+    environment_vars: *env
     inline: |
       bash -x /mastoras/current/setup.d/setup.bash

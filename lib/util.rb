@@ -10,7 +10,7 @@ module Util
       File.open('r', source) { |fin| load_yaml(fin) }
     when ::IO
       require 'yaml'
-      YAML.safe_load(source)
+      YAML.load(source)
     else
       raise ArgumentError, "Cannot handle #{source.inspect} as a YAML source"
     end

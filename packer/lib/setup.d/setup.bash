@@ -4,7 +4,7 @@ then
 fi
 export MASTORAS_SETUP_RUNNING=yes
 
-find /mastoras/setup.d \
+find "$MASTORsetup.d \
   -mindepth 1 \
   -maxdepth 1 \
   -name '*.bash' \
