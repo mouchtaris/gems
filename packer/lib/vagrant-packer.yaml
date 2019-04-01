@@ -11,7 +11,7 @@ provisioners:
       bash -x /tmp/mastrinit.bash '{{ user `mastoras::artifact_name` }}'
   - type: file
     source: setup.d
-    destination: /mastoras/
+    destination: /mastoras/current
   - type: shell
     inline: |
-      bash -x /mastoras/setup.d/setup.bash
+      bash -x /mastoras/current/setup.d/setup.bash
