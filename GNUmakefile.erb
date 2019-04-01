@@ -1,6 +1,7 @@
 BUILD0 := <%= $0 %> --root=<%= @workspace.root %>
 BUILD_ID := $(shell ${BUILD0} -qBuildId --out=erb 2>/dev/null)
 BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
+INSTALL := cp -r -v -L
 % targets = []
 %
 % @workspace
@@ -31,10 +32,10 @@ BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 	<%= source_json %> \
 	<%= metadata_json %>
 % if scroll.setup_d?
-	cp -av <%= scroll.setup_d_path %> <%= scroll.artifact_dir %>
+	${INSTALL} <%= scroll.setup_d_path %> <%= scroll.artifact_dir %>
 % end
 % if scroll.lib?
-	cp -av <%= scroll.lib_path %> <%= scroll.artifact_dir %>
+	${INSTALL} <%= scroll.lib_path %> <%= scroll.artifact_dir %>
 % end
 	cd <%= working_dir %> && packer build <%= packer_json.basename %>
 
