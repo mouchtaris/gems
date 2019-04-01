@@ -58,6 +58,20 @@ INSTALL := cp -r -v -L
 	| exec/tag metadata.json pink | exec/tag <%= scroll.name %> blue
 % end
 
+#
+# Dependencies
+#
+
+% {
+%   'chefws' => 'ubuntu-18.04',
+%   'chef_server' => 'chefws',
+% }
+% .each do |depends, on|
+%   depv = @workspace.builder('Vagrant', depends)
+%   onv = @workspace.builder('Vagrant', on)
+<%= depv.artifact(opts) %>: <%= onv.artifact(opts) %>
+% end
+
 all: \
 % targets.each do |vagrant|
 	<%= vagrant.artifact(nil) %> \
