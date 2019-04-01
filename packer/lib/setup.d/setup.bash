@@ -7,7 +7,7 @@ export MASTORAS_SETUP_RUNNING=yes
 find "$MASTORsetup.d \
   -mindepth 1 \
   -maxdepth 1 \
-  -name '*.bash' \
+  -regex '[0-9]+-*.bash' \
 | sort \
 | xargs bash -c '
   for arg;
