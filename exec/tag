@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+$: << File.join(__dir__, '..', 'lib')
+require 'colourtable'
+
+tag = Colourtable::String.from(ARGV[0])
+colour = ARGV[1]
+coloured_tag = tag.send(colour.to_sym)
+
+STDIN.each_line do |line|
+  puts "[#{coloured_tag}] #{line}"
+end

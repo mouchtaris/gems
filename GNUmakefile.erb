@@ -39,19 +39,19 @@ BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 	if [ ! -d <%= packer_json.dirname %> ]; then mkdir -pv <%= packer_json.dirname %>; fi
 	${BUILD} -qPacker --scroll=<%= scroll.name %> --out=json 2>/dev/null \
 	| tee <%= packer_json %> \
-        | ruby -p -e '$$_ = "[packer.json] #{$$_}"'
+        | exec/tag packer.json green | exec/tag <%= scroll.name %> blue
 
 <%= source_json %>: <%= source_erb %>
 	if [ ! -d <%= source_json.dirname %> ]; then mkdir -pv <%= source_json.dirname %>; fi
 	${BUILD} -qSource --scroll=<%= scroll.name %> --out=json 2>/dev/null \
 	| tee <%= source_json %> \
-        | ruby -p -e '$$_ = "[source.json] #{$$_}"'
+	| exec/tag source.json light_blue | exec/tag <%= scroll.name %> blue
 
 <%= metadata_json %>: <%= metadata_erb %>
 	if [ ! -d <%= metadata_json.dirname %> ]; then mkdir -pv <%= metadata_json.dirname %>; fi
 	${BUILD} -qMetadata --scroll=<%= scroll.name %> --out=json 2>/dev/null \
 	| tee <%= metadata_json %> \
-        | ruby -p -e '$$_ = "[metadata.json] #{$$_}"'
+	| exec/tag metadata.json pink | exec/tag <%= scroll.name %> blue
 % end
 
 all: \
