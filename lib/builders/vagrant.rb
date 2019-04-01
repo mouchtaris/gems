@@ -6,7 +6,7 @@ module Builders
       def gen_build_id
         require 'time'
         d = Time.now
-        "#{d.year}.#{d.month}.#{d.day}#{d.hour}#{d.min}#{d.sec}"
+        sprintf('%04d.%02d.%02d%02d%02d%02d', d.year, d.month, d.day, d.hour, d.min, d.sec)
       end
     end
 
