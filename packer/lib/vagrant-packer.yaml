@@ -3,15 +3,15 @@ builders:
   - type: vagrant
     communicator: ssh
 provisioners:
+  - type: file
+    source: mastrinit.bash
+    destination: /tmp/mastrinit.bash
   - type: shell
     inline: |
-      sudo mkdir -pv /mastoras &&
-      sudo chmod 777 /mastoras &&
-      sudo rm -rfv /mastoras/setup.d &&
-      true
+      bash -x /tmp/mastrinit.bash '{{ user `mastoras::artifact_name` }}'
   - type: file
     source: setup.d
-    destination: /mastoras
+    destination: /mastoras/
   - type: shell
     inline: |
       bash -x /mastoras/setup.d/setup.bash
