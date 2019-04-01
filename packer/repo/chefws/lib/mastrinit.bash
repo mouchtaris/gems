@@ -1,1 +1,1 @@
-../../lib/mastrinit.bash
+../../../lib/mastrinit.bash
