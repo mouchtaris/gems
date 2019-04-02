@@ -30,6 +30,12 @@ class Scroll
     lib_path.directory?
   end
 
+  def resources
+    [
+      setup_d_path,
+    ]
+  end
+
   def packer_yaml_path
     @packer_yaml_path ||= (
       require_relative 'constants'

@@ -1,0 +1,48 @@
+#!/bin/sh
+
+Error() {
+  local msg="$1" && shift &&
+  printf '%s\n' "$msg" 2>&1
+  exit 1
+}
+
+Pack() {
+  local dir="$1" && shift || { Error 'Pack(dir) missing'; }
+  tar \
+    --directory "$dir" \
+    --dereference \
+    --create \
+    . \
+  ;
+}
+
+Sum() {
+  openssl sha512 -r
+}
+
+Sumpath() {
+  local dir="$1" && shift || Error 'Sumpath(dir) missing'
+  echo "$dir.sum"
+}
+
+# Update Checksum() if changed
+#
+Sumpdate() {
+  local dir="$1" && shift || { Error 'Sumpdate(dir) missing'; }
+  local tarpath="$1" && shift || { Error 'Sumpdate(_, tarpath) missing'; }
+  local sumpath="$(Sumpath "$dir")" &&
+
+  Pack "$dir" >"$tarpath" &&
+  local sum="$(Sum <"$tarpath")" &&
+
+  if { test ! -f "$sumpath" || test "$(cat "$sumpath")" != "$sum"; }
+  then
+    printf '%s' "$sum" | tee "$sumpath"
+  fi
+}
+
+Setup () {
+  local dir="$1" && shift || { Error 'Sumpdate(dir) missing'; }
+  local tarpath="$1" && shift || { Error 'Sumpdate(_, tarpath) missing'; }
+  Sumpdate "$dir" "$tarpath"
+}

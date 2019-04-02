@@ -5,8 +5,12 @@ fi
 if [ $(which chef-server-ctl) ]; then
   echo "Creating initial user and organization..." &&
 
-  { test ! -d /local && mkdir -pv /local; } || true &&
-  { test -d /local || exit 1; }
+  if test ! -d /local
+  then
+    sudo mkdir -pv /local &&
+    sudo chmod 777 /local &&
+    true
+  fi &&
 
   sudo chef-server-ctl \
     user-create \

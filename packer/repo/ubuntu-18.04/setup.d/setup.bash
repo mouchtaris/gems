@@ -1,1 +1,0 @@
-../../../lib/setup.d/setup.bash

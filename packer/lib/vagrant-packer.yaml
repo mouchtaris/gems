@@ -2,18 +2,30 @@
 _env: &env
   - 'MASTORAS_BUILD_ROOT={{ user `mastoras::build_root` }}'
   - 'MASTORAS_SCROLL_NAME={{ user `mastoras::scroll_name` }}'
+  - '_MASTORAS_RESET='
 builders:
   - type: vagrant
     communicator: ssh
+  - name: test
+    type: 'null'
+    communicator: ssh
+    ssh_host: 127.0.0.1
+    ssh_port: 2222
+    ssh_username: vagrant
+    ssh_private_key_file: ../../../.vagrant/machines/test/virtualbox/private_key
 provisioners:
   - type: shell
-    script: '{{ user `mastoras::mastrinit_local` }}'
     remote_path: '{{ user `mastoras::mastrinit_remote` }}'
     environment_vars: *env
+    script: '{{ user `mastoras::mastrinit_local` }}'
   - type: file
-    source: setup.d
-    destination: /mastoras/current
+    source: setup.d.tar
+    destination: '{{ user `mastoras::build_root` }}/current/setup.d.tar'
+  - type: file
+    source: lib
+    destination: '{{ user `mastoras::build_root` }}/current'
   - type: shell
+    remote_path: '{{ user `mastoras::build_root` }}/current/call_setup.sh'
     environment_vars: *env
     inline: |
-      bash -x /mastoras/current/setup.d/setup.bash
+      bash -x '{{ user `mastoras::build_root` }}/current/lib/setup.sh'

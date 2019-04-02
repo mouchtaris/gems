@@ -5,4 +5,4 @@
 # required for non-interactive installs of `dpkg`, and it is
 # hard(er) and more uncertain to propagate with sudo.
 #
-sudo bash -x /mastoras/setup.d/100-apt/su.bash
+sudo bash -x "$CURRENT/setup.d/100-apt/su.sh"

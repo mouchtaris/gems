@@ -1,4 +1,4 @@
-lib=/mastoras/setup.d/lib
+lib="$CURRENT/setup.d/lib"
 chef_d=$HOME/.chef
 chef_config=$chef_d/config.rb
 cookbooks="$(ruby -- $chef_config <<-'RUBY'

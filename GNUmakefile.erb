@@ -1,8 +1,27 @@
 BUILD0 := <%= $0 %> --root=<%= @workspace.root %>
 BUILD_ID := $(shell ${BUILD0} -qBuildId --out=erb 2>/dev/null)
 BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
-INSTALL := cp -r -v
-% targets = []
+
+% vagrants = []
+% phonies = []
+% def targets; @targets ||= [] end
+% def t(t, mod = nil); if mod then "#{t}_#{mod}" else t end.tap { |t| targets << t } end
+% def e(str); Shellwords.shellescape(str) end
+%
+% def make_sumpath(dir)
+%   require 'open3'
+%   out, status = Open3
+%     .capture2e(
+%       '/usr/bin/env',
+%       'bash',
+%       '-c',
+%       'source packer/lib/install && Sumpath "$1"',
+%       '-',
+%       Shellwords.escape(dir)
+%     )
+%   fail out unless status.success?
+%   out.strip
+% end
 %
 % @workspace
 % .scroll_repo
@@ -25,38 +44,50 @@ INSTALL := cp -r -v
 %   source_erb = vagrant.source_erb
 %   metadata_erb = vagrant.metadata_erb
 %
-%   targets << vagrant
+%   setup_d_sumpath = make_sumpath(scroll.setup_d_path)
+%   lib_sumpath = make_sumpath(scroll.lib_path)
+%   lib_path = working_dir / scroll.lib_path.basename
 %
-<%= artifact %>: \
+%   vagrants << vagrant
+%
+%   phonies.concat [scroll.name.to_s, "#{scroll.name}_setup"]
+%
+<%= t scroll.name %>: <%= scroll.name %>_setup <%= artifact %>
+<%= t scroll.name, :test %>: <%= artifact %>_test
+<%= t artifact %>: \
 	<%= packer_json %> \
 	<%= source_json %> \
-	<%= metadata_json %>
-% if scroll.setup_d?
-	${INSTALL} <%= scroll.setup_d_path %> <%= scroll.artifact_dir %>
+	<%= metadata_json %> \
+	<%= setup_d_sumpath %> \
+	<%= lib_sumpath %>
+	cd <%= working_dir %> && packer build -except test <%= packer_json.basename %>
+<%= t artifact, :test %>: <%= scroll.name %>_setup
+	cd <%= working_dir %> && packer build -only test <%= packer_json.basename %>
+<%= t scroll.name, :setup %>:
+	rm -rf <%= lib_path %>
+	mkdir -pv <%= lib_path.dirname %>
+	cp -rv <%= scroll.lib_path %> <%= lib_path %>
+% scroll.resources.each do |rc|
+%   target = working_dir / rc.basename
+	mkdir -pv <%= target.dirname %>
+	bash -x -c ' \
+	  source packer/lib/install && \
+	  Setup "$$@" \
+	' - <%= rc %> <%= target %>.tar
 % end
-% if scroll.lib?
-	${INSTALL} <%= scroll.lib_path %> <%= scroll.artifact_dir %>
+
+% [
+%   [packer_json, packer_yaml, :Packer, 'packer.json'],
+%   [source_json, source_erb, :Source, 'source.json'],
+%   [metadata_json, metadata_erb, :Metadata, 'metadata.json'],
+% ].each do |target, source, query, tag|
+<%= t target %>: <%= source %>
+	if [ ! -d <%= target.dirname %> ]; then mkdir -pv <%= target.dirname %>; fi
+	${BUILD} -q<%= query %> --scroll=<%= scroll.name %> --out=json 2>/dev/null \
+	| tee <%= target %> \
+	| exec/tag <%= tag %> green | exec/tag <%= scroll.name %> blue
 % end
-	cd <%= working_dir %> && packer build <%= packer_json.basename %>
-
-<%= packer_json %>: <%= packer_yaml %>
-	if [ ! -d <%= packer_json.dirname %> ]; then mkdir -pv <%= packer_json.dirname %>; fi
-	${BUILD} -qPacker --scroll=<%= scroll.name %> --out=json 2>/dev/null \
-	| tee <%= packer_json %> \
-        | exec/tag packer.json green | exec/tag <%= scroll.name %> blue
-
-<%= source_json %>: <%= source_erb %>
-	if [ ! -d <%= source_json.dirname %> ]; then mkdir -pv <%= source_json.dirname %>; fi
-	${BUILD} -qSource --scroll=<%= scroll.name %> --out=json 2>/dev/null \
-	| tee <%= source_json %> \
-	| exec/tag source.json light_blue | exec/tag <%= scroll.name %> blue
-
-<%= metadata_json %>: <%= metadata_erb %>
-	if [ ! -d <%= metadata_json.dirname %> ]; then mkdir -pv <%= metadata_json.dirname %>; fi
-	${BUILD} -qMetadata --scroll=<%= scroll.name %> --out=json 2>/dev/null \
-	| tee <%= metadata_json %> \
-	| exec/tag metadata.json pink | exec/tag <%= scroll.name %> blue
-% end
+% end # foreach scroll
 
 #
 # Dependencies
@@ -67,21 +98,33 @@ INSTALL := cp -r -v
 %   'chef_server' => 'chefws',
 % }
 % .each do |depends, on|
-%   depv = @workspace.builder('Vagrant', depends)
-%   onv = @workspace.builder('Vagrant', on)
-<%= depv.artifact(opts) %>: <%= onv.artifact(opts) %>
+<%= depends %>: <%= on %>
 % end
 
-all: \
-% targets.each do |vagrant|
-	<%= vagrant.artifact(nil) %> \
+#
+# High class targets
+#
+
+<%= t :all %>: \
+% vagrants.each do |vagrant|
+	<%= vagrant.scroll.name %> \
 % end
 
-clean:
+<%= t :test %>: \
+% vagrants.each do |vagrant|
+	<%= vagrant.scroll.name %>_test \
+%end
+
+<%= t :setup %>: \
+% vagrants.each do |vagrant|
+	<%= vagrant.scroll.name %>_setup \
+% end
+
+<%= t :clean %>:
 	rm -rf <%= @workspace.artifact_repo %>
 
 Makefile: GNUmakefile.erb \
-% targets.each do |vagrant|
+% vagrants.each do |vagrant|
 	<%= vagrant.scroll.packer_yaml %> \
 % end
 
@@ -89,32 +132,29 @@ Makefile: GNUmakefile.erb \
 	${BUILD} --in=erb --out=erb -aRecode | \
 	tee Makefile 
 
-blast:
-% targets.each do |vagrant|
+<%= t :blast %>:
+% vagrants.each do |vagrant|
 	vagrant box remove --all <%= vagrant.source_path %> || true # let is fail
 % end
 
-console:
+<%= t :console %>:
 	${BUILD} -aConsole
 
-.PHONY: all clean blast console help gen regen hello
+.PHONY: all clean blast console help gen regen hello test <%= phonies.map(&:to_s).join(' ') %>
 
-hello:
+<%= t :hello %>:
 	@echo Hello!
 
-gen: \
-% targets.each do |vagrant|
+<%= t :gen %>: \
+% vagrants.each do |vagrant|
 	<%= vagrant.scroll.packer_json %> \
 	<%= vagrant.source_json %> \
 	<%= vagrant.metadata_json %> \
 % end
 
-regen: clean gen
+<%= t :regen %>: clean gen
 
 help:
-	@echo \* all
-	@echo \* clean
-	@echo \* blast
-% targets.each do |vagrant|
-	@echo \* <%= vagrant.scroll.name %>
+% targets.each do |target|
+	@echo \* <%= target %>
 % end

@@ -1,5 +1,5 @@
+#!/bin/sh
 # https://learn.chef.io/modules/manage-a-node-chef-server/ubuntu/bring-your-own-system/set-up-your-chef-server#/
-#!/bin/bash
 chef_server_deb=chef-server-core_12.19.31-1_amd64.deb
 chef_server_deb_path=/mastoras/downloads/"$chef_server_deb"
 chef_server_deb_dir="$( dirname "$chef_server_deb_path" )"
