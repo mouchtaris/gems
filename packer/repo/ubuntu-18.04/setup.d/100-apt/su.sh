@@ -6,6 +6,7 @@ apt-get install --yes \
   docker-ce \
   fish \
   python-pip \
+  ruby \
   tmux \
   vim \
   </dev/null \
