@@ -18,8 +18,9 @@ RUBY
 mkdir -pv $chef_d &&
   cp -av $lib/config.rb $chef_config &&
 
-mkdir -pv /local &&
-  cp -av $lib/get_pem_keys.bash /local/ &&
+sudo mkdir -pv /mloc &&
+  sudo chmod 777 /mlix &&
+  cp -av $lib/get_pem_keys.bash /mloc &&
 
 mkdir -pv "$cookbooks" &&
   cd "$cookbooks" &&
