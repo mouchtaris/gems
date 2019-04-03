@@ -7,7 +7,8 @@ mkdir -pv "$CURRENT/setup.d" &&
 tar \
   --directory="$CURRENT/setup.d" \
   --extract \
-  "$CURRENT/setup.d.tar" &&
+  --file "$CURRENT/setup.d.txz" \
+  &&
 
 find "$CURRENT/setup.d" \
   -mindepth 1 \

@@ -19,8 +19,8 @@ provisioners:
     environment_vars: *env
     script: '{{ user `mastoras::mastrinit_local` }}'
   - type: file
-    source: setup.d.tar
-    destination: '{{ user `mastoras::build_root` }}/current/setup.d.tar'
+    source: setup.d.txz
+    destination: '{{ user `mastoras::build_root` }}/current/setup.d.txz'
   - type: file
     source: lib
     destination: '{{ user `mastoras::build_root` }}/current'

@@ -73,7 +73,7 @@ BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 	bash -x -c ' \
 	  source packer/lib/install && \
 	  Setup "$$@" \
-	' - <%= rc %> <%= target %>.tar
+	' - <%= rc %> <%= target %>.txz
 % end
 
 % [
