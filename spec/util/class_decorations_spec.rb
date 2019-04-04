@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'util/class_decorations'
 
 RSpec.describe Util::ClassDecorations do
-  DescribedClass = decribed_class
+  DescribedClass = described_class
 
   let(:decorated) do
     Class.new do
