@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+set -vx
+
+export BUNDLE_PATH="${BUNDLE_PATH:-../_bundle_gems}"
+
+bundle install \
+  --gemfile=.overcommit/Gemfile \
+  --binstubs=bin \
+  &&
+bundle install \
+  --gemfile=Gemfile \
+  --binstubs=.bundle/bin \
+  &&
+bundle cache \
+  --all \
+  &&
+true

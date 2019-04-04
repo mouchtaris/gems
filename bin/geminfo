@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+gem_file="$1" && shift || {
+  printf 'USAGE:\n\n  %s gem_file\n' "$0" 1>&2
+  exit 1
+} &&
+
+tar                           \
+  --extract                   \
+  --file "$gem_file"          \
+  --wildcards metadata.gz     \
+  --to-stdout                 \
+  | gzip --decompress         \
+  | ruby                      \
+      -ryaml                  \
+      -rpp                    \
+      -e 'pp YAML.load $<'    \
+  &&
+
+true

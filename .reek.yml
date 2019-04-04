@@ -1,0 +1,11 @@
+detectors:
+  IrresponsibleModule:
+    enabled: false
+  UncommunicativeMethodName:
+    accept:
+      - f
+  UncommunicativeParameterName:
+    accept:
+      - x
+exclude_paths:
+  - vendor/
