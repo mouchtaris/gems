@@ -1,6 +1,7 @@
-RSpec.describe Util::Args do
+require 'util/args'
 
-  describe Args::Schematic do
+RSpec.describe Util::Args do
+  describe Util::Args::Schematic do
     SCHEMA = Hash[
       a_type: Class.new,
       array_of: Array[Class.new],
@@ -9,8 +10,8 @@ RSpec.describe Util::Args do
         y: Integer,
       ],
       tuple: Array[String, Integer],
-      any_of: Args.or(String, Symbol),
-      any_combo_deal: Args.or(
+      any_of: Util::Args.or(String, Symbol),
+      any_combo_deal: Util::Args.or(
         Array[Hash[x: Integer, y: Integer]],
         Hash[points: Array[Integer]],
       ),
@@ -28,7 +29,7 @@ RSpec.describe Util::Args do
     end
 
     let(:schematic) {
-      Class.new(Args::Schematic) do
+      Class.new(Util::Args::Schematic) do
         const_set :SCHEMA, SCHEMA
       end
     }

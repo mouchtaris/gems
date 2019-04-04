@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'args'
+require 'util/args'
 
 module Util
   class Deco
