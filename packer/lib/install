@@ -36,12 +36,15 @@ Sumpdate() {
   local tarpath="$1" && shift || { Error 'Sumpdate(_, tarpath) missing'; }
   local sumpath="$(Sumpath "$dir")" &&
 
+  printf '[I] packing %s into %s...' "$dir" "$tarpath"
   Pack "$dir" >"$tarpath" &&
   local sum="$(Sum <"$tarpath")" &&
 
   if { test ! -f "$sumpath" || test "$(cat "$sumpath")" != "$sum"; }
   then
-    printf '%s\n' "$sum" | tee "$sumpath"
+    printf '%s\n' "$sum" | tee "$sumpath" | sed -r -e 's/^/[I] NEW SAM: /'
+  else
+    printf '[I] sum unchanged\n'
   fi
 }
 
