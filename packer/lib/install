@@ -41,7 +41,7 @@ Sumpdate() {
 
   if { test ! -f "$sumpath" || test "$(cat "$sumpath")" != "$sum"; }
   then
-    printf '%s' "$sum" | tee "$sumpath"
+    printf '%s\n' "$sum" | tee "$sumpath"
   fi
 }
 
