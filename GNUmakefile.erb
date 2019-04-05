@@ -70,7 +70,7 @@ BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 % scroll.resources.each do |rc|
 %   target = working_dir / rc.basename
 	mkdir -pv <%= target.dirname %>
-	bash -x -c ' \
+	bash -c ' \
 	  source packer/lib/install && \
 	  Setup "$$@" \
 	' - <%= rc %> <%= target %>.txz
