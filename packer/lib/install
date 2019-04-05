@@ -36,7 +36,7 @@ Sumpdate() {
   local tarpath="$1" && shift || { Error 'Sumpdate(_, tarpath) missing'; }
   local sumpath="$(Sumpath "$dir")" &&
 
-  printf '[I] packing %s into %s...' "$dir" "$tarpath"
+  printf '[I] packing %s into %s...\n' "$dir" "$tarpath"
   Pack "$dir" >"$tarpath" &&
   local sum="$(Sum <"$tarpath")" &&
 
