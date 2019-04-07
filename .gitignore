@@ -1,1 +1,4 @@
 /compile_commands.json
+/doc/doxygen/html/
+/doc/doxygen/latex/
+/doc/doxygen/xml/

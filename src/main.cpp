@@ -57,14 +57,15 @@ using ids = util::tupl::IdManager<>
 
 int main(int, char**)
 {
-    constexpr auto path = uri::path::t{{}, {
-        "/v1/users/2/booking/services"
-    }};
-    constexpr auto msg = fcgi::message::t{{}, {
-        path
-    }};
-    constexpr auto lols = ::make_array("aalol");
-    (void)&msg;
+    using util::p;
+    //constexpr auto path = uri::path::t{{}, {
+    //    "/v1/users/2/booking/services"
+    //}};
+    //constexpr auto msg = fcgi::message::t{{}, {
+    //    path
+    //}};
+    //(void)&msg;
+    constexpr auto lols = util::make_array("aalol");
     debug__((util::is_template<std::tuple, std::tuple<int>>::value));
     debug__((util::is_template<std::basic_string, std::tuple<>>::value));
     debug__((util::is_template<std::tuple, std::tuple<int, float>, int, float>::value));
@@ -76,23 +77,13 @@ int main(int, char**)
     debug__((std::is_same_v<ids, util::tupl::IdManager<t3, t2, t1, t0, void>>));
     debug__((std::is_same_v<std::decay_t<decltype(lols)>, std::array<char const, sizeof(decltype(lols))>>));
     debug__((p<ids>()));
-    debug__((ids::is_mine<t3>));
-    debug__((ids::is_mine<t2>));
-    debug__((ids::is_mine<t1>));
-    debug__((ids::is_mine<t0>));
+    debug__((ids::is_mine<t3>()));
+    debug__((ids::is_mine<t2>()));
+    debug__((ids::is_mine<t1>()));
+    debug__((ids::is_mine<t0>()));
     debug__((p<ids::drop>()));
-    debug__((ids::drop::is_mine<t3>));
-    debug__((ids::drop::is_mine<t2>));
-    debug__((ids::drop::is_mine<t1>));
-    debug__((ids::drop::is_mine<t0>));
-
-    using sys = util::tupl::System<void>
-        ::def<int, int, int, int>;
-    debug__((sys::is_func<int, int, int, int>()));
-    debug__((sys::is_func<int, int, int>()));
-    debug__((p<sys::first>()));
-    debug__((p<util::tupl::Function::get<util::tupl::Function::tag, sys::first>>()));
-    debug__((p<util::tupl::Function::get<util::tupl::Function::F, sys::first>>()));
-    debug__((p<util::tupl::Function::get<util::tupl::Function::T, sys::first>>()));
-    debug__((p<util::tupl::Function::get<util::tupl::Function::Args, sys::first>>()));
+    debug__((ids::drop::is_mine<t3>()));
+    debug__((ids::drop::is_mine<t2>()));
+    debug__((ids::drop::is_mine<t1>()));
+    debug__((ids::drop::is_mine<t0>()));
 }
