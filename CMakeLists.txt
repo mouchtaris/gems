@@ -14,7 +14,6 @@ add_library(libutil)
 target_link_libraries(libutil PRIVATE _compile_options)
 target_sources(libutil PRIVATE
     src/util/arrays.cpp
-    src/util/find.cpp
     src/util/index.cpp
     src/util/lazy_conditional.cpp
     src/util/lib.cpp
