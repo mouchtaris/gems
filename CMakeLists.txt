@@ -16,6 +16,7 @@ target_link_libraries(u PRIVATE _compile_options)
 target_sources(u PRIVATE
     src/u/arr/make_array.cpp
     src/u/test.cpp
+    src/u/f/compose.cpp
 )
 
 

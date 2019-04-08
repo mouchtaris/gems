@@ -1,6 +1,7 @@
 #include "u/test.h"
 #include "u/arr/make_array.h"
 #include "u/p.h"
+#include "u/f/compose.h"
 #include <iostream>
 #include <type_traits>
 #include <algorithm>
@@ -33,10 +34,34 @@ namespace make_array {
         debug__(( p<decltype(subj)::value_type>() ));
     }
 }
-}}
+namespace compose {
+    constexpr auto f = [](int x) { return x + 1; };
+    constexpr auto g = [](int x) { return x - 1; };
+    constexpr auto fog = u::f::compose(f, g);
+    static_assert(fog(0) == 0, "");
 
-int u::spec::main(int, char const*[])
+    void runtime() {
+        auto f_ = f;
+        auto g_ = g;
+        auto fog_ = u::f::compose(f_, g_);
+        auto oops = []() { return false; };
+        assert__(( fog_(0) == 0 ));
+        assert__(( oops() ));
+
+        auto persists = []() {
+            return u::f::compose(
+                [](int x) { return x + 1; },
+                [](int x) { return x - 1; }
+            );
+        };
+        assert__(( persists()(0) == 0 ));
+    }
+}}
+}
+
+int ::u::spec::main(int, char const*[])
 {
     ::spec::make_array::debug();
+    ::spec::compose::runtime();
     return 0;
 }
