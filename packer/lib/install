@@ -42,7 +42,7 @@ Sumpdate() {
 
   if { test ! -f "$sumpath" || test "$(cat "$sumpath")" != "$sum"; }
   then
-    printf '%s\n' "$sum" | tee "$sumpath" | sed -r -e 's/^/[I] NEW SAM: /'
+    printf '%s\n' "$sum" | tee "$sumpath" | sed -e 's/^/[I] NEW SAM: /'
   else
     printf '[I] sum unchanged\n'
   fi

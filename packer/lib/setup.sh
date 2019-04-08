@@ -19,5 +19,5 @@ find "$CURRENT/setup.d" \
 | xargs bash -x -c '
   for arg;
   do
-    bash "$arg" | sed -r -e "s,^,[$arg] ,"
+    bash "$arg" | sed -e "s,^,[$arg] ,"
   done' --
