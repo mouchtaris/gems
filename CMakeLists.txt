@@ -21,6 +21,7 @@ target_sources(libutil PRIVATE
     src/util/seri.cpp
     src/util/test.cpp
     src/util/tuple.cpp
+    src/util/view.cpp
 )
 
 

@@ -1,6 +1,6 @@
 #pragma once
 namespace config
 {
-constexpr auto MAX_URL_PATH_LENGTH = 1024;
-constexpr auto MAX_OPTION_KEY_LENGTH = 256;
+    constexpr auto STRING_BUFFER_SIZE = (1ul << 10);
+    using MessageKeyType = unsigned long int;
 }
