@@ -7,7 +7,7 @@ mkdir -pv $chef_d &&
 
 sudo mkdir -pv /mloc &&
   sudo chmod 777 /mloc &&
-  cp -av $lib/get_pem_keys.bash /mloc &&
+  cp -av $lib/get_pem_keys.sh /mloc &&
 
 cookbooks="$(ruby -- $chef_config <<-'RUBY'
 def log_level; end
