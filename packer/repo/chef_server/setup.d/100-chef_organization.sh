@@ -12,6 +12,12 @@ if [ $(which chef-server-ctl) ]; then
     true
   fi &&
 
+  # Reconfigure with the correct hostname
+  # (for SSL certificates)
+  sudo chef-server-ctl \
+    reconfigure \
+  &&
+
   sudo chef-server-ctl \
     user-create \
     crabs \

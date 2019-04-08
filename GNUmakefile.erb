@@ -3,9 +3,13 @@ BUILD_ID := $(shell ${BUILD0} -qBuildId --out=erb 2>/dev/null)
 BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 
 % vagrants = []
-% phonies = []
+% def phonies; @phonies ||= [] end
 % def targets; @targets ||= [] end
-% def t(t, mod = nil); if mod then "#{t}_#{mod}" else t end.tap { |t| targets << t } end
+% def t(t, mod = nil, phony = nil)
+%   if mod then "#{t}_#{mod}" else t end
+%     .tap { |t| targets << t }
+%     .tap { |t| phonies << t if phony }
+% end
 % def e(str); Shellwords.shellescape(str) end
 %
 % def make_sumpath(dir)
@@ -105,22 +109,22 @@ BUILD := env MASTORAS_BUILD_ID='${BUILD_ID}' ${BUILD0}
 # High class targets
 #
 
-<%= t :all %>: \
+<%= t :all, nil, true %>: \
 % vagrants.each do |vagrant|
 	<%= vagrant.scroll.name %> \
 % end
 
-<%= t :test %>: \
+<%= t :test, nil, true %>: \
 % vagrants.each do |vagrant|
 	<%= vagrant.scroll.name %>_test \
 %end
 
-<%= t :setup %>: \
+<%= t :setup, nil, true %>: \
 % vagrants.each do |vagrant|
 	<%= vagrant.scroll.name %>_setup \
 % end
 
-<%= t :clean %>:
+<%= t :clean, nil, true %>:
 	rm -rf <%= @workspace.artifact_repo %>
 
 Makefile: GNUmakefile.erb \
@@ -132,29 +136,34 @@ Makefile: GNUmakefile.erb \
 	${BUILD} --in=erb --out=erb -aRecode | \
 	tee Makefile 
 
-<%= t :blast %>:
+<%= t :blast, nil, true %>:
 % vagrants.each do |vagrant|
 	vagrant box remove --all <%= vagrant.source_path %> || true # let is fail
 % end
 
-<%= t :console %>:
+<%= t :console, nil, true %>:
 	${BUILD} -aConsole
 
-.PHONY: all clean blast console help gen regen hello test <%= phonies.map(&:to_s).join(' ') %>
-
-<%= t :hello %>:
+<%= t :hello, nil, true %>:
 	@echo Hello!
 
-<%= t :gen %>: \
+<%= t :gen, nil, true %>: \
 % vagrants.each do |vagrant|
 	<%= vagrant.scroll.packer_json %> \
 	<%= vagrant.source_json %> \
 	<%= vagrant.metadata_json %> \
 % end
 
-<%= t :regen %>: clean gen
+<%= t :regen, nil, true %>: clean gen
 
-help:
+<%= t :'.PHONY', nil, true %>: all clean blast console help gen regen hello test <%= phonies.map(&:to_s).join(' ') %>
+
+<%= t :phonies, nil, true %>:
+% phonies.each do |target|
+	@echo \* <%= target %>
+% end
+
+<%= t :help, nil, true %>:
 % targets.each do |target|
 	@echo \* <%= target %>
 % end

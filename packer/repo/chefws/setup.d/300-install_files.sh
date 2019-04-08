@@ -19,7 +19,7 @@ mkdir -pv $chef_d &&
   cp -av $lib/config.rb $chef_config &&
 
 sudo mkdir -pv /mloc &&
-  sudo chmod 777 /mlix &&
+  sudo chmod 777 /mloc &&
   cp -av $lib/get_pem_keys.bash /mloc &&
 
 mkdir -pv "$cookbooks" &&
