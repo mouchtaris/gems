@@ -23,9 +23,12 @@ setup:
 	pipenv install
 	${MAKE} conf
 
+again: conf test
+
 .PHONY: \
+	again \
 	clean \
 	conf \
 	doc \
-	test \
 	setup \
+	test \

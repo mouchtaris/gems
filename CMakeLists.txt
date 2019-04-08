@@ -10,26 +10,20 @@ target_compile_options(_compile_options INTERFACE -Wall -Wextra -pedantic -O0 -g
 target_include_directories(_compile_options INTERFACE src)
 target_compile_definitions(_compile_options INTERFACE DEBUG=)
 
-add_library(libutil)
-target_link_libraries(libutil PRIVATE _compile_options)
-target_sources(libutil PRIVATE
-    src/util/arrays.cpp
-    src/util/index.cpp
-    src/util/lazy_conditional.cpp
-    src/util/lib.cpp
-    src/util/p.cpp
-    src/util/seri.cpp
-    src/util/test.cpp
-    src/util/tuple.cpp
-    src/util/view.cpp
+
+add_library(u)
+target_link_libraries(u PRIVATE _compile_options)
+target_sources(u PRIVATE
+    src/u/arr/make_array.cpp
+    src/u/test.cpp
 )
 
 
 add_executable(main)
 target_link_libraries(main PRIVATE _compile_options)
 target_link_libraries(main PRIVATE
+    u
 )
-
 target_sources(main PRIVATE
     src/main.cpp
 )

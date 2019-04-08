@@ -1,5 +1,5 @@
 #include "config.h"
-#include "util/lib.h"
+#include "u/test.h"
 #include <type_traits>
 #include <tuple>
 #include <array>
@@ -23,6 +23,7 @@ namespace adt
 #include <sys/select.h>
 int select(int nfds, fd_set  *readfds, fd_set  *writefds, fd_set *errorfds, struct timeval *timeout);
 
-int main(int, char**)
+int main(int argc, char const* argv[])
 {
+    return u::spec::main(argc, argv);
 }
