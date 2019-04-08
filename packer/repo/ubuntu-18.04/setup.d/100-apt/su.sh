@@ -3,7 +3,6 @@ apt-get update &&
 apt-get upgrade --yes </dev/null | tee /dev/null &&
 apt-get install --yes \
   curl \
-  docker-ce \
   fish \
   python-pip \
   ruby \
