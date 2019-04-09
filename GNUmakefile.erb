@@ -164,7 +164,7 @@ Makefile: GNUmakefile.erb \
 <%= t :add_keys, nil, true %>:
 	./cache vagrant ssh-config    \
 	| ruby ./add_keys             \
-	| xargs -0 bash -x            \
+	| xargs -0 ssh-add            \
 	;
 
 <%= t :regen, nil, true %>: clean gen
