@@ -24,13 +24,13 @@ if [ $(which chef-server-ctl) ]; then
     Craberman Crabs \
     craberman@crabs.bb \
     crabs12121212 \
-    -f /local/crabs.pem \
+    -f /mloc/crabs.pem \
   &&
   sudo chef-server-ctl \
     org-create spongers \
     'Spongers United FD' \
     --association_user=crabs \
-    -f /local/spongers.pem \
+    -f /mloc/spongers.pem \
   &&
 
   echo "Waiting for services..." &&
