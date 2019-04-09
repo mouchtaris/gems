@@ -137,9 +137,20 @@ Makefile: GNUmakefile.erb \
 	tee Makefile 
 
 <%= t :blast, nil, true %>:
-% vagrants.each do |vagrant|
-	vagrant box remove --all <%= vagrant.source_path %> || true # let is fail
-% end
+	vagrant box list --machine-readable |                 \
+	ruby -rpp -e 'STDIN                                   \
+	  .each_line                                          \
+	  .map { |l|                                          \
+	    l                                                 \
+	      .chomp                                          \
+	      .split(",")[2..3]                               \
+	  }                                                   \
+	  .select { |k, v| k == "box-name" }                  \
+	  .map { |_, v| v }                                   \
+	  .map { |box| "vagrant box remove --all #{box}" }    \
+	  .each(&method(:puts))                               \
+	'
+
 
 <%= t :console, nil, true %>:
 	${BUILD} -aConsole
