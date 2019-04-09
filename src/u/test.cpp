@@ -28,7 +28,7 @@ namespace make_array {
         ;
     }
 
-    static_assert(check(std::make_index_sequence<length>{}), "");
+    static_assert(check(std::make_index_sequence<length>{}));
 
     void debug()
     {
@@ -41,7 +41,7 @@ namespace compose {
     constexpr auto f = [](int x) { return x + 1; };
     constexpr auto g = [](int x) { return x - 1; };
     constexpr auto fog = compose(f, g, f, g, f, g);
-    static_assert(fog(0) == 0, "");
+    static_assert(fog(0) == 0);
 
     void runtime() {
         auto f_ = f;
@@ -66,17 +66,19 @@ namespace defined {
     struct yes_defined_2 { static constexpr bool defined = true; };
     struct not_defined { static constexpr bool defined = false; };
 
-    static_assert(defined<yes_defined>::value, "");
-    static_assert(defined<yes_defined_2>::value, "");
-    static_assert(!defined<not_defined>::value, "");
+    static_assert(defined<yes_defined>::value);
+    static_assert(defined<yes_defined_2>::value);
+    static_assert(!defined<not_defined>::value);
 }
 namespace bytechunk {
-    using namespace ::u::bchk;
+    using namespace ::u::bchnk;
     using ::u::defined;
 
-    constexpr auto bc = u::bchk::create<12>();
+    constexpr auto bc = u::bchnk::adt<12>{};
+    static_assert(bc.size() == 12);
 
-    static_assert(!::u::defined_v<byte_chunk_traits<int>>, "");
+    constexpr auto bc0 = ::u::bchnk::adt<13>{ {}, 5, 9 };
+    static_assert(bc0.end() - bc0.begin() == bc0.size());
 }
 }}
 
