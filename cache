@@ -12,7 +12,7 @@ cache.dirname.mkdir unless cache.dirname.exist?
 if cache.exist?
   puts cache.read
 else
-  stdout_and_stderr, status = Open3.capture2e(*ARGV)
+  stdout_and_stderr, status = Open3.capture2(*ARGV)
   unless status.success?
     pp status
     raise

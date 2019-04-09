@@ -2,23 +2,27 @@
 # frozen_string_literal: true
 require 'pp'
 
-ppp = method :pp
+def ppp(name)
+  lambda do |obj|
+    #pp(name => obj)
+  end
+end
 
-puts STDIN
+print STDIN
   .each_line
-  .tap(&ppp)
+  .tap(&ppp(:each_line))
   .map { |l|
     l
-  .tap(&ppp)
+  .tap(&ppp(:line))
       .strip
-  .tap(&ppp)
+  .tap(&ppp(:stripped))
       .split(/\s+/)
-  .tap(&ppp)
+  .tap(&ppp(:split))
   }
   .select { |k, v| k == "IdentityFile" }
-  .tap(&ppp)
+  .tap(&ppp(:selected))
   .map { |k, v| v }
-  .tap(&ppp)
+  .tap(&ppp(:value_only))
   .select { |v| v && !v.empty? }
-  .tap(&ppp)
+  .tap(&ppp(:non_empty))
   .join("\x00")
