@@ -137,8 +137,8 @@ Makefile: GNUmakefile.erb \
 	tee Makefile 
 
 <%= t :blast, nil, true %>:
-	vagrant box list --machine-readable |                 \
-	ruby -rpp -e 'STDIN                                   \
+	vagrant box list --machine-readable                   \
+	| ruby -e 'STDIN                                      \
 	  .each_line                                          \
 	  .map { |l|                                          \
 	    l                                                 \
@@ -149,7 +149,8 @@ Makefile: GNUmakefile.erb \
 	  .map { |_, v| v }                                   \
 	  .map { |box| "vagrant box remove --all #{box}" }    \
 	  .each(&method(:puts))                               \
-	'
+	'                                                     \
+	| bash -x
 
 
 <%= t :console, nil, true %>:
