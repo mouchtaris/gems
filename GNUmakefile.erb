@@ -168,7 +168,7 @@ Makefile: GNUmakefile.erb \
 	;
 <%= t :sshconfig, nil, true %>:
 	./cache vagrant ssh-config    \
-	| tee $HOME/.ssh/config
+	| tee $$HOME/.ssh/config
 
 <%= t :regen, nil, true %>: clean gen
 
