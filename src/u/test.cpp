@@ -1,8 +1,9 @@
-#include "u/test.h"
 #include "u/arr/make_array.h"
-#include "u/p.h"
-#include "u/f/compose.h"
 #include "u/bchnk.h"
+#include "u/defined.h"
+#include "u/f/compose.h"
+#include "u/p.h"
+#include "u/test.h"
 #include <iostream>
 #include <type_traits>
 #include <algorithm>
@@ -58,12 +59,24 @@ namespace compose {
         assert__(( persists()(0) == 0 ));
     }
 }
+namespace defined {
+    using ::u::defined;
+
+    struct yes_defined {};
+    struct yes_defined_2 { static constexpr bool defined = true; };
+    struct not_defined { static constexpr bool defined = false; };
+
+    static_assert(defined<yes_defined>::value, "");
+    static_assert(defined<yes_defined_2>::value, "");
+    static_assert(!defined<not_defined>::value, "");
+}
 namespace bytechunk {
-    using namespace u::bchk;
+    using namespace ::u::bchk;
+    using ::u::defined;
 
     constexpr auto bc = u::bchk::create<12>();
 
-    static_assert(!byte_chunk_traits<int>::defined, "");
+    static_assert(!::u::defined_v<byte_chunk_traits<int>>, "");
 }
 }}
 

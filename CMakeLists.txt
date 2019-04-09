@@ -18,6 +18,7 @@ target_sources(u PRIVATE
     src/u/test.cpp
     src/u/f/compose.cpp
     src/u/bchnk.cpp
+    src/u/defined.cpp
 )
 
 
