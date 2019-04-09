@@ -151,6 +151,10 @@ Makefile: GNUmakefile.erb \
 	  .each(&method(:puts))                               \
 	'                                                     \
 	| bash -x
+<%= t :add_boxes, nil, true %>:
+% vagrants.each do |vagrant|
+	vagrant box add <%= vagrant.metadata_json %>
+% end
 
 
 <%= t :console, nil, true %>:
