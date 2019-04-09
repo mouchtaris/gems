@@ -170,6 +170,22 @@ Makefile: GNUmakefile.erb \
 	<%= vagrant.metadata_json %> \
 % end
 
+<%= t :add_keys, nil, true %>:
+	vagrant ssh-config                        \
+	| ruby -e 'puts STDIN                     \
+	  .each_line                              \
+	  .map { |l|                              \
+	    l                                     \
+	      .strip                              \
+	      .split(/\s+/)                       \
+	  }                                       \
+	  .select { |k, v| k == "IdentityFile" }  \
+	  .map { |k, v| v }                       \
+	  .join("\x00")                           \
+	'                                         \
+	| xargs -0 ssh-add                        \
+	;
+
 <%= t :regen, nil, true %>: clean gen
 
 <%= t :'.PHONY', nil, true %>: all clean blast console help gen regen hello test <%= phonies.map(&:to_s).join(' ') %>
