@@ -17,6 +17,7 @@ target_sources(u PRIVATE
     src/u/arr/make_array.cpp
     src/u/test.cpp
     src/u/f/compose.cpp
+    src/u/bchnk.cpp
 )
 
 

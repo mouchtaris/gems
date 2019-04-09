@@ -2,6 +2,7 @@
 #include "u/arr/make_array.h"
 #include "u/p.h"
 #include "u/f/compose.h"
+#include "u/bchnk.h"
 #include <iostream>
 #include <type_traits>
 #include <algorithm>
@@ -35,30 +36,36 @@ namespace make_array {
     }
 }
 namespace compose {
-    using u::f::operator>>;
+    using u::f::compose;
     constexpr auto f = [](int x) { return x + 1; };
     constexpr auto g = [](int x) { return x - 1; };
-    constexpr auto fog = f >> g;
+    constexpr auto fog = compose(f, g, f, g, f, g);
     static_assert(fog(0) == 0, "");
 
     void runtime() {
         auto f_ = f;
         auto g_ = g;
-        auto fog_ = f_ >> g_;
+        auto fog_ = compose(f_, g_, f_, g_, f_, g_);
         auto oops = []() { return false; };
         assert__(( fog_(0) == 0 ));
         assert__(( oops() ));
 
         auto persists = []() {
-            return
-                ([](int x) { return x + 1; }) >>
-                ([](int x) { return x - 1; })
-            ;
+           auto f = ([](int x) { return x + 1; });
+           auto g = ([](int x) { return x - 1; });
+           return compose(f, g, f, g, f, g);
         };
         assert__(( persists()(0) == 0 ));
     }
-}}
 }
+namespace bytechunk {
+    using namespace u::bchk;
+
+    constexpr auto bc = u::bchk::create<12>();
+
+    static_assert(!byte_chunk_traits<int>::defined, "");
+}
+}}
 
 int ::u::spec::main(int, char const*[])
 {
