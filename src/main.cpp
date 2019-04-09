@@ -17,23 +17,36 @@ namespace {
     {
     };
 
+    bool should_exit(System)
+    {
+        return true;
+    }
+
     using Mod = std::function<System (System)>;
     namespace mods
     {
-        constexpr auto receive_messages = [](System system)
-        {
-            return system;
-        };
+        constexpr auto id = [](System system) { return system; };
+
+        constexpr auto receive_messages = id;
+        constexpr auto dispatch_messages = id;
+
+        using u::f::operator>>;
+        constexpr auto loop = id
+            >> receive_messages
+            >> dispatch_messages
+        ;
     }
 
-    void mfain_loop()
+    void main_loop()
     {
         System system;
-        mods::receive_messages(system);
+        while(!should_exit(system))
+            system = mods::loop(system);
     }
 
 }
 int main(int argc, char const* argv[])
 {
+    main_loop();
     return u::spec::main(argc, argv);
 }

@@ -6,7 +6,7 @@ namespace u::f
         typename F,
         typename G
     >
-    constexpr auto compose(F&& f, G&& g)
+    constexpr auto operator >>(F&& f, G&& g)
     {
         // Necessarily capture functions by copy.
         return [f, g](auto&& x)

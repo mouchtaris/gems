@@ -35,24 +35,25 @@ namespace make_array {
     }
 }
 namespace compose {
+    using u::f::operator>>;
     constexpr auto f = [](int x) { return x + 1; };
     constexpr auto g = [](int x) { return x - 1; };
-    constexpr auto fog = u::f::compose(f, g);
+    constexpr auto fog = f >> g;
     static_assert(fog(0) == 0, "");
 
     void runtime() {
         auto f_ = f;
         auto g_ = g;
-        auto fog_ = u::f::compose(f_, g_);
+        auto fog_ = f_ >> g_;
         auto oops = []() { return false; };
         assert__(( fog_(0) == 0 ));
         assert__(( oops() ));
 
         auto persists = []() {
-            return u::f::compose(
-                [](int x) { return x + 1; },
-                [](int x) { return x - 1; }
-            );
+            return
+                ([](int x) { return x + 1; }) >>
+                ([](int x) { return x - 1; })
+            ;
         };
         assert__(( persists()(0) == 0 ));
     }
