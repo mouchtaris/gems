@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+STDIN
+  .each_line
+  .map { |l|
+    l
+      .chomp
+      .split(",")[2..3]
+  }
+  .select { |k, v| k == "box-name" }
+  .map { |_, v| v }
+  .map { |box| "vagrant box remove --all #{box}" }
+  .each(&method(:puts))

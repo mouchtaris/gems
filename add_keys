@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+require 'pp'
+
+ppp = method :pp
+
+puts STDIN
+  .each_line
+  .tap(&ppp)
+  .map { |l|
+    l
+  .tap(&ppp)
+      .strip
+  .tap(&ppp)
+      .split(/\s+/)
+  .tap(&ppp)
+  }
+  .select { |k, v| k == "IdentityFile" }
+  .tap(&ppp)
+  .map { |k, v| v }
+  .tap(&ppp)
+  .select { |v| v && !v.empty? }
+  .tap(&ppp)
+  .join("\x00")

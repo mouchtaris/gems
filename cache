@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+require 'pp'
+require 'open3'
+require 'pathname'
+
+name = ARGV.join('_').gsub('/', '_')
+dir = Pathname.new(__dir__)
+cache = dir / '_command_cache' / name
+
+cache.dirname.mkdir unless cache.dirname.exist?
+
+if cache.exist?
+  puts cache.read
+else
+  stdout_and_stderr, status = Open3.capture2e(*ARGV)
+  unless status.success?
+    pp status
+    raise
+  end
+  cache.open('w') do |fout|
+    fout.write(stdout_and_stderr)
+  end
+  puts stdout_and_stderr
+end
