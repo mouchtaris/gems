@@ -35,21 +35,25 @@ Vagrant.configure("2") do |config|
       machine.vm.provision 'shell',
         inline: %Q,sudo hostnamectl set-hostname '#{machine_def.hostname}',
       case machine_def.name
-      when 'tower' then
-      else
+      when 'NEVER' then
         #|   --server-url 'https://server.sp.org/organizations/spongers'
         #knife bootstrap --sudo --ssh-user vagrant --node-name node0 --run-list 'recipe[learn_chef_apache2]' node0.sp.org --server-url 'https://server.sp.org/organizations/spongers'
-        script = [0, 1]
-          .map do |i|
-            <<-BOOTSTRAP_NODE.barstrip
-            | knife bootstrap           \
-            |   --sudo                  \
-            |   --ssh-user vagrant      \
-            |   --node-name node#{i}    \
-            |   node#{i}.sp.org         \
-            | ;
-            BOOTSTRAP_NODE
-          end
+        script = [
+          'set -x',
+          'bash -x /mloc/get_pem_keys.sh'
+        ]
+          .concat([0, 1]
+            .map do |i|
+              <<-BOOTSTRAP_NODE.barstrip
+              | knife bootstrap           \\
+              |   --sudo                  \\
+              |   --ssh-user vagrant      \\
+              |   --node-name node#{i}    \\
+              |   node#{i}.sp.org         \\
+              | ;
+              BOOTSTRAP_NODE
+            end
+          )
           .concat([
           ])
           .join("\n")
@@ -110,7 +114,7 @@ class Machine
   end
 end
 
-Machines = %w[node-01 node-00 server tower]
+Machines = %w[node1 node0 server tower]
   .each_with_index
   .map(&Machine.method(:new))
   .tap do |this|
