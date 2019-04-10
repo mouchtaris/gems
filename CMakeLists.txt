@@ -19,12 +19,22 @@ target_sources(u PRIVATE
     src/u/f/compose.cpp
     src/u/bchnk.cpp
     src/u/defined.cpp
+    src/u/view.cpp
+)
+
+
+add_library(msg)
+target_link_libraries(msg PRIVATE _compile_options)
+target_sources(msg PRIVATE
+    src/msg/system.cpp
+    src/msg/input.cpp
 )
 
 
 add_executable(main)
 target_link_libraries(main PRIVATE _compile_options)
 target_link_libraries(main PRIVATE
+    msg
     u
 )
 target_sources(main PRIVATE

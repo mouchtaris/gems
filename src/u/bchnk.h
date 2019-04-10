@@ -23,8 +23,19 @@ namespace u::bchnk
         std::size_t first = 0;
         std::size_t afterlast = data.size();
 
-        constexpr std::size_t size() const { return afterlast - first; }
-        constexpr std::byte const* begin() const { return data.data() + first; }
-        constexpr std::byte const* end() const { return data.data() + afterlast; }
+        constexpr std::size_t size() const
+        {
+            return afterlast - first;
+        }
+
+        constexpr std::byte const* begin() const
+        {
+            return data.data() + first;
+        }
+
+        constexpr std::byte const* end() const
+        {
+            return data.data() + afterlast;
+        }
     };
 }

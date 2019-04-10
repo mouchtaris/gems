@@ -36,7 +36,12 @@ namespace u
         constexpr auto SAY = methystos;
     }
 }
-#define debug__(EXPR) (std::cerr << #EXPR << ": " << (EXPR) << '\n')
+#define debug__(EXPR) (std::cerr    \
+        << u::c::BG                 \
+        << u::c::SEG << #EXPR << ": "   \
+        << u::c::SAY << (EXPR)      \
+        << u::c::RSNL               \
+    )
 #define assert__(EXPR) (std::cerr   \
         << u::c::BG                 \
         << u::c::SEG << "[:. "      \
