@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 # frozen-string-literal: true
+require_relative 'strip'
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 
 Vagrant.require_version '>= 2.2.4'
 
@@ -32,6 +34,27 @@ Vagrant.configure("2") do |config|
       machine.vm.provision 'shell', inline: machines.provision_hosts
       machine.vm.provision 'shell',
         inline: %Q,sudo hostnamectl set-hostname '#{machine_def.hostname}',
+      case machine_def.name
+      when 'tower' then
+      else
+        #|   --server-url 'https://server.sp.org/organizations/spongers'
+        #knife bootstrap --sudo --ssh-user vagrant --node-name node0 --run-list 'recipe[learn_chef_apache2]' node0.sp.org --server-url 'https://server.sp.org/organizations/spongers'
+        script = [0, 1]
+          .map do |i|
+            <<-BOOTSTRAP_NODE.barstrip
+            | knife bootstrap           \
+            |   --sudo                  \
+            |   --ssh-user vagrant      \
+            |   --node-name node#{i}    \
+            |   node#{i}.sp.org         \
+            | ;
+            BOOTSTRAP_NODE
+          end
+          .concat([
+          ])
+          .join("\n")
+        machine.vm.provision 'shell', inline: script
+      end
     end
   end
 
@@ -87,7 +110,7 @@ class Machine
   end
 end
 
-Machines = %w[tower server node0 node1]
+Machines = %w[node-01 node-00 server tower]
   .each_with_index
   .map(&Machine.method(:new))
   .tap do |this|
