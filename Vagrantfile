@@ -98,7 +98,7 @@ class Machine
   end
 end
 
-Machines = %w[node1 node0 server tower]
+Machines = %w[node-01 node-00 server tower]
   .each_with_index
   .map(&Machine.method(:new))
   .tap do |this|
