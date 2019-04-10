@@ -144,7 +144,7 @@ Makefile: GNUmakefile.erb \
 
 <%= t :add_boxes, nil, true %>:
 % vagrants.each do |vagrant|
-	vagrant box add <%= vagrant.metadata_json %>
+	vagrant box add <%= vagrant.metadata_json %> || true # let it fail
 % end
 
 
@@ -172,7 +172,7 @@ Makefile: GNUmakefile.erb \
 
 <%= t :regen, nil, true %>: clean gen
 
-<%= t :'.PHONY', nil, true %>: all clean blast console help gen regen hello test <%= phonies.map(&:to_s).join(' ') %>
+<%= t :'.PHONY', nil, true %>: <%= phonies.map(&:to_s).join(' ') %>
 
 <%= t :phonies, nil, true %>:
 % phonies.each do |target|

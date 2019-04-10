@@ -9,5 +9,5 @@ STDIN
   }
   .select { |k, v| k == "box-name" }
   .map { |_, v| v }
-  .map { |box| "vagrant box remove --all #{box}" }
+  .map { |box| "vagrant box remove --all #{box} || true # let it fail" }
   .each(&method(:puts))
