@@ -35,12 +35,12 @@ Vagrant.configure("2") do |config|
       machine.vm.provision 'shell',
         inline: %Q,sudo hostnamectl set-hostname '#{machine_def.hostname}',
       case machine_def.name
-      when 'NEVER' then
+      when 'tower' then
         #|   --server-url 'https://server.sp.org/organizations/spongers'
         #knife bootstrap --sudo --ssh-user vagrant --node-name node0 --run-list 'recipe[learn_chef_apache2]' node0.sp.org --server-url 'https://server.sp.org/organizations/spongers'
         script = [
           'set -x',
-          'bash -x /mloc/get_pem_keys.sh'
+          'bash -x /mloc/get_pem_keys.sh',
         ]
           .concat([0, 1]
             .map do |i|
