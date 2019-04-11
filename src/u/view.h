@@ -1,7 +1,8 @@
 #pragma once
 #include <iterator>
 #include <optional>
-namespace u
+#include <functional>
+namespace u::view
 {
 #define TRAIT(NAME, DECL)       \
     template <                  \
@@ -21,7 +22,16 @@ template <bool cond>
 using enable_if = std::enable_if_t<cond, void>;
 
 #define TRAIT_COND(NAME, COND)  \
-    TRAIT(NAME, u::enable_if<(COND)>)
+    TRAIT(NAME, u::view::enable_if<(COND)>)
+#define TRAIT_HAS_FIELD(FIELD, FIELD_TYPE)  \
+    TRAIT_COND(has_##FIELD, (               \
+        std::conjunction_v<                 \
+            std::is_same<                   \
+                decltype(T{}. FIELD),       \
+                FIELD_TYPE                  \
+            >                               \
+        >                                   \
+    ))
 
     TRAIT_COND(has_size, (
         std::is_same_v<
@@ -44,6 +54,12 @@ using enable_if = std::enable_if_t<cond, void>;
             bool
         >
     ));
+    TRAIT_COND(begin_is_advancable, (
+        std::is_same_v<
+            decltype(std::next(begin(T{}))),
+            decltype(begin(T{}))
+        >
+    ));
 
 
     template <
@@ -56,6 +72,7 @@ using enable_if = std::enable_if_t<cond, void>;
         static_assert(has_begin<Container>::value);
         static_assert(deref_begin_is_value_type<Container>::value);
         static_assert(can_cmp_begin_end<Container>::value);
+        static_assert(begin_is_advancable<Container>::value);
 
         using container_type = Container;
 
@@ -69,7 +86,12 @@ using enable_if = std::enable_if_t<cond, void>;
             typename iterator_traits::value_type;
 
         container_type container;
-        std::size_t first, pos, limit, last;
+        std::size_t
+            first = 0,
+            pos = first,
+            limit = container.size(),
+            last = limit
+        ;
 
         constexpr bool is_valid() const
         {
@@ -89,6 +111,11 @@ using enable_if = std::enable_if_t<cond, void>;
         constexpr bool has_remaining() const
         {
             return remaining() > 0;
+        }
+
+        constexpr std::size_t size() const
+        {
+            return remaining();
         }
 
         template <
@@ -115,4 +142,39 @@ using enable_if = std::enable_if_t<cond, void>;
             }
         }
     };
+
+    TRAIT_HAS_FIELD(container, typename T::container_type);
+    TRAIT_HAS_FIELD(first, std::size_t);
+    TRAIT_HAS_FIELD(last, std::size_t);
+    TRAIT_COND(has_remaining, (
+        std::is_same_v<
+            decltype(T{}.remaining()),
+            std::size_t
+        >
+    ));
+
+    TRAIT_COND(is_view, (std::conjunction_v<
+        has_container<T>,
+        has_first<T>,
+        has_last<T>,
+        has_remaining<T>
+    >));
+
+    template <
+        typename View,
+        typename = std::enable_if_t<is_view<std::remove_reference_t<View>>::value, void>
+    >
+    constexpr auto begin(View&& view)
+    {
+        return std::next(begin(view.container), view.first);
+    }
+
+    template <
+        typename View,
+        typename = std::enable_if_t<is_view<std::remove_reference_t<View>>::value, void>
+    >
+    constexpr auto end(View&& view)
+    {
+        return std::next(begin(view), view.remaining());
+    }
 }

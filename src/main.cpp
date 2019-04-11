@@ -40,7 +40,7 @@ namespace msg
     struct impl0_tag{};
     using impl0 = std::tuple<
         impl0_tag,
-        u::view<std::array<ByteChunk, config::MESSAGE_QUEUE_SIZE>>
+        u::view::view<std::array<ByteChunk, config::MESSAGE_QUEUE_SIZE>>
     >;
 
     std::optional<impl0> push(impl0 socket, ByteChunk chunk)

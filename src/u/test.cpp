@@ -78,7 +78,7 @@ namespace bytechunk {
     static_assert(bc.size() == 12);
 
     constexpr auto bc0 = ::u::bchnk::adt<13>{ {}, 5, 9 };
-    static_assert(bc0.end() - bc0.begin() == bc0.size());
+    static_assert(end(bc0) - begin(bc0) == bc0.size());
 }
 }}
 
