@@ -1,9 +1,9 @@
 #include "u/arr/make_array.h"
-#include "u/bchnk.h"
-#include "u/defined.h"
 #include "u/f/compose.h"
 #include "u/p.h"
 #include "u/test.h"
+#include "u/view.h"
+#include "msg/input_socket.h"
 #include <iostream>
 #include <type_traits>
 #include <algorithm>
@@ -59,26 +59,46 @@ namespace compose {
         assert__(( persists()(0) == 0 ));
     }
 }
-namespace defined {
-    using ::u::defined;
-
-    struct yes_defined {};
-    struct yes_defined_2 { static constexpr bool defined = true; };
-    struct not_defined { static constexpr bool defined = false; };
-
-    static_assert(defined<yes_defined>::value);
-    static_assert(defined<yes_defined_2>::value);
-    static_assert(!defined<not_defined>::value);
+namespace view {
+    constexpr auto back = std::array<int, 4> {};
+    constexpr auto v0 = ::u::view::view { back };
 }
-namespace bytechunk {
-    using namespace ::u::bchnk;
-    using ::u::defined;
+namespace msg::input_socket {
+    using ::msg::input_socket::Queue;
+    using ::msg::input_socket::has_with_queue;
+    using ::msg::input_socket::has_queue;
+    using ::msg::input_socket::can_has_push;
+    using ::msg::input_socket::has_push;
+    using ::msg::input_socket::is_input_socket;
+    using std::get;
 
-    constexpr auto bc = u::bchnk::adt<12>{};
-    static_assert(bc.size() == 12);
+    struct adl {};
+    using adt = std::tuple<adl, Queue>;
 
-    constexpr auto bc0 = ::u::bchnk::adt<13>{ {}, 5, 9 };
-    static_assert(end(bc0) - begin(bc0) == bc0.size());
+    constexpr Queue queue(adt self)
+    {
+        return get<1>(self);
+    }
+
+    constexpr adt with_queue(adt, Queue q2)
+    {
+        using std::get;
+        return { {}, q2 };
+    }
+    static_assert(is_input_socket<adt>::value);
+        static_assert(has_push<adt>::value);
+            static_assert(std::is_default_constructible_v<adt>);
+            static_assert(std::is_default_constructible_v<Queue>);
+            static_assert(can_has_push<adt>::value);
+                static_assert(has_queue<adt>::value);
+                static_assert(has_with_queue<adt>::value);
+
+    constexpr auto inpsock = adt{{}, {}};;
+    static_assert(queue(inpsock).size() == config::MESSAGE_QUEUE_SIZE);
+    void debug()
+    {
+        debug__(( queue(inpsock).size() ));
+    }
 }
 }}
 
@@ -86,5 +106,6 @@ int ::u::spec::main(int, char const*[])
 {
     ::spec::make_array::debug();
     ::spec::compose::runtime();
+    ::spec::msg::input_socket::debug();
     return 0;
 }

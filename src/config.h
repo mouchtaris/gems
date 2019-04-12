@@ -19,5 +19,5 @@ namespace config
     ///
     /// Memory requirements:
     ///     MESSAGE_QUEUE_SIZE * BYTE_CHUNK_SIZE
-    constexpr std::size_t MESSAGE_QUEUE_SIZE = 1024;
+    constexpr std::size_t MESSAGE_QUEUE_SIZE = 256;
 }

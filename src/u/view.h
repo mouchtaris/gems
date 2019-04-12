@@ -1,37 +1,13 @@
 #pragma once
+#include "u/traits.h"
 #include <iterator>
 #include <optional>
 #include <functional>
 namespace u::view
 {
-#define TRAIT(NAME, DECL)       \
-    template <                  \
-        typename T,             \
-        typename = void         \
-    >                           \
-    struct NAME: public std::false_type { }; \
-    template <                  \
-        typename T              \
-    >                           \
-    struct NAME<                \
-        T,                      \
-        std::void_t<DECL>       \
-    >: public std::true_type { };
-
-template <bool cond>
-using enable_if = std::enable_if_t<cond, void>;
-
-#define TRAIT_COND(NAME, COND)  \
-    TRAIT(NAME, u::view::enable_if<(COND)>)
-#define TRAIT_HAS_FIELD(FIELD, FIELD_TYPE)  \
-    TRAIT_COND(has_##FIELD, (               \
-        std::conjunction_v<                 \
-            std::is_same<                   \
-                decltype(T{}. FIELD),       \
-                FIELD_TYPE                  \
-            >                               \
-        >                                   \
-    ))
+    //
+    // Container concept requirements
+    //
 
     TRAIT_COND(has_size, (
         std::is_same_v<
@@ -41,7 +17,6 @@ using enable_if = std::enable_if_t<cond, void>;
     ));
     TRAIT(has_value_type, typename T::value_type);
     TRAIT(has_reference_type, typename T::reference_type);
-    TRAIT(has_begin, decltype(begin(T{})));
     TRAIT_COND(deref_begin_is_value_type, (
         std::is_same_v<
             std::decay_t<decltype(*begin(T{}))>,
@@ -62,6 +37,11 @@ using enable_if = std::enable_if_t<cond, void>;
     ));
 
 
+    //! View decoration
+    ///
+    /// A view decoration holds a backing storage container,
+    /// while adapting the limits of iterating over it.
+    /// 
     template <
         typename Container
     >
@@ -69,7 +49,6 @@ using enable_if = std::enable_if_t<cond, void>;
     {
         static_assert(has_size<Container>::value);
         static_assert(has_value_type<Container>::value);
-        static_assert(has_begin<Container>::value);
         static_assert(deref_begin_is_value_type<Container>::value);
         static_assert(can_cmp_begin_end<Container>::value);
         static_assert(begin_is_advancable<Container>::value);
@@ -121,7 +100,7 @@ using enable_if = std::enable_if_t<cond, void>;
         template <
             typename... Args
         >
-        std::optional<this_type> emplace_back(Args&&... args) const
+        constexpr std::optional<this_type> emplace_back(Args&&... args) const
         {
             if (!is_valid())
                 return std::nullopt;
@@ -143,6 +122,18 @@ using enable_if = std::enable_if_t<cond, void>;
         }
     };
 
+    //
+    // View deduction guides
+    //
+    template <
+        typename Container
+    >
+    view(Container&&) -> view<std::remove_reference_t<Container>>;
+
+    //
+    // View concept requirements
+    //
+
     TRAIT_HAS_FIELD(container, typename T::container_type);
     TRAIT_HAS_FIELD(first, std::size_t);
     TRAIT_HAS_FIELD(last, std::size_t);
@@ -160,6 +151,7 @@ using enable_if = std::enable_if_t<cond, void>;
         has_remaining<T>
     >));
 
+    //! Get the adapted begin() of a view.
     template <
         typename View,
         typename = std::enable_if_t<is_view<std::remove_reference_t<View>>::value, void>
@@ -169,6 +161,7 @@ using enable_if = std::enable_if_t<cond, void>;
         return std::next(begin(view.container), view.first);
     }
 
+    //! Get the adapted end() of a view.
     template <
         typename View,
         typename = std::enable_if_t<is_view<std::remove_reference_t<View>>::value, void>

@@ -17,17 +17,16 @@ target_sources(u PRIVATE
     src/u/arr/make_array.cpp
     src/u/test.cpp
     src/u/f/compose.cpp
-    src/u/bchnk.cpp
-    src/u/defined.cpp
     src/u/view.cpp
+    src/u/tmap.cpp
+    src/u/traits.cpp
 )
 
 
 add_library(msg)
 target_link_libraries(msg PRIVATE _compile_options)
 target_sources(msg PRIVATE
-    src/msg/system.cpp
-    src/msg/input.cpp
+    src/msg/input_socket.cpp
 )
 
 
