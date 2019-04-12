@@ -60,8 +60,53 @@ namespace compose {
     }
 }
 namespace view {
-    constexpr auto back = std::array<int, 4> {};
+    constexpr auto back = std::array<int, 4> {4,5,6,7};
     constexpr auto v0 = ::u::view::view { back };
+    static_assert(v0.size() == 4);
+    static_assert(v0.remaining() == 4);
+    static_assert(v0.has_remaining());
+    static_assert(v0.first == 0);
+    static_assert(v0.pos == 0);
+    static_assert(v0.limit == 4);
+    static_assert(v0.last == 4);
+    static_assert(*begin(v0) == back[0]);
+    static_assert(begin(v0) != end(v0));
+    static_assert(v0.container[0] == 4);
+    static_assert(v0.container[1] == 5);
+    static_assert(v0.container[2] == 6);
+    static_assert(v0.container[3] == 7);
+
+    constexpr auto v1 = v0.emplace_back(0);
+    static_assert(v1->size() == 3);
+    static_assert(v1->remaining() == 3);
+    static_assert(v1->has_remaining());
+    static_assert(v1->first == 0);
+    static_assert(v1->pos == 1);
+    static_assert(v1->limit == 4);
+    static_assert(v1->last == 4);
+    //static_assert(*begin(*v1) == back[1]);
+    static_assert(begin(*v1) != end(*v1));
+    static_assert(v1->container[0] == 0);
+    static_assert(v1->container[1] == 5);
+    static_assert(v1->container[2] == 6);
+    static_assert(v1->container[3] == 7);
+
+
+    constexpr auto v2 = v1->emplace_back(1);
+    static_assert(v2->size() == 2);
+    static_assert(v2->remaining() == 2);
+    static_assert(v2->has_remaining());
+    static_assert(v2->first == 0);
+    static_assert(v2->pos == 2);
+    static_assert(v2->limit == 4);
+    static_assert(v2->last == 4);
+    //static_assert(*begin(*v2) == back[2]);
+    static_assert(begin(*v2) != end(*v2));
+
+    void debug()
+    {
+        debug__(( *begin(*v1) ));
+    }
 }
 namespace msg::input_socket {
     using ::msg::input_socket::Queue;
@@ -106,6 +151,7 @@ int ::u::spec::main(int, char const*[])
 {
     ::spec::make_array::debug();
     ::spec::compose::runtime();
+    ::spec::view::debug();
     ::spec::msg::input_socket::debug();
     return 0;
 }
