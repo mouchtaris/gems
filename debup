@@ -50,13 +50,13 @@ true &&
   else
     true
   fi &&
-  if test ! -d mastoras
+  if test ! -d op/mastoras
   then
     true &&
-      git clone --origin nikos --branch mastoras/develop git@github.com:mouchtaris/gems.git mastoras &&
+      git clone --origin nikos --branch mastoras/develop git@github.com:mouchtaris/gems.git op/mastoras &&
       source <(echo 'eval "$(direnv hook bash)"' | tee -a ~/.bashrc) &&
-      direnv allow mastoras/.envrc &&
-      cd mastoras &&
+      direnv allow op/mastoras/.envrc &&
+      cd op/mastoras &&
       ruby ~/.gem/ruby/2.6.0/bin/bundle install --path=/,/bg --binstubs=vendor/bin &&
       bash -x makemake &&
       make gen &&
@@ -84,8 +84,21 @@ if false; then
   sudo apt-get update -y &&
   sudo apt-get install -y docker-ce docker-ce-cli containerd.io &&
 true; fi &&
+if ! which sbt; then
   echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list &&
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 &&
   sudo apt-get update &&
   sudo apt-get install sbt &&
   true
+else true; fi &&
+if ! which gcloud; then
+  export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
+  echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+  sudo apt-get update -y && \
+  sudo apt-get install google-cloud-sdk -y
+fi &&
+if ! which helm; then
+  gofish install helm
+else true; fi &&
+true
