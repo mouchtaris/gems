@@ -3,6 +3,7 @@
 #include <iterator>
 #include <optional>
 #include <functional>
+#include <ostream>
 namespace u::view
 {
     //
@@ -107,17 +108,10 @@ namespace u::view
             else if (!has_remaining())
                 return std::nullopt;
             else {
-                auto container2 = container;
-                *std::next(begin(container2), first) = value_type {
-                    std::forward<Args>(args)...
-                };
-
-                auto view2 = this_type {
-                    std::move(container2),
-                    first, pos + 1, limit, last
-                };
-
-                return std::move(view2);
+                this_type self2 = *this;
+                *begin(self2) = value_type { std::forward<Args>(args)... };
+                self2.pos += 1;
+                return std::move(self2);
             }
         }
     };
@@ -128,7 +122,11 @@ namespace u::view
     template <
         typename Container
     >
-    view(Container&&) -> view<std::remove_reference_t<Container>>;
+    view(Container&&) -> view<
+        std::remove_const_t<
+            std::remove_reference_t<Container>
+        >
+    >;
 
     //
     // View concept requirements
@@ -144,30 +142,66 @@ namespace u::view
         >
     ));
 
-    TRAIT_COND(is_view, (std::conjunction_v<
+    TRAIT_COND(is_view_impl, (std::conjunction_v<
         has_container<T>,
         has_first<T>,
         has_last<T>,
         has_remaining<T>
     >));
+    template <
+        typename T
+    >
+    using is_view = is_view_impl<std::remove_reference_t<T>>;
+    template <
+        typename T
+    >
+    using if_view = std::enable_if_t<is_view<T>::value, void>;
 
     //! Get the adapted begin() of a view.
     template <
         typename View,
-        typename = std::enable_if_t<is_view<std::remove_reference_t<View>>::value, void>
+        typename = if_view<View>
     >
     constexpr auto begin(View&& view)
     {
-        return std::next(begin(view.container), view.first);
+        return std::next(begin(view.container), view.pos);
     }
 
     //! Get the adapted end() of a view.
     template <
         typename View,
-        typename = std::enable_if_t<is_view<std::remove_reference_t<View>>::value, void>
+        typename = if_view<View>
     >
     constexpr auto end(View&& view)
     {
         return std::next(begin(view), view.remaining());
+    }
+
+    template <
+        typename View,
+        typename = if_view<View>
+    >
+    std::ostream& operator <<(std::ostream& out, View&& view)
+    {
+        out << '{';
+        std::size_t current = 0;
+        const auto print_marks_and_then = [&view, &current, &out](auto&& el) -> std::ostream& {
+            if (current != 0 && current != view.last)
+                out << ", ";
+            if (current == view.first)
+                out << "[[";
+            if (current == view.pos)
+                out << "->";
+            if (current == view.limit)
+                out << "<-";
+            if (current == view.last)
+                out << "]]";
+            return out << el;
+        };
+        for (auto&& el: view.container) {
+            print_marks_and_then(std::forward<decltype(el)>(el));
+            ++current;
+        }
+        return print_marks_and_then('}');
     }
 }
