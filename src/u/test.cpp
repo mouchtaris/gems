@@ -196,6 +196,7 @@ namespace msg::input_socket {
         using std::get;
         return { {}, q2 };
     }
+    static_assert(&with_queue); // for un-emittance-warning
     static_assert(is_input_socket<adt>::value);
         static_assert(has_push<adt>::value);
             static_assert(std::is_default_constructible_v<adt>);
