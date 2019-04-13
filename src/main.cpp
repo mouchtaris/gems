@@ -1,7 +1,13 @@
 #include "config.h"
-#include "u/test.h"
 #include "u/view.h"
 #include "u/p.h"
+
+#include "msg/input_socket.h"
+
+#include "u/test_u.h"
+#include "msg/input_socket.h"
+#include "msg/test_msg.h"
+
 #include <type_traits>
 #include <tuple>
 #include <array>
@@ -19,13 +25,23 @@ int select(
     struct timeval   *timeout
 );
 
-using std::get;
+namespace inc
+{
+    template <
+        typename InputSockets,
+    >
+    struct SocketInterface
+    {
 
-constexpr auto lol = u::view::view<std::array<int, 4>>{};
-constexpr auto lol2 = lol.emplace_back(5);
-static_assert(lol2->size() == 3);
+    };
+}
+
 
 int main(int argc, char const* argv[])
 {
-    return u::spec::main(argc, argv);
+    const bool success = true
+        && u::spec::main(argc, argv) == 0
+        && msg::spec::main(argc, argv) == 0
+        ;
+    return success? 0 : 1;
 }

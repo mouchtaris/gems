@@ -6,7 +6,7 @@ test: build
 	${BUILD_DIR}/main 1 2 3 4 5 6
 conf: clean
 	mkdir -pv ${BUILD_DIR}
-	root="$$(pwd)" && cd ${BUILD_DIR} && cmake -G Ninja "$$root"
+	root="$$(pwd)" && cd ${BUILD_DIR} && cmake -G 'Unix Makefiles' "$$root"
 	ln -svf ${BUILD_DIR}/compile_commands.json .
 doc:
 	${MAKE} -C doc

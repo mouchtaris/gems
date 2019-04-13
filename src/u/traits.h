@@ -12,7 +12,7 @@
     struct NAME<                \
         T,                      \
         std::void_t<DECL>       \
-    >: public std::true_type { };
+    >: public std::true_type { }
 
 #define TRAIT_COND(NAME, COND)  \
     TRAIT(NAME, u::traits::enable_if<(COND)>)

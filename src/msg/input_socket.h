@@ -48,9 +48,12 @@ namespace msg::input_socket
     >
     constexpr std::optional<InputSocket> push(InputSocket&& socket, ByteChunk&& chunk)
     {
-        (void)&socket;
-        (void)&chunk;
-        return std::nullopt;
+        auto&& q0 = queue(socket);
+        auto&& q1 = q0.emplace_back(std::move(chunk));
+        if (q1)
+            return with_queue(std::move(socket), *q1);
+        else
+            return std::nullopt;
     }
 
 
@@ -68,4 +71,15 @@ namespace msg::input_socket
     TRAIT_COND(is_input_socket, (std::conjunction_v<
         has_push<T>
     >));
+
+
+    //! Default implementation
+    struct Default
+    {
+        Queue q;
+    };
+    inline Queue queue(Default d) { return d.q; }
+    inline Default with_queue(Default, Queue q2) { return { q2 }; }
+    static_assert( is_input_socket<Default>::value );
+
 }

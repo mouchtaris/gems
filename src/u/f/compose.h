@@ -61,4 +61,16 @@ namespace u::f
             };
         }
     };
+
+    template <
+        std::size_t N,
+        typename F
+    >
+    constexpr auto f2n(F&& f)
+    {
+        if constexpr (N <= 1)
+            return f;
+        else
+            return compose(f, f2n<N - 1>(f));
+    }
 }

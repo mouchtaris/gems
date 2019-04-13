@@ -10,7 +10,7 @@ namespace config
     //! Bytechunk size
     /// The number of byte in every incoming bytechunk
     /// message.
-    constexpr std::size_t BYTE_CHUNK_SIZE = 1024;
+    constexpr std::size_t BYTE_CHUNK_SIZE = 56;
 
     //! Message queue
     /// Specifies the maximum number of bytechunk
@@ -19,5 +19,5 @@ namespace config
     ///
     /// Memory requirements:
     ///     MESSAGE_QUEUE_SIZE * BYTE_CHUNK_SIZE
-    constexpr std::size_t MESSAGE_QUEUE_SIZE = 256;
+    constexpr std::size_t MESSAGE_QUEUE_SIZE = 16;
 }
