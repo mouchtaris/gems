@@ -1,0 +1,4 @@
+[submodule "mastoras"]
+	path = third_party/mastoras
+	url = git@github.com:mouchtaris/gems.git
+	branch = mastoras/develop

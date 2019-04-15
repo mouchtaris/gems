@@ -28,7 +28,7 @@ int select(
 namespace inc
 {
     template <
-        typename InputSockets,
+        typename InputSockets
     >
     struct SocketInterface
     {
