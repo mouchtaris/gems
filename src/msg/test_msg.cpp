@@ -58,7 +58,6 @@ namespace input_socket {
     static_assert( !::msg::input_socket::push(adt{*full}, ByteChunk{}) );
     void debug()
     {
-        debug__(( Queue{}.size() ));
     }
 }
 }} // <anon>::spec

@@ -34,7 +34,7 @@ namespace make_array {
         debug__(( p<decltype(subj)>() ));
         debug__(( p<decltype(subj)::value_type>() ));
     }
-}
+}//make_array::
 namespace compose {
     using u::f::compose;
     constexpr auto f = [](int x) { return x + 1; };
@@ -57,7 +57,7 @@ namespace compose {
         };
         assert__(( persists()(0) == 0 ));
     }
-}
+}//compose::
 namespace view {
     constexpr auto back = std::array<int, 4> {4,5,6,7};
     constexpr auto v0 = ::u::view::view { back };
@@ -163,6 +163,9 @@ namespace view {
     constexpr auto v5 = v4->emplace_back(4);
     static_assert(v5 == std::nullopt);
 
+    constexpr auto v6 = v4->flip();
+    static_assert(v6.remaining() == 4);
+
     void debug()
     {
         debug__(( v0 ));
@@ -171,6 +174,7 @@ namespace view {
         debug__(( *v3 ));
         debug__(( *v4 ));
         debug__(( (v5 == std::nullopt ? "nullopt" : "SOMETHING") ));
+        debug__(( ::u::p<decltype(v4->flip())>() ));
     }
 }
 }}

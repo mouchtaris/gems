@@ -32,7 +32,6 @@ namespace inc
     >
     struct SocketInterface
     {
-
     };
 }
 

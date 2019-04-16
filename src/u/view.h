@@ -114,6 +114,15 @@ namespace u::view
                 return std::move(self2);
             }
         }
+
+        constexpr this_type flip() const
+        {
+            return {
+                container,
+                first, 0,
+                pos, last
+            };
+        }
     };
 
     //
@@ -141,12 +150,16 @@ namespace u::view
             std::size_t
         >
     ));
+    TRAIT(has_flip, decltype(
+        T{}.flip()
+    ));
 
     TRAIT_COND(is_view_impl, (std::conjunction_v<
         has_container<T>,
         has_first<T>,
         has_last<T>,
-        has_remaining<T>
+        has_remaining<T>,
+        has_flip<T>
     >));
     template <
         typename T
