@@ -23,6 +23,13 @@ target_sources(u PRIVATE
 )
 
 
+add_library(sock)
+target_link_libraries(sock PRIVATE _compile_options)
+target_sources(sock PRIVATE
+    src/sock/listen/unix.cpp
+)
+
+
 add_library(msg)
 target_link_libraries(msg PRIVATE _compile_options)
 target_sources(msg PRIVATE
@@ -30,6 +37,14 @@ target_sources(msg PRIVATE
     src/msg/test_msg.cpp
 )
 
+
+add_executable(spec)
+target_link_libraries(spec PRIVATE _compile_options)
+target_sources(spec PRIVATE
+    spec/sock/listen/unix_spec.cpp
+    spec/sock_spec.cpp
+    spec/spec.cpp
+)
 
 add_executable(main)
 target_link_libraries(main PRIVATE _compile_options)

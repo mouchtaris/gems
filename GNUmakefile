@@ -2,8 +2,10 @@ BUILD_DIR ?= /,/m2_build
 
 build:
 	cmake --build ${BUILD_DIR}
-test: build
+run: build
 	${BUILD_DIR}/main 1 2 3 4 5 6
+spec: build
+	${BUILD_DIR}/spec 1 2 3 4 5 6
 conf: clean
 	mkdir -pv ${BUILD_DIR}
 	root="$$(pwd)" && cd ${BUILD_DIR} && cmake -G 'Ninja' "$$root"
