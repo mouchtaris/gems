@@ -1,5 +1,5 @@
 #pragma once
-namespace sock::spec
+namespace u::spec
 {
     void debug();
 }

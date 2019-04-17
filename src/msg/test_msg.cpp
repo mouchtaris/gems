@@ -4,6 +4,8 @@
 #include "u/p.h"
 #include <iostream>
 namespace {
+using u::p;
+
 namespace spec {
 namespace input_socket {
     using ::msg::input_socket::Queue;
@@ -43,9 +45,9 @@ namespace input_socket {
 
 
     using ::msg::input_socket::ByteChunk;
-    constexpr auto _00 = adt{};
-    constexpr auto _01 = ByteChunk{};
     static_assert( !!::msg::input_socket::push(adt{}, ByteChunk{}) );
+
+#ifndef __clang__
     const auto pusher = [](std::optional<adt> a) -> std::optional<adt> {
         if (a)
             return ::msg::input_socket::push(std::move(*a), ByteChunk{});
@@ -53,14 +55,21 @@ namespace input_socket {
            return std::nullopt;
     };
     constexpr auto push_all = u::f::f2n<Queue{}.size()>(pusher);
+
     constexpr auto full = push_all(adt{});
     static_assert( !!full );
     static_assert( !::msg::input_socket::push(adt{*full}, ByteChunk{}) );
+#endif
     void debug()
     {
+        debug__(( p<ByteChunk>() ));
+        debug__(( p<ByteChunk::container_type::value_type>() ));
+        debug__(( p<ByteChunk::container_type::value_type>() ));
+        debug__(( p<decltype(*begin(ByteChunk::container_type{}))>() ));
     }
-}
-}} // <anon>::spec
+}//input_socket::
+}//spec::
+}//<anon>:
 
 int msg::spec::main(int, char const*[])
 {

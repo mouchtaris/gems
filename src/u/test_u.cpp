@@ -3,6 +3,7 @@
 #include "./f/compose.h"
 #include "./p.h"
 #include "./view.h"
+#include "./str.h"
 #include <iostream>
 #include <type_traits>
 #include <algorithm>
@@ -176,13 +177,26 @@ namespace view {
         debug__(( (v5 == std::nullopt ? "nullopt" : "SOMETHING") ));
         debug__(( ::u::p<decltype(v4->flip())>() ));
     }
-}
-}}
+}//view::
+namespace str {
+    constexpr auto src0 = std::array<char, 12>{};
+    constexpr auto src1 = u::view::view { src0 };
+    constexpr auto v0 = u::str::view(src0);
+    constexpr auto v1 = u::str::view(src1);
+    static_assert(v0.size() == src0.size());
+    static_assert(v1.size() == src1.size());
+    void debug()
+    {
+    }
+}//str::
+}//spec::
+}//<anon>::
 
 int u::spec::main(int, char const*[])
 {
     ::spec::make_array::debug();
     ::spec::compose::runtime();
     ::spec::view::debug();
+    ::spec::str::debug();
     return 0;
 }
