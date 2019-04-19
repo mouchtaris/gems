@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
 
-set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 cmake_minimum_required(VERSION 3.12)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -21,7 +21,7 @@ target_sources(u PRIVATE
     src/u/tmap.cpp
     src/u/traits.cpp
     src/u/str.cpp
-    src/u/revar.cpp
+    src/u/try_.cpp
 )
 
 
@@ -45,7 +45,8 @@ target_link_libraries(spec PRIVATE _compile_options)
 target_sources(spec PRIVATE
     spec/sock/listen/unix_spec.cpp
     spec/sock_spec.cpp
-    spec/u/revar_spec.cpp
+    spec/u/try__spec.cpp
+    spec/u/tmap_spec.cpp
     spec/u_spec.cpp
     spec/spec.cpp
 )

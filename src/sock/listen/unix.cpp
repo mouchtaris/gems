@@ -1,5 +1,4 @@
 #include "./unix.h"
-#include "u/revar.h"
 #include <sys/socket.h>
 #include <sys/un.h>
 namespace sock::listen::unix_
@@ -8,8 +7,8 @@ namespace sock::listen::unix_
     {
         const int sockfd = ::socket(AF_UNIX, SOCK_STREAM, 0);
         if (sockfd < 0)
-            return errors::SocketCreation{};
-        return sockfd;
+            return { errors::SocketCreation{} };
+        return { sockfd };
     }
 
     ::sockaddr_un address(sockaddr_path path)
@@ -35,23 +34,25 @@ namespace sock::listen::unix_
 
     bind_result bind(sockaddr_path path)
     {
-        const auto sockfdTry = create();
-        if (!std::holds_alternative<sockfd_t>(sockfdTry))
-            return u::revar { sockfdTry };
+        // TODO comment in
+        //const auto sockfdTry = create();
+        //if (sockfdTry.is_failed())
+        //    return sockfdTry;
 
-        const auto sockfd = std::get<sockfd_t>(sockfdTry);
-        const auto serv_addr = address(std::move(path));
-        const auto serv_len = address_len(serv_addr);
+        //const auto sockfd = std::get<sockfd_t>(sockfdTry);
+        //const auto serv_addr = address(std::move(path));
+        //const auto serv_len = address_len(serv_addr);
 
-        const int status = ::bind(
-            sockfd,
-            reinterpret_cast<const struct ::sockaddr *>(&serv_addr),
-            serv_len
-        );
+        //const int status = ::bind(
+        //    sockfd,
+        //    reinterpret_cast<const struct ::sockaddr *>(&serv_addr),
+        //    serv_len
+        //);
 
-        if (status < 0)
-            return errors::SocketBinding{};
+        //if (status < 0)
+        //    return errors::SocketBinding{};
 
-        return sockfd;
+        //return sockfd;
+        return {};
     }
 }

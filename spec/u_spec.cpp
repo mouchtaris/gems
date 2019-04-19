@@ -1,9 +1,9 @@
 #include "./u_spec.h"
-#include "./u/revar_spec.h"
+#include "./u/try__spec.h"
 namespace u::spec
 {
     void debug()
     {
-        revar::debug();
+        try_::debug();
     }
 }
