@@ -43,6 +43,33 @@ namespace u::tmap
         using into = R<Ts...>;
     };
 
+    template <
+        template <typename...> typename
+    >
+    using needs_template_t = void;
+
+    template <
+        typename F,
+        typename _impl = void
+    >
+    struct evaluation_strategy;
+
+    template <
+        typename F
+    >
+    struct evaluation_strategy<F, needs_template_t<F::template call>
+    {
+        template <
+            typename... Args
+        >
+        using call = typename F::template call<Args...>;
+    };
+
+    template <
+        typename F,
+        typename... Args
+    >
+    using eval = evaluation_strategy<F>::call<Args...>;
 
     //! Bind the given args for front use
     template <
@@ -54,7 +81,7 @@ namespace u::tmap
         template <
             typename... Args
         >
-        using call = typename F::template call<Front..., Args...>;
+        using call = eval<F, Front..., Args...>;
     };
 
     //! Turn a normal template to a function
@@ -62,6 +89,8 @@ namespace u::tmap
         template <typename...> typename F
     >
     struct f {
+    template <
+
         template <
             typename... Args
         >
@@ -69,17 +98,18 @@ namespace u::tmap
     };
 
     //! Apply a template "function" to each element in a pack.
+    struct map;
+
     template <
         typename F,
-        typename... Ts
+        typename... Args
     >
-    struct map;
+    struct eval_map;
 
     template <
         typename F
     >
-    struct map<F>
-    {
+    
         using result = tpack<>;
     };
 
@@ -90,8 +120,8 @@ namespace u::tmap
     >
     struct map<F, T, Ts...>
     {
-        using head = typename F::template call<T>;
-        using tail = typename map<F, Ts...>::result;
+        using head = eval<F, T>;
+        using tail = evalmap<F, Ts...>::result;
         using result = typename tail::template into<
             bind_front<
                 tpack,
