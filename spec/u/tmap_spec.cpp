@@ -27,6 +27,30 @@ namespace u::spec::tmap
         !l0::into<bind_front<contains, C>::result>::value
     );
 
+
+    struct f
+    {
+        template <
+            typename x
+        >
+        using call = x[2];
+    };
+    using l1 = l0::into<
+        bind_front<
+            ::u::tmap::map,
+            f
+        >::result
+    >::result::into<std::tuple>;
+
+    static_assert(
+        std::is_same_v<
+            l1,
+            std::tuple<A[2], B[2]>
+        >
+    );
+
+
+
     void debug()
     {
     }

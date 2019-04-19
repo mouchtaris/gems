@@ -5,6 +5,8 @@ namespace u::tmap
 {
     namespace _detail
     {
+
+
         template <
             typename T,
             typename... Ts
@@ -43,6 +45,7 @@ namespace u::tmap
         using into = R<Ts...>;
     };
 
+
     //! Bind the given args for front use
     template <
         template <typename...> typename F,
@@ -54,5 +57,38 @@ namespace u::tmap
             typename... Args
         >
         using result = F<Front..., Args...>;
+    };
+
+
+    //! Apply a template "function" to each element in a pack.
+    template <
+        typename F,
+        typename... Ts
+    >
+    struct map;
+
+    template <
+        typename F
+    >
+    struct map<F>
+    {
+        using result = tpack<>;
+    };
+
+    template <
+        typename F,
+        typename T,
+        typename... Ts
+    >
+    struct map<F, T, Ts...>
+    {
+        using head = typename F::template call<T>;
+        using tail = typename map<F, Ts...>::result;
+        using result = typename tail::template into<
+            bind_front<
+                tpack,
+                head
+            >::template result
+        >;
     };
 }
