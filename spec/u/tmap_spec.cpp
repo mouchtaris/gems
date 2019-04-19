@@ -1,10 +1,15 @@
 #include "./tmap_spec.h"
 #include "u/tmap.h"
+#include "u/p.h"
+#include <iostream>
 namespace u::spec::tmap
 {
     using ::u::tmap::tpack;
     using ::u::tmap::contains;
     using ::u::tmap::bind_front;
+    using ::u::tmap::f;
+    using ::u::tmap::map;
+    using ::u::p;
 
     struct A;
     struct B;
@@ -16,19 +21,19 @@ namespace u::spec::tmap
     >;
 
     static_assert(
-        l0::into<bind_front<contains, A>::result>::value
+        l0::into<bind_front<contains, A>::call>::value
     );
 
     static_assert(
-        l0::into<bind_front<contains, B>::result>::value
+        l0::into<bind_front<contains, B>::call>::value
     );
 
     static_assert(
-        !l0::into<bind_front<contains, C>::result>::value
+        !l0::into<bind_front<contains, C>::call>::value
     );
 
 
-    struct f
+    struct F
     {
         template <
             typename x
@@ -37,9 +42,9 @@ namespace u::spec::tmap
     };
     using l1 = l0::into<
         bind_front<
-            ::u::tmap::map,
-            f
-        >::result
+            map,
+            F
+        >::call
     >::result::into<std::tuple>;
 
     static_assert(
@@ -53,5 +58,8 @@ namespace u::spec::tmap
 
     void debug()
     {
+        debug__(( p< bind_front<std::is_same, int>::call<float>         >() ));
+        debug__((    bind_front<std::is_same, int>::call<float>::value      ));
+        debug__(( p< map< bind_front<f<std::is_same>, int>::call<float>, int >::result  >() ));
     }
 }

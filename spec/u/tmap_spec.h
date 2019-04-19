@@ -1,5 +1,5 @@
 #pragma once
-namespace spec::u::tmap
+namespace u::spec::tmap
 {
     void debug();
 }

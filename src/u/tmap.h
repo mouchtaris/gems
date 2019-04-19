@@ -5,8 +5,6 @@ namespace u::tmap
 {
     namespace _detail
     {
-
-
         template <
             typename T,
             typename... Ts
@@ -30,7 +28,7 @@ namespace u::tmap
         typename T,
         typename... Ts
     >
-    using contains = _detail::contains<T, Ts...>;
+    using contains0 = _detail::contains<T, Ts...>;
 
 
     //! Pack type variable arguments for later use
@@ -48,7 +46,7 @@ namespace u::tmap
 
     //! Bind the given args for front use
     template <
-        template <typename...> typename F,
+        typename F,
         typename... Front
     >
     struct bind_front
@@ -56,9 +54,19 @@ namespace u::tmap
         template <
             typename... Args
         >
-        using result = F<Front..., Args...>;
+        using call = typename F::template call<Front..., Args...>;
     };
 
+    //! Turn a normal template to a function
+    template <
+        template <typename...> typename F
+    >
+    struct f {
+        template <
+            typename... Args
+        >
+        using call = F<Args...>;
+    };
 
     //! Apply a template "function" to each element in a pack.
     template <
@@ -88,7 +96,30 @@ namespace u::tmap
             bind_front<
                 tpack,
                 head
-            >::template result
+            >::template call
         >;
     };
+
+
+    //! Does a tpack contain a given type?
+    template <
+        typename T,
+        typename... Ts
+    >
+    using contains2 =
+        typename map<
+            bind_front<
+                std::is_same, T
+            >,
+            Ts...
+        >::result::template into<
+            std::conjunction
+        >;
+    ;
+
+    template <
+        typename T,
+        typename... Ts
+    >
+    using contains = contains0<T, Ts...>;
 }
