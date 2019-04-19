@@ -29,4 +29,30 @@ namespace u::tmap
         typename... Ts
     >
     using contains = _detail::contains<T, Ts...>;
+
+
+    //! Pack type variable arguments for later use
+    template <
+        typename... Ts
+    >
+    struct tpack
+    {
+        template <
+            template <typename...> typename R
+        >
+        using into = R<Ts...>;
+    };
+
+    //! Bind the given args for front use
+    template <
+        template <typename...> typename F,
+        typename... Front
+    >
+    struct bind_front
+    {
+        template <
+            typename... Args
+        >
+        using result = F<Front..., Args...>;
+    };
 }
