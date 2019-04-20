@@ -103,29 +103,17 @@ namespace u::tmap
     //! Apply a function to a pack of elements
     struct map{};
     template <
+        typename F,
         typename... Args
     >
-    constexpr auto eval(map, Args...)
+    constexpr auto eval(map, F, Args...)
     {
-        if constexpr (sizeof...(Args) <= 1) {
-            return tpack<>{};
-        }
+        if constexpr (sizeof...(Args) == 0)
+            return std::declval<tpack<>>();
         else {
-            using args = tpack<Args...>;
-
-            using F = head_t<args>;
-            using elements = tail_t<args>;
-
+            using elements = tpack<Args...>;
             using head = eval_t<F, head_t<elements>>;
-
-            constexpr auto tail_eval = []() {
-                if constexpr (has_tail<elements>::value)
-                    return typename tail_t<elements>::template into<eval_t, map, F>{};
-                else
-                    return tpack<>{};
-            };
-            using tail = decltype(tail_eval());
-
+            using tail = typename tail_t<elements>::template into<eval_t, map, F>;
             return typename tail::template prepend<head>{};
         }
     }
