@@ -132,7 +132,7 @@ namespace u::tmap
             return Zero{};
         else {
             using elements = tpack<Pack...>;
-            using next = eval_t<F, Zero, head_t<elements>>;
+            using next = eval_t<reduce, F, Zero, head_t<elements>>;
             return eval_t<reduce, F, next, tail_t<elements>>{};
         }
     }
