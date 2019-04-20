@@ -1,37 +1,10 @@
 #pragma once
 #include <type_traits>
+#include "u/traits.h"
 //! Type functional utilities
 namespace u::tmap
 {
-    namespace _detail
-    {
-        template <
-            typename T,
-            typename... Ts
-        >
-        struct contains: public std::false_type { };
-
-        template <
-            typename T,
-            typename... Ts
-        >
-        struct contains<T, T, Ts...>: public std::true_type { };
-
-        template <
-            typename T,
-            typename U,
-            typename... Ts
-        >
-        struct contains<T, U, Ts...>: public contains<T, Ts...> { };
-    }
-    template <
-        typename T,
-        typename... Ts
-    >
-    using contains0 = _detail::contains<T, Ts...>;
-
-
-    //! Pack type variable arguments for later use
+    //! A simple type packager
     template <
         typename... Ts
     >
@@ -41,75 +14,63 @@ namespace u::tmap
             template <typename...> typename R
         >
         using into = R<Ts...>;
-    };
 
-    template <
-        template <typename...> typename
-    >
-    using needs_template_t = void;
-
-    template <
-        typename F,
-        typename _impl = void
-    >
-    struct evaluation_strategy;
-
-    template <
-        typename F
-    >
-    struct evaluation_strategy<F, needs_template_t<F::template call>
-    {
         template <
-            typename... Args
+            typename... Prefix
         >
-        using call = typename F::template call<Args...>;
+        using prepend = tpack<Prefix..., Ts...>;
     };
 
+
+    //! Dispatchy evaluation strategy
     template <
         typename F,
         typename... Args
     >
-    using eval = evaluation_strategy<F>::call<Args...>;
+    using eval_t = decltype(
+        eval(
+            std::declval<F>(),
+            std::declval<Args>()...
+        )
+    );
 
-    //! Bind the given args for front use
+
+    //! Eval if a type has ::call<>
+    template <
+        typename F,
+        typename... Args
+    >
+    auto eval(F, Args...)
+    -> typename F::template call<Args...>;
+
+
+    //! Bound type arguments to the front
     template <
         typename F,
         typename... Front
     >
-    struct bind_front
+    struct bound_front
     {
         template <
             typename... Args
         >
-        using call = eval<F, Front..., Args...>;
+        using call = eval_t<F, Front..., Args...>;
     };
 
-    //! Turn a normal template to a function
-    template <
-        template <typename...> typename F
-    >
-    struct f {
-    template <
+    //! Bind type argument to the front
 
-        template <
-            typename... Args
-        >
-        using call = F<Args...>;
-    };
-
-    //! Apply a template "function" to each element in a pack.
-    struct map;
-
+    //! Apply a function to a pack of elements
     template <
         typename F,
-        typename... Args
+        typename... Ts
     >
-    struct eval_map;
+    struct map;
 
     template <
         typename F
     >
-    
+    struct map<F>
+    {
         using result = tpack<>;
     };
 
@@ -120,36 +81,23 @@ namespace u::tmap
     >
     struct map<F, T, Ts...>
     {
-        using head = eval<F, T>;
-        using tail = evalmap<F, Ts...>::result;
-        using result = typename tail::template into<
-            bind_front<
-                tpack,
-                head
-            >::template call
-        >;
+        using head = eval_t<F, T>;
+        using tail = typename map<F, Ts...>::result;
+        using result = typename tail::template into<bind_front<tpack, head>::template call>;
     };
 
 
-    //! Does a tpack contain a given type?
+    //! Does a pack contain an element
     template <
         typename T,
         typename... Ts
     >
-    using contains2 =
+    using contains = 
         typename map<
-            bind_front<
-                std::is_same, T
-            >,
+            bind_front<std::is_same, T>::template call,
             Ts...
         >::result::template into<
-            std::conjunction
-        >;
+            std::disjunction
+        >
     ;
-
-    template <
-        typename T,
-        typename... Ts
-    >
-    using contains = contains0<T, Ts...>;
 }

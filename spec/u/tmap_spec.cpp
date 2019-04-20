@@ -7,7 +7,6 @@ namespace u::spec::tmap
     using ::u::tmap::tpack;
     using ::u::tmap::contains;
     using ::u::tmap::bind_front;
-    using ::u::tmap::f;
     using ::u::tmap::map;
     using ::u::p;
 
