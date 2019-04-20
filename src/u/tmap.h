@@ -108,7 +108,7 @@ namespace u::tmap
     constexpr auto eval(map, Args...)
     {
         if constexpr (sizeof...(Args) <= 1) {
-            return std::declval<tpack<>>();
+            return tpack<>{};
         }
         else {
             using args = tpack<Args...>;
@@ -118,16 +118,15 @@ namespace u::tmap
 
             using head = eval_t<F, head_t<elements>>;
 
-            using tail = decltype([]() -> decltype(auto) {
+            constexpr auto tail_eval = []() {
                 if constexpr (has_tail<elements>::value)
-                    return std::declval<
-                        tail_t<elements>::template into<eval_t, map, F>
-                    >();
+                    return typename tail_t<elements>::template into<eval_t, map, F>{};
                 else
-                    return std::declval<tpack<>>();
-            });
+                    return tpack<>{};
+            };
+            using tail = decltype(tail_eval());
 
-            return std::declval<tail::template prepend<head>>();
+            return typename tail::template prepend<head>{};
         }
     }
 

@@ -6,6 +6,10 @@ namespace u::spec::tmap
 {
     using ::u::tmap::tpack;
     using ::u::tmap::eval_t;
+    using ::u::tmap::has_head;
+    using ::u::tmap::head_t;
+    using ::u::tmap::has_tail;
+    using ::u::tmap::tail_t;
     //using ::u::tmap::contains;
     using ::u::tmap::map;
     using ::u::p;
@@ -40,6 +44,14 @@ namespace u::spec::tmap
     );
 
 
+    static_assert(has_head<l0>::value);
+    static_assert(has_tail<l0>::value);
+    static_assert(has_head<tail_t<l0>>::value);
+    static_assert(has_tail<tail_t<l0>>::value);
+    static_assert(!has_head<tail_t<tail_t<l0>>>::value);
+    static_assert(!has_tail<tail_t<tail_t<l0>>>::value);
+    static_assert(std::is_same_v<head_t<l0>, A>);
+
     struct F
     {
         template <
@@ -47,17 +59,29 @@ namespace u::spec::tmap
         >
         using call = std::array<x, 2>;
     };
-    //using l1 = l0::into<eval_t, map, F>;
 
-    //static_assert(
-    //    std::is_same_v<
-    //        l1,
-    //        std::tuple<
-    //            std::array<A, 2>,
-    //            std::array<B, 2>
-    //        >
-    //    >
-    //);
+    static_assert(std::is_same_v<
+        eval_t<F, A>,
+        std::array<A, 2>
+    >);
+
+    using map0 = eval_t<map, F, A>;
+    static_assert(std::is_same_v<
+        map0,
+        tpack<std::array<A, 2>>
+    >);
+
+    using l1 = l0::into<eval_t, map, F>;
+
+    static_assert(
+        std::is_same_v<
+            l1,
+            tpack<
+                std::array<A, 2>,
+                std::array<B, 2>
+            >
+        >
+    );
 
 
     //using contains_a = bind_front<
