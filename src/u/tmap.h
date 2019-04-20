@@ -120,22 +120,44 @@ namespace u::tmap
 
 
     //! Reduce a pack
-    struct reduce{};
     template <
         typename F,
         typename Zero,
         typename... Pack
     >
-    constexpr auto eval(reduce, F, Zero, Pack...)
+    struct reduce_eval;
+
+    template <
+        typename F,
+        typename Zero
+    >
+    struct reduce_eval<F, Zero>
     {
-        if constexpr (sizeof...(Pack) == 0)
-            return Zero{};
-        else {
-            using elements = tpack<Pack...>;
-            using next = eval_t<reduce, F, Zero, head_t<elements>>;
-            return eval_t<reduce, F, next, tail_t<elements>>{};
-        }
-    }
+        using result = Zero;
+    };
+
+    template <
+        typename F,
+        typename Zero,
+        typename Head,
+        typename... Tail
+    >
+    struct reduce_eval<F, Zero, Head, Tail...>
+    {
+        using result = typename reduce_eval<
+            F,
+            eval_t<F, Zero, Head>,
+            Tail...
+        >::result;
+    };
+
+    struct reduce
+    {
+        template <
+            typename... Args
+        >
+        using call = typename reduce_eval<Args...>::result;
+    };
 
 
     //! Does a pack contain an element
