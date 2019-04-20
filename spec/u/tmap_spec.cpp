@@ -14,7 +14,30 @@ namespace u::spec::tmap
     struct A {};
     struct B {};
     struct C {};
+    struct D {};
     using l0 = tpack<A, B>;
+
+    static_assert(
+        std::is_same_v<
+            l0::into<std::tuple, C, D>,
+            std::tuple<C, D, A, B>
+        >
+    );
+
+    static_assert(
+        std::is_same_v<
+            l0::prepend<C, D>,
+            tpack<C, D, A, B>
+        >
+    );
+
+    using l0f = l0::f<std::tuple, C>;
+    static_assert(
+        std::is_same_v<
+            eval_t<l0f, D>,
+            std::tuple<C, A, B, D>
+        >
+    );
 
 
     struct F
