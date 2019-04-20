@@ -19,6 +19,11 @@ namespace u::tmap
             typename... Prefix
         >
         using prepend = tpack<Prefix..., Ts...>;
+
+        template <
+            std::size_t i
+        >
+        using get = std::
     };
 
 
@@ -57,34 +62,18 @@ namespace u::tmap
         using call = eval_t<F, Front..., Args...>;
     };
 
-    //! Bind type argument to the front
 
     //! Apply a function to a pack of elements
-    template <
-        typename F,
-        typename... Ts
-    >
     struct map;
-
     template <
-        typename F
+        typename... Args
     >
-    struct map<F>
+    constexpr auto eval(map)
     {
-        using result = tpack<>;
-    };
-
-    template <
-        typename F,
-        typename T,
-        typename... Ts
-    >
-    struct map<F, T, Ts...>
-    {
-        using head = eval_t<F, T>;
-        using tail = typename map<F, Ts...>::result;
-        using result = typename tail::template into<bind_front<tpack, head>::template call>;
-    };
+        if constexpr (sizeof...(Args) == 0)
+            return std::declval<tpack<>>();
+        else if constexpr (sizeof...(
+    }
 
 
     //! Does a pack contain an element
