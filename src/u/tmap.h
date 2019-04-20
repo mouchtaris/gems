@@ -1,6 +1,7 @@
 #pragma once
-#include <type_traits>
 #include "u/traits.h"
+#include <type_traits>
+#include <tuple>
 //! Type functional utilities
 namespace u::tmap
 {
@@ -11,9 +12,10 @@ namespace u::tmap
     struct tpack
     {
         template <
-            template <typename...> typename R
+            template <typename...> typename R,
+            typename... ExtraFront
         >
-        using into = R<Ts...>;
+        using into = R<ExtraFront..., Ts...>;
 
         template <
             typename... Prefix
@@ -21,10 +23,68 @@ namespace u::tmap
         using prepend = tpack<Prefix..., Ts...>;
 
         template <
-            std::size_t i
+            template <typename...> typename F,
+            typename... ExtraFront
         >
-        using get = std::
+        struct f
+        {
+            template <
+                typename... ExtraBack
+            >
+            using call = F<ExtraFront..., Ts..., ExtraBack...>;
+        };
     };
+
+
+    //! Check if a tpack that has a head (not empty)
+    template <
+        typename T
+    >
+    struct has_head: public std::false_type { };
+
+    template <
+        typename H,
+        typename... Ts
+    >
+    struct has_head<tpack<H, Ts...>>: public std::true_type
+    {
+        using head = H;
+    };
+
+    template <
+        typename T
+    >
+    using head_t = typename has_head<T>::head;
+
+
+    //! Check if a tpack has a tail (not empty)
+    template <
+        typename T
+    >
+    struct has_tail: public std::false_type { };
+
+    template <
+        typename H,
+        typename... Ts
+    >
+    struct has_tail<tpack<H, Ts...>>: public std::true_type
+    {
+        using tail = tpack<Ts...>;
+    };
+
+    template <
+        typename T
+    >
+    using tail_t = typename has_tail<T>::tail;
+
+
+    //! Eval if a type has ::call<>
+    template <
+        typename F,
+        typename... Args
+    >
+    auto eval(F, Args...)
+    -> typename F::template call<Args...>;
 
 
     //! Dispatchy evaluation strategy
@@ -40,53 +100,52 @@ namespace u::tmap
     );
 
 
-    //! Eval if a type has ::call<>
-    template <
-        typename F,
-        typename... Args
-    >
-    auto eval(F, Args...)
-    -> typename F::template call<Args...>;
-
-
-    //! Bound type arguments to the front
-    template <
-        typename F,
-        typename... Front
-    >
-    struct bound_front
-    {
-        template <
-            typename... Args
-        >
-        using call = eval_t<F, Front..., Args...>;
-    };
-
-
     //! Apply a function to a pack of elements
-    struct map;
+    struct map{};
     template <
         typename... Args
     >
-    constexpr auto eval(map)
+    constexpr auto eval(map, Args...)
     {
-        if constexpr (sizeof...(Args) == 0)
+        if constexpr (sizeof...(Args) <= 1) {
             return std::declval<tpack<>>();
-        else if constexpr (sizeof...(
+        }
+        else {
+            using args = tpack<Args...>;
+
+            using F = head_t<args>;
+            using elements = tail_t<args>;
+
+            using head = eval_t<F, head_t<elements>>;
+
+            using tail = decltype([]() -> decltype(auto) {
+                if constexpr (has_tail<elements>::value)
+                    return std::declval<
+                        tail_t<elements>::template into<eval_t, map, F>
+                    >();
+                else
+                    return std::declval<tpack<>>();
+            });
+
+            return std::declval<tail::template prepend<head>>();
+        }
     }
 
 
     //! Does a pack contain an element
-    template <
-        typename T,
-        typename... Ts
-    >
-    using contains = 
-        typename map<
-            bind_front<std::is_same, T>::template call,
-            Ts...
-        >::result::template into<
-            std::disjunction
-        >
-    ;
+    //template <
+    //    typename T,
+    //    typename... Ts
+    //>
+    //using contains = eval_t<
+    //    map,
+    //    tpack<T>::template f<std::is_same>,
+    //    Ts...
+    //    typename map<
+    //        bind_front<std::is_same, T>::template call,
+    //        Ts...
+    //    >::result::template into<
+    //        std::disjunction
+    //    >
+    //;
 }

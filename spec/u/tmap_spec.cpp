@@ -5,31 +5,16 @@
 namespace u::spec::tmap
 {
     using ::u::tmap::tpack;
-    using ::u::tmap::contains;
-    using ::u::tmap::bind_front;
+    using ::u::tmap::eval_t;
+    //using ::u::tmap::contains;
     using ::u::tmap::map;
     using ::u::p;
 
-    struct A;
-    struct B;
-    struct C;
+
+    struct A {};
+    struct B {};
+    struct C {};
     using l0 = tpack<A, B>;
-    using contains_a = bind_front<
-        contains,
-        A
-    >;
-
-    static_assert(
-        l0::into<bind_front<contains, A>::call>::value
-    );
-
-    static_assert(
-        l0::into<bind_front<contains, B>::call>::value
-    );
-
-    static_assert(
-        !l0::into<bind_front<contains, C>::call>::value
-    );
 
 
     struct F
@@ -37,28 +22,41 @@ namespace u::spec::tmap
         template <
             typename x
         >
-        using call = x[2];
+        using call = std::array<x, 2>;
     };
-    using l1 = l0::into<
-        bind_front<
-            map,
-            F
-        >::call
-    >::result::into<std::tuple>;
+    //using l1 = l0::into<eval_t, map, F>;
 
-    static_assert(
-        std::is_same_v<
-            l1,
-            std::tuple<A[2], B[2]>
-        >
-    );
+    //static_assert(
+    //    std::is_same_v<
+    //        l1,
+    //        std::tuple<
+    //            std::array<A, 2>,
+    //            std::array<B, 2>
+    //        >
+    //    >
+    //);
+
+
+    //using contains_a = bind_front<
+    //    contains,
+    //    A
+    //>;
+
+    //static_assert(
+    //    l0::into<bind_front<contains, A>::call>::value
+    //);
+
+    //static_assert(
+    //    l0::into<bind_front<contains, B>::call>::value
+    //);
+
+    //static_assert(
+    //    !l0::into<bind_front<contains, C>::call>::value
+    //);
 
 
 
     void debug()
     {
-        debug__(( p< bind_front<std::is_same, int>::call<float>         >() ));
-        debug__((    bind_front<std::is_same, int>::call<float>::value      ));
-        debug__(( p< map< bind_front<f<std::is_same>, int>::call<float>, int >::result  >() ));
     }
 }
