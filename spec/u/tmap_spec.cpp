@@ -12,6 +12,7 @@ namespace u::spec::tmap
     using ::u::tmap::tail_t;
     //using ::u::tmap::contains;
     using ::u::tmap::map;
+    using ::u::tmap::reduce;
     using ::u::p;
 
 
@@ -82,6 +83,16 @@ namespace u::spec::tmap
             >
         >
     );
+
+
+    struct Weird { };
+    constexpr auto eval(Weird, A, B) { return C{}; }
+    static_assert(std::is_same_v<
+        eval_t<reduce, Weird, A, B>,
+        C
+    >);
+
+
 
 
     //using contains_a = bind_front<

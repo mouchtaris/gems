@@ -109,12 +109,31 @@ namespace u::tmap
     constexpr auto eval(map, F, Args...)
     {
         if constexpr (sizeof...(Args) == 0)
-            return std::declval<tpack<>>();
+            return tpack{};
         else {
             using elements = tpack<Args...>;
             using head = eval_t<F, head_t<elements>>;
             using tail = typename tail_t<elements>::template into<eval_t, map, F>;
             return typename tail::template prepend<head>{};
+        }
+    }
+
+
+    //! Reduce a pack
+    struct reduce{};
+    template <
+        typename F,
+        typename Zero,
+        typename... Pack
+    >
+    constexpr auto eval(reduce, F, Zero, Pack...)
+    {
+        if constexpr (sizeof...(Pack) == 0)
+            return Zero{};
+        else {
+            using elements = tpack<Pack...>;
+            using next = eval_t<F, Zero, head_t<elements>>;
+            return eval_t<reduce, F, next, tail_t<elements>>{};
         }
     }
 
