@@ -11,6 +11,8 @@ namespace u::tmap
     >
     struct tpack
     {
+        static constexpr std::size_t size = sizeof...(Ts);
+
         template <
             template <typename...> typename R,
             typename... ExtraFront
@@ -54,7 +56,7 @@ namespace u::tmap
     template <
         typename T
     >
-    using head_t = typename has_head<T>::head;
+    using head = typename has_head<T>::head;
 
 
     //! Check if a tpack has a tail (not empty)
@@ -75,7 +77,7 @@ namespace u::tmap
     template <
         typename T
     >
-    using tail_t = typename has_tail<T>::tail;
+    using tail = typename has_tail<T>::tail;
 
 
     //! Eval if a type has ::call<>
@@ -100,8 +102,37 @@ namespace u::tmap
     );
 
 
+    //! Check if a function is defined at the given arguments
+    /// (or at all).
+    template <
+        typename F,
+        typename ArgPack,
+        typename = void
+    >
+    struct is_defined: public std::false_type { };
+
+    template <
+        typename F,
+        typename ArgPack
+    >
+    struct is_defined<
+        F,
+        ArgPack,
+        std::void_t<
+            typename ArgPack::template into<eval_t, F>
+        >
+    >
+    : public std::true_type { };
+
+    template <
+        typename F,
+        typename... Args
+    >
+    constexpr bool is_defined_v = is_defined<F, tpack<Args...>>::value;
+
+
     //! Apply a function to a pack of elements
-    struct map{};
+    struct map { };
     template <
         typename F,
         typename... Args
@@ -112,8 +143,8 @@ namespace u::tmap
             return tpack{};
         else {
             using elements = tpack<Args...>;
-            using head = eval_t<F, head_t<elements>>;
-            using tail = typename tail_t<elements>::template into<eval_t, map, F>;
+            using head = eval_t<F, head<elements>>;
+            using tail = typename tail<elements>::template into<eval_t, map, F>;
             return typename tail::template prepend<head>{};
         }
     }
@@ -160,20 +191,134 @@ namespace u::tmap
     };
 
 
-    //! Does a pack contain an element
-    //template <
-    //    typename T,
-    //    typename... Ts
-    //>
-    //using contains = eval_t<
-    //    map,
-    //    tpack<T>::template f<std::is_same>,
-    //    Ts...
-    //    typename map<
-    //        bind_front<std::is_same, T>::template call,
-    //        Ts...
-    //    >::result::template into<
-    //        std::disjunction
-    //    >
-    //;
+    //! An or_else idea
+    struct or_else { };
+    template <
+        typename T
+    >
+    constexpr auto eval(or_else, tpack<>, T) -> T { }
+
+    template <
+        typename T
+    >
+    constexpr auto eval(or_else, tpack<>, tpack<T>) -> tpack<T> { }
+
+    template <
+        typename A,
+        typename B
+    >
+    constexpr auto eval(or_else, A, B) -> A { }
+
+
+    //! Find an element from a pack matching a predicate
+    namespace _detail
+    {
+        template <
+            typename Predicate
+        >
+        struct predicate_to_option {};
+
+        template <
+            typename Predicate,
+            typename... Args
+        >
+        constexpr auto eval(predicate_to_option<Predicate>, Args...)
+        -> std::conditional_t<
+            eval_t<Predicate, Args...>::value,
+            tpack<Args...>,
+            tpack<>
+        >
+        { }
+    }
+    struct find_if { };
+    template <
+        typename Predicate,
+        typename... Elements
+    >
+    constexpr auto eval(find_if, Predicate, Elements...)
+    {
+        using mapped = eval_t<map, _detail::predicate_to_option<Predicate>, Elements...>;
+        using result = typename mapped::template into<eval_t, reduce, or_else>;
+        return result{};
+    }
+
+
+    //! Turn a function into a partial function.
+    ///
+    /// Return the result of the original function in a tpack<>
+    /// if the original function is defined, and an empty
+    /// tpack<> otherwise.
+    template <
+        typename F
+    >
+    struct partial { };
+    template <
+        typename F,
+        typename... Args
+    >
+    constexpr auto eval(partial<F>, Args...) -> tpack<eval_t<F, Args...>> { }
+    template <
+        typename F,
+        typename... Args
+    >
+    constexpr auto eval(partial<F>, Args...)
+    -> std::enable_if_t<
+        !is_defined_v<F, Args...>,
+        tpack<>
+    >
+    { }
+
+
+    //! Append a non-empty optional value to a list.
+    struct append_optional { };
+    template <
+        typename T,
+        typename... Elements
+    >
+    constexpr auto eval(append_optional, tpack<Elements...>, tpack<T>)
+    -> tpack<Elements..., T>
+    { }
+    template <
+        typename... Elements
+    >
+    constexpr auto eval(append_optional, tpack<Elements...>, tpack<>)
+    -> tpack<Elements...>
+    { }
+
+
+    //! Select elements for which F is defined, mapping the results
+    /// to the result of F.
+    struct select { };
+    template <
+        typename F,
+        typename... Elements
+    >
+    constexpr auto eval(select, F, Elements...)
+    {
+        using optionals = eval_t<map, partial<F>, Elements...>;
+        using result = typename optionals::
+            template into<eval_t, reduce, append_optional, tpack<>>;
+        return result{};
+    }
+
+
+    //! Check if an element is contained in a list, but std::is_same
+    /// comparison.
+    struct contains { };
+    template <
+        typename T,
+        typename... Elements
+    >
+    constexpr auto eval(contains, T, Elements...)
+    {
+        using predicate = typename tpack<T>::template f<std::is_same>;
+        using predicate2 = _detail::predicate_to_option<predicate>;
+        using found = eval_t<map, predicate2, Elements...>;
+        using result = typename found::
+            template into<eval_t, reduce, append_optional, tpack<>>;
+        if constexpr (result::size == 0)
+            return std::false_type { };
+        else
+            return std::true_type {};
+    }
 }
