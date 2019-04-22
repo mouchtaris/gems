@@ -1,22 +1,26 @@
 #pragma once
 #include "u/view.h"
-#include "u/try_.h"
+#include "u/tmap.h"
 #include <variant>
 #include <sys/un.h>
 namespace sock::listen::unix_
 {
     namespace errors
     {
-        struct SocketCreation{};
-        struct SocketBinding{};
+        struct Error{};
+        struct SocketCreation: public Error{};
+        struct SocketBinding: public Error{};
     }
 
-    using sockfd_t = int;
-    using sockaddr_path = u::view::view<std::array<char, sizeof(::sockaddr_un{}.sun_path)>>;
-    static_assert(sockaddr_path{}.size() == 108);
+    struct sockfd_t { int value; };
 
-    using Creation = u::try_<sockfd_t, errors::SocketCreation>;
-    using Binding = Creation::or_error<errors::SocketBinding>;
+    struct sockaddr_path {
+        u::view::view<std::array<char, sizeof(::sockaddr_un{}.sun_path)>> value;
+    };
+    static_assert(sockaddr_path{}.value.size() == 108);
+
+    using Creation = u::try_::adt<sockfd_t, errors::SocketCreation>;
+    using Binding = u::try_::adt<errors::SocketBinding>;
 
     using create_result = Creation;
     using bind_result = Binding;
