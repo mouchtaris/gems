@@ -22,8 +22,14 @@ namespace u::tmap
         template <
             typename... Prefix
         >
-        using prepend = tpack<Prefix..., Ts...>;
+        using prepend = into<tpack, Prefix...>;
 
+        template <
+            typename... Suffix
+        >
+        using append = typename tpack<Suffix...>::template into<tpack, Ts...>;
+
+        //! Turn a native template func into an evalable
         template <
             template <typename...> typename F,
             typename... ExtraFront
@@ -91,15 +97,23 @@ namespace u::tmap
 
     //! Dispatchy evaluation strategy
     template <
-        typename F,
         typename... Args
     >
     using eval_t = decltype(
         eval(
-            std::declval<F>(),
             std::declval<Args>()...
         )
     );
+
+    //! A tpack<> can itself be a function if its elements
+    /// are a well-defined function sequence.
+    template <
+        typename Pack,
+        typename... ExtraBack
+    >
+    constexpr auto eval(Pack, ExtraBack...)
+    -> typename Pack::template append<ExtraBack...>::template into<eval_t>
+    { }
 
 
     //! Check if a function is defined at the given arguments
@@ -135,60 +149,39 @@ namespace u::tmap
     struct map { };
     template <
         typename F,
-        typename... Args
+        typename Pack
     >
-    constexpr auto eval(map, F, Args...)
+    constexpr auto eval(map, F, Pack)
     {
-        if constexpr (sizeof...(Args) == 0)
+        if constexpr (Pack::size == 0)
             return tpack{};
         else {
-            using elements = tpack<Args...>;
-            using head = eval_t<F, head<elements>>;
-            using tail = typename tail<elements>::template into<eval_t, map, F>;
+            using head = eval_t<F, head<Pack>>;
+            using tail = eval_t<map, F, tail<Pack>>;
             return typename tail::template prepend<head>{};
         }
     }
 
 
     //! Reduce a pack
+    struct reduce { };
     template <
         typename F,
         typename Zero,
-        typename... Pack
+        typename Pack
     >
-    struct reduce_eval;
-
-    template <
-        typename F,
-        typename Zero
-    >
-    struct reduce_eval<F, Zero>
+    constexpr auto eval(reduce, F, Zero, Pack)
     {
-        using result = Zero;
-    };
-
-    template <
-        typename F,
-        typename Zero,
-        typename Head,
-        typename... Tail
-    >
-    struct reduce_eval<F, Zero, Head, Tail...>
-    {
-        using result = typename reduce_eval<
-            F,
-            eval_t<F, Zero, Head>,
-            Tail...
-        >::result;
-    };
-
-    struct reduce
-    {
-        template <
-            typename... Args
-        >
-        using call = typename reduce_eval<Args...>::result;
-    };
+        if constexpr (!has_head<Pack>::value)
+            return Zero{};
+        else {
+            using head_ = head<Pack>;
+            using one = eval_t<F, Zero, head_>;
+            using tail_ = tail<Pack>;
+            using rest = eval_t<reduce, F, one, tail_>;
+            return rest{};
+        }
+    }
 
 
     //! An or_else idea
@@ -233,12 +226,12 @@ namespace u::tmap
     struct find_if { };
     template <
         typename Predicate,
-        typename... Elements
+        typename Pack
     >
-    constexpr auto eval(find_if, Predicate, Elements...)
+    constexpr auto eval(find_if, Predicate, Pack)
     {
-        using mapped = eval_t<map, _detail::predicate_to_option<Predicate>, Elements...>;
-        using result = typename mapped::template into<eval_t, reduce, or_else>;
+        using mapped = eval_t<map, _detail::predicate_to_option<Predicate>, Pack>;
+        using result = eval_t<reduce, or_else, tpack<>, mapped>;
         return result{};
     }
 
@@ -291,13 +284,12 @@ namespace u::tmap
     struct select { };
     template <
         typename F,
-        typename... Elements
+        typename Pack
     >
-    constexpr auto eval(select, F, Elements...)
+    constexpr auto eval(select, F, Pack)
     {
-        using optionals = eval_t<map, partial<F>, Elements...>;
-        using result = typename optionals::
-            template into<eval_t, reduce, append_optional, tpack<>>;
+        using optionals = eval_t<map, partial<F>, Pack>;
+        using result = eval_t<reduce, append_optional, tpack<>, optionals>;
         return result{};
     }
 
@@ -307,18 +299,100 @@ namespace u::tmap
     struct contains { };
     template <
         typename T,
-        typename... Elements
+        typename Pack
     >
-    constexpr auto eval(contains, T, Elements...)
+    constexpr auto eval(contains, T, Pack)
     {
         using predicate = typename tpack<T>::template f<std::is_same>;
         using predicate2 = _detail::predicate_to_option<predicate>;
-        using found = eval_t<map, predicate2, Elements...>;
-        using result = typename found::
-            template into<eval_t, reduce, append_optional, tpack<>>;
+        using found = eval_t<map, predicate2, Pack>;
+        using result = eval_t<reduce, append_optional, tpack<>, found>;
         if constexpr (result::size == 0)
-            return std::false_type { };
+            return std::false_type{};
         else
-            return std::true_type {};
+            return std::true_type{};
     }
+
+
+    //! Compose
+    template <
+        typename F,
+        typename G
+    >
+    struct composed { };
+
+    template <
+        typename F,
+        typename G,
+        typename... Args
+    >
+    constexpr auto eval(composed<F, G>, Args...)
+    {
+        using f = eval_t<F, Args...>;
+        using g = eval_t<G, f>;
+        return g{};
+    }
+
+    struct compose { };
+    template <
+        typename F,
+        typename G
+    >
+    constexpr auto eval(compose, F, G)
+    -> composed<F, G>
+    { }
+
+
+    //! Prepend as an evalable
+    struct prepend { };
+    template <
+        typename PackA,
+        typename PackB
+    >
+    constexpr auto eval(prepend, PackA, PackB)
+    -> typename PackB::template into<PackA::template prepend>
+    { }
+
+
+    //! Append as an evalable
+    struct append { };
+    template <
+        typename PackA,
+        typename PackB
+    >
+    constexpr auto eval(append, PackA, PackB)
+    -> typename PackB::template into<PackA::template append>
+    { }
+
+
+    //! A generic less_equal operator.
+    ///
+    /// For tpack<>s this is equal to comparing that A is a
+    /// non-strict subset of B.
+    struct less_equal { };
+
+    template <
+        typename PackA,
+        typename PackB
+    >
+    constexpr auto eval(less_equal, PackA, PackB)
+    {
+        using pack1 = tpack<>::f<tpack>;
+        using eval_f = tpack<>::f<eval_t>;
+
+        using make_checks =
+            composed<
+                composed<
+                    pack1,
+                    tpack<append, tpack<contains>>
+                >,
+                tpack<prepend, tpack<PackB>>
+            >;
+        using checks = eval_t<map, make_checks, PackA>;
+        using results = eval_t<map, eval_f, checks>;
+        using result = typename results::template into<std::conjunction>;
+
+        return result{};
+    }
+
 }

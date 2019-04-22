@@ -19,11 +19,11 @@ namespace sock::listen::unix_
     };
     static_assert(sockaddr_path{}.value.size() == 108);
 
-    using Creation = u::try_::adt<sockfd_t, errors::SocketCreation>;
-    using Binding = u::try_::adt<errors::SocketBinding>;
+    using Creation = u::tmap::tpack<sockfd_t, errors::SocketCreation>;
+    using Binding = Creation::append<errors::SocketBinding>;
 
-    using create_result = Creation;
-    using bind_result = Binding;
+    using create_result = Creation::into<std::variant>;
+    using bind_result = Binding::into<std::variant>;
 
     create_result   create();
     ::sockaddr_un   address(sockaddr_path);

@@ -21,6 +21,7 @@ target_sources(u PRIVATE
     src/u/tmap.cpp
     src/u/traits.cpp
     src/u/str.cpp
+    src/u/try.cpp
 )
 
 
@@ -45,6 +46,7 @@ target_sources(spec PRIVATE
     spec/sock/listen/unix_spec.cpp
     spec/sock_spec.cpp
     spec/u/tmap_spec.cpp
+    spec/u/try_spec.cpp
     spec/u_spec.cpp
     spec/spec.cpp
 )

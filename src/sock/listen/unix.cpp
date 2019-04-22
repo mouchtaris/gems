@@ -8,7 +8,7 @@ namespace sock::listen::unix_
         const int sockfd = ::socket(AF_UNIX, SOCK_STREAM, 0);
         if (sockfd < 0)
             return { errors::SocketCreation{} };
-        return { sockfd };
+        return sockfd_t { sockfd };
     }
 
     ::sockaddr_un address(sockaddr_path path)
@@ -18,7 +18,11 @@ namespace sock::listen::unix_
 
         serv_addr.sun_family = AF_UNIX;
 
-        ::strncpy(serv_addr.sun_path, path.container.data(), sizeof(serv_addr.sun_path) - 1);
+        ::strncpy(
+            serv_addr.sun_path,
+            path.value.container.data(),
+            sizeof(serv_addr.sun_path) - 1
+        );
 
         return serv_addr;
     }
@@ -34,9 +38,10 @@ namespace sock::listen::unix_
 
     bind_result bind(sockaddr_path path)
     {
+        (void)path;
         // TODO comment in
         //const auto sockfdTry = create();
-        //if (sockfdTry.is_failed())
+        //if (!std::holdsusockfdTry.is_failed())
         //    return sockfdTry;
 
         //const auto sockfd = std::get<sockfd_t>(sockfdTry);

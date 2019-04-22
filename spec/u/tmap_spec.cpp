@@ -2,6 +2,13 @@
 #include "u/tmap.h"
 #include "u/p.h"
 #include <iostream>
+
+#if 01
+#   define local_static_assert__(EXPR) static_assert__(EXPR)
+#else
+#   define local_static_assert__(EXPR)
+#endif
+
 namespace u::spec::tmap
 {
     using ::u::tmap::tpack;
@@ -20,6 +27,10 @@ namespace u::spec::tmap
     using ::u::tmap::append_optional;
     using ::u::tmap::select;
     using ::u::tmap::contains;
+    using ::u::tmap::compose;
+    using ::u::tmap::prepend;
+    using ::u::tmap::append;
+    using ::u::tmap::less_equal;
     using ::u::p;
 
     struct A {};
@@ -35,7 +46,7 @@ namespace u::spec::tmap
     //
     // tpack::into
     //
-    static_assert__((
+    local_static_assert__((
         std::is_same_v<
             l0::into<std::tuple, C, D>,
             std::tuple<C, D, A, B>
@@ -46,10 +57,20 @@ namespace u::spec::tmap
     //
     // tpack::prepend
     //
-    static_assert__((
+    local_static_assert__((
         std::is_same_v<
             l0::prepend<C, D>,
             tpack<C, D, A, B>
+        >
+    ));
+
+    //
+    // tpack::append
+    //
+    local_static_assert__((
+        std::is_same_v<
+            l0::append<C, D>,
+            tpack<A, B, C, D>
         >
     ));
 
@@ -58,7 +79,7 @@ namespace u::spec::tmap
     //
     using l0f = l0::f<std::tuple, C>;
     using result = eval_t<l0f, D>;
-    static_assert__((
+    local_static_assert__((
         std::is_same_v<
             result,
             std::tuple<C, A, B, D>
@@ -67,18 +88,35 @@ namespace u::spec::tmap
 
 
     //
+    // eval(tpack)
+    //
+    local_static_assert__((
+        eval_t<tpack<tpack<>::f<std::is_same>, A>, A>::value
+    ));
+    // Break down:
+    // - tpack<>::f<std::is_same>
+    //      turn std::is_same into evalable
+    // - tpack<F, A>
+    //      a pack with an F and a bound first arg (A)
+    // - eval_t< tpack<...>, A >
+    //      eval the bound F in tpack with an extra arg at the end (A)
+    // - boils down to
+    //      std::is_same<A, A>
+
+
+    //
     // has_head
     // has_tail
     // head
     // tail
     //
-    static_assert__((has_head<l0>::value));
-    static_assert__((has_tail<l0>::value));
-    static_assert__((has_head<tail<l0>>::value));
-    static_assert__((has_tail<tail<l0>>::value));
-    static_assert__((!has_head<tail<tail<l0>>>::value));
-    static_assert__((!has_tail<tail<tail<l0>>>::value));
-    static_assert__((std::is_same_v<head<l0>, A>));
+    local_static_assert__((has_head<l0>::value));
+    local_static_assert__((has_tail<l0>::value));
+    local_static_assert__((has_head<tail<l0>>::value));
+    local_static_assert__((has_tail<tail<l0>>::value));
+    local_static_assert__((!has_head<tail<tail<l0>>>::value));
+    local_static_assert__((!has_tail<tail<tail<l0>>>::value));
+    local_static_assert__((std::is_same_v<head<l0>, A>));
 
     //
     // A stupid function with call<> implemented
@@ -91,7 +129,7 @@ namespace u::spec::tmap
         using call = std::array<x, 2>;
     };
 
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<Fcall, A>,
         std::array<A, 2>
     >));
@@ -102,7 +140,7 @@ namespace u::spec::tmap
     struct Feval{};
     template <typename x> constexpr auto eval(Feval, x) -> std::array<x, 3> { return {}; }
 
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<Feval, A>,
         std::array<A, 3>
     >));
@@ -110,21 +148,21 @@ namespace u::spec::tmap
     //
     // is_defined
     //
-    static_assert__((
+    local_static_assert__((
         is_defined<Feval, tpack<A>>::value
     ));
-    static_assert__((
+    local_static_assert__((
         is_defined_v<Fcall, A>
     ));
-    static_assert__((
+    local_static_assert__((
         !is_defined_v<int, float>
     ));
 
     //
     // map<>
     //
-    using map0 = eval_t<map, Fcall, A>;
-    static_assert__((std::is_same_v<
+    using map0 = eval_t<map, Fcall, tpack<A>>;
+    local_static_assert__((std::is_same_v<
         map0,
         tpack<std::array<A, 2>>
     >));
@@ -132,9 +170,9 @@ namespace u::spec::tmap
     //
     // using map with tpacks
     //
-    using l1 = l0::into<eval_t, map, Fcall>;
+    using l1 = eval_t<map, Fcall, l0>;
 
-    static_assert__((
+    local_static_assert__((
         std::is_same_v<
             l1,
             tpack<
@@ -154,8 +192,8 @@ namespace u::spec::tmap
     //
     // reduce
     //
-    static_assert__((std::is_same_v<
-        eval_t<reduce, Weird, A, B>,
+    local_static_assert__((std::is_same_v<
+        eval_t<reduce, Weird, A, tpack<B>>,
         C
     >));
 
@@ -163,27 +201,27 @@ namespace u::spec::tmap
     //
     // or_else
     //
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<or_else, tpack<>, A>,
         A
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<or_else, A, tpack<>>,
         A
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<or_else, A, B>,
         A
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<or_else, tpack<>, tpack<A>>,
         tpack<A>
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<or_else, tpack<>, tpack<>>,
         tpack<>
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<or_else, tpack<A>, tpack<B>>,
         tpack<A>
     >));
@@ -192,8 +230,8 @@ namespace u::spec::tmap
     //
     // reduce + or_else
     //
-    static_assert__((std::is_same_v<
-        eval_t<reduce, or_else, tpack<>, tpack<>, tpack<>, A>,
+    local_static_assert__((std::is_same_v<
+        eval_t<reduce, or_else, tpack<>, tpack<tpack<>, tpack<>, tpack<>, A>>,
         A
     >));
 
@@ -202,16 +240,16 @@ namespace u::spec::tmap
     // find_if
     //
     using is_A = tpack<A>::f<std::is_same>;
-    static_assert__((std::is_same_v<
-        eval_t<find_if, is_A, C, B, A, D>,
+    local_static_assert__((std::is_same_v<
+        eval_t<find_if, is_A, tpack<C, B, A, D>>,
         tpack<A>
     >));
-    static_assert__((std::is_same_v<
-        eval_t<find_if, is_A, C, B, A, D>,
+    local_static_assert__((std::is_same_v<
+        eval_t<find_if, is_A, tpack<C, B, A, D>>,
         tpack<A>
     >));
-    static_assert__((std::is_same_v<
-        eval_t<find_if, is_A, C, B, A, D>,
+    local_static_assert__((std::is_same_v<
+        eval_t<find_if, is_A, tpack<C, B, A, D>>,
         tpack<A>
     >));
 
@@ -219,11 +257,11 @@ namespace u::spec::tmap
     //
     // partial
     //
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<partial<Weird>, A, B>,
         tpack<C>
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<partial<Weird>, A, C>,
         tpack<>
     >));
@@ -232,19 +270,19 @@ namespace u::spec::tmap
     //
     // append_optional
     //
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<append_optional, tpack<>, tpack<>>,
         tpack<>
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<append_optional, tpack<A>, tpack<>>,
         tpack<A>
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<append_optional, tpack<>, tpack<A>>,
         tpack<A>
     >));
-    static_assert__((std::is_same_v<
+    local_static_assert__((std::is_same_v<
         eval_t<append_optional, tpack<A, B, C>, tpack<D>>,
         tpack<A, B, C, D>
     >));
@@ -258,24 +296,64 @@ namespace u::spec::tmap
     constexpr B eval(Weird2, A) { return {}; }
     constexpr D eval(Weird2, C) { return {}; }
 
-    static_assert__((std::is_same_v<
-        eval_t<select, Weird2, A, B, C, D>,
+    local_static_assert__((std::is_same_v<
+        eval_t<select, Weird2, tpack<A, B, C, D>>,
         tpack<B, D>
     >));
 
     //
     // contains
     //
-    static_assert__((
-        l0::into<eval_t, contains, A>::value
+    local_static_assert__((
+        eval_t<contains, A, l0>::value
     ));
-    static_assert__((
-        l0::into<eval_t, contains, B>::value
+    local_static_assert__((
+        eval_t<contains, B, l0>::value
     ));
-    static_assert__((
-        !l0::into<eval_t, contains, C>::value
+    local_static_assert__((
+        !eval_t<contains, C, l0>::value
     ));
 
+
+    //
+    // compose
+    //
+    struct a2b { };
+    struct b2c { };
+    constexpr B eval(a2b, A) { return {}; }
+    constexpr C eval(b2c, B) { return {}; }
+    local_static_assert__((std::is_same_v<
+        eval_t<eval_t<compose, a2b, b2c>, A>,
+        C
+    >));
+
+
+    //
+    // prepend
+    //
+    local_static_assert__((std::is_same_v<
+        eval_t<prepend, tpack<A, B>, tpack<C, D>>,
+        tpack<C, D, A, B>
+    >));
+
+    //
+    // append
+    //
+    local_static_assert__((std::is_same_v<
+        eval_t<append, tpack<A, B>, tpack<C, D>>,
+        tpack<A, B, C, D>
+    >));
+
+
+    //
+    // less_equal for tpack<>s
+    //
+    local_static_assert__((
+        eval_t<less_equal, tpack<A, B, C>, tpack<A, B, C, D>>::value
+    ));
+    local_static_assert__((
+        !eval_t<less_equal, tpack<A, B, C, D>, tpack<A, B, C>>::value
+    ));
 
     void debug()
     {
