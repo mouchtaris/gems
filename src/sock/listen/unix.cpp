@@ -5,10 +5,14 @@ namespace sock::listen::unix_
 {
     create_result create()
     {
-        const int sockfd = ::socket(AF_UNIX, SOCK_STREAM, 0);
-        if (sockfd < 0)
-            return { errors::SocketCreation{} };
-        return sockfd_t { sockfd };
+        // TODO comment in
+        //const int sockfd = ::socket(AF_UNIX, SOCK_STREAM, 0);
+
+        //if (sockfd < 0)
+        //    return errors::SocketCreation{};
+
+        //return sockfd_t { sockfd };
+        return {};
     }
 
     ::sockaddr_un address(sockaddr_path path)
@@ -39,12 +43,13 @@ namespace sock::listen::unix_
     bind_result bind(sockaddr_path path)
     {
         (void)path;
-        // TODO comment in
-        //const auto sockfdTry = create();
-        //if (!std::holdsusockfdTry.is_failed())
-        //    return sockfdTry;
+        const auto sockfdTry = create();
 
-        //const auto sockfd = std::get<sockfd_t>(sockfdTry);
+        if (is_error(sockfdTry))
+            return sockfdTry;
+
+        // TODO comment in
+        const auto sockfd = std::get<sockfd_t>(sockfdTry);
         //const auto serv_addr = address(std::move(path));
         //const auto serv_len = address_len(serv_addr);
 

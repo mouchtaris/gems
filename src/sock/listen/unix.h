@@ -1,5 +1,6 @@
 #pragma once
 #include "u/view.h"
+#include "u/try.h"
 #include "u/tmap.h"
 #include <variant>
 #include <sys/un.h>
@@ -7,7 +8,7 @@ namespace sock::listen::unix_
 {
     namespace errors
     {
-        struct Error{};
+        using u::try_::Error;
         struct SocketCreation: public Error{};
         struct SocketBinding: public Error{};
     }
@@ -22,8 +23,8 @@ namespace sock::listen::unix_
     using Creation = u::tmap::tpack<sockfd_t, errors::SocketCreation>;
     using Binding = Creation::append<errors::SocketBinding>;
 
-    using create_result = Creation::into<std::variant>;
-    using bind_result = Binding::into<std::variant>;
+    using create_result = Creation::into<u::try_::adt>;
+    using bind_result = Binding::into<u::try_::adt>;
 
     create_result   create();
     ::sockaddr_un   address(sockaddr_path);
