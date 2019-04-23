@@ -44,6 +44,26 @@ namespace u::try_
                 );
             }
         };
+
+
+        template <
+            typename Variant,
+            typename Pack,
+            typename = void
+        >
+        struct can_make_variant: public std::false_type { };
+
+        template <
+            typename Variant,
+            typename Pack
+        >
+        struct can_make_variant<Variant, Pack, std::void_t<decltype(
+            std::make_from_tuple<Variant>(
+                std::declval<
+                    typename Pack::template into<std::tuple>
+                >()
+            )
+        )>>: public std::true_type { };
     }
 
     template <
@@ -58,7 +78,7 @@ namespace u::try_
         using altpack = ::u::tmap::tpack<Alts...>;
 
         constexpr adt() = default;
-        constexpr adt(variant_type&& value): value { std::move(value) } {}
+        constexpr adt(variant_type value): value { std::move(value) } {}
 
         template <
             typename... Alts2
@@ -75,6 +95,29 @@ namespace u::try_
         constexpr adt(const adt<Alts2...>& other):
             value { get_revar<Alts2...>::revar(other.value) }
         { }
+
+
+        template <
+            typename Arg,
+            std::enable_if_t<
+                ::u::tmap::eval_t<
+                    ::u::tmap::contains,
+                    Arg,
+                    altpack
+                >::value,
+               int
+            > = 0
+        >
+        constexpr adt(Arg&& arg):
+            value { std::forward<Arg>(arg) }
+        { }
+
+        //! Assume first variant type is success value, and return
+        /// variant as that type.
+        constexpr auto first() const
+        {
+            return std::get<std::variant_alternative_t<0, variant_type>>(value);
+        }
     };
 
     template <

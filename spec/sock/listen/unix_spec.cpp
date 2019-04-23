@@ -21,7 +21,7 @@ namespace sock::spec::listen::unix_
         say__(( "a preprocessing macro. Naturally." ));
         debug__(( unix ));
         say__(( "And then some weird template problems, as usual." ));
-        debug__(( p<sock::listen::unix_::sockaddr_path>() ));
+        debug__(( p<sock::listen::unix_::sockaddr_unix_path>() ));
         debug__(( p<decltype(*begin(std::array<char const, 108>{}))>() ));
         debug__(( p<std::decay_t<decltype(*begin(std::array<char const, 108>{}))>>() ));
         debug__(( p<std::array<char const, 108>::value_type>() ));

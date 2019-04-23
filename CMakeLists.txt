@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
 
-set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 cmake_minimum_required(VERSION 3.12)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -29,6 +29,7 @@ add_library(sock)
 target_link_libraries(sock PRIVATE _compile_options)
 target_sources(sock PRIVATE
     src/sock/listen/unix.cpp
+    src/sock/common.cpp
 )
 
 

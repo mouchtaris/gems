@@ -8,7 +8,6 @@ namespace u::spec::try_
     using ::u::p;
     using ::u::try_::Error;
     using ::u::try_::_detail::is_error;
-    using ::u::try_::_detail::ID;
     using ::u::try_::adt;
 
     struct AnError: public Error {};
