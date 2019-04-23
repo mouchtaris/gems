@@ -37,4 +37,9 @@ namespace u::str
         const std::size_t size = std::distance(first, last);
         return { first, size };
     }
+
+    constexpr std::string_view view(char const* str)
+    {
+        return { str };
+    }
 }

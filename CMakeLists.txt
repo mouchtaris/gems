@@ -30,6 +30,7 @@ target_link_libraries(sock PRIVATE _compile_options)
 target_sources(sock PRIVATE
     src/sock/listen/unix.cpp
     src/sock/common.cpp
+    src/sock/socket.cpp
 )
 
 

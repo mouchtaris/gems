@@ -1,9 +1,18 @@
 #pragma once
 #include "u/tmap.h"
+#include "u/str.h"
 #include <variant>
+#include <cerrno>
+#include <cstring>
 namespace u::try_
 {
     struct Error { };
+
+    struct StandardError: public Error
+    {
+        static constexpr auto MAX_MESSAGE_LENGTH = 1024;
+        std::array<char, 1024> message;
+    };
 
     namespace _detail
     {
@@ -19,6 +28,33 @@ namespace u::try_
         {
             return std::visit(is_error_visitor, v);
         }
+
+        template <
+            typename VarA,
+            typename VarB
+        >
+        constexpr VarB revar(VarA var)
+        {
+            return std::visit(
+                [](auto&& v) -> VarB { return std::forward<decltype(v)>(v); },
+                var
+            );
+        }
+
+        template <
+            typename VarA,
+            typename VarB,
+            typename = void
+        >
+        struct can_revar: public std::false_type { };
+
+        template <
+            typename VarA,
+            typename VarB
+        >
+        struct can_revar<VarA, VarB, std::void_t<
+            decltype(revar<VarA, VarB>(std::declval<VarA>()))
+        >>: public std::true_type { };
 
         template <
             typename VarA,
@@ -38,32 +74,9 @@ namespace u::try_
             using var_b = typename VarB::template into<std::variant>;
             static constexpr var_b revar(var_a va)
             {
-                return std::visit(
-                    [](auto&& v) -> var_b { return std::forward<decltype(v)>(v); },
-                    va
-                );
+                return _detail::revar<var_a, var_b>(std::move(va));
             }
         };
-
-
-        template <
-            typename Variant,
-            typename Pack,
-            typename = void
-        >
-        struct can_make_variant: public std::false_type { };
-
-        template <
-            typename Variant,
-            typename Pack
-        >
-        struct can_make_variant<Variant, Pack, std::void_t<decltype(
-            std::make_from_tuple<Variant>(
-                std::declval<
-                    typename Pack::template into<std::tuple>
-                >()
-            )
-        )>>: public std::true_type { };
     }
 
     template <
@@ -100,16 +113,26 @@ namespace u::try_
         template <
             typename Arg,
             std::enable_if_t<
-                ::u::tmap::eval_t<
-                    ::u::tmap::contains,
-                    Arg,
-                    altpack
-                >::value,
+                std::disjunction_v<
+                    ::u::tmap::eval_t<
+                        ::u::tmap::contains,
+                        Arg,
+                        altpack
+                    >
+                >,
                int
             > = 0
         >
         constexpr adt(Arg&& arg):
             value { std::forward<Arg>(arg) }
+        { }
+
+        template <
+            typename... Alts2,
+            typename = get_revar<Alts2...>
+        >
+        constexpr adt(const std::variant<Alts2...>& var):
+            value { _detail::revar<variant_type, std::variant<Alts2...>>(var) }
         { }
 
         //! Assume first variant type is success value, and return
@@ -127,4 +150,50 @@ namespace u::try_
     {
         return _detail::is_error(v.value);
     }
+
+
+    //! The std way of checkiing for errors
+    constexpr auto std_check_error = [](int result) -> bool
+    {
+        return result < 0;
+    };
+
+    //! The std way of transforming to an error
+    constexpr auto std_to_error = [](int) -> StandardError
+    {
+        const auto errno_ = errno;
+        StandardError result;
+        auto&& msg = ::u::str::view(::strerror(errno_));
+        strncpy(
+            result.message.data(),
+            msg.data(),
+            msg.size()
+        );
+        return result;
+    };
+
+    //! A typical try flow
+    template <
+        typename Op,
+        typename CheckError = std::add_lvalue_reference_t<decltype(std_check_error)>,
+        typename ToError = std::add_lvalue_reference_t<decltype(std_to_error)>
+    >
+    auto stdtry(
+        Op&& op,
+        CheckError&& check_error = std_check_error,
+        ToError&& to_error = std_to_error
+    )
+    -> adt<
+        std::invoke_result_t<Op>,
+        std::invoke_result_t<ToError, std::invoke_result_t<Op>>
+    >
+    {
+        auto&& result = op();
+        if (check_error(result))
+            return to_error(result);
+        return result;
+    }
 }
+
+#define RETURN_IF_ERROR(VAL)            \
+    if (is_error(VAL)) return (VAL)

@@ -2,25 +2,28 @@
 #include "u/try.h"
 #include "u/view.h"
 #include <sys/un.h>
-namespace sock::common
+namespace sock
 {
-    namespace errors
+    inline namespace common
     {
-        using u::try_::Error;
-        struct SocketCreation: public Error{};
-        struct SocketBinding: public Error{};
+        namespace errors
+        {
+            using u::try_::Error;
+            struct SocketCreation: public Error{};
+            struct SocketBinding: public Error{};
+        }
+
+        struct sockfd_t { int value; };
+
+        struct sockaddr_unix_path {
+            u::view::view<std::array<char, sizeof(::sockaddr_un{}.sun_path)>> value;
+        };
+        static_assert(sockaddr_unix_path{}.value.size() == 108);
+
+        using Creation = u::tmap::tpack<sockfd_t, errors::SocketCreation>;
+        using Binding = Creation::append<errors::SocketBinding>;
+
+        using create_result = Creation::into<u::try_::adt>;
+        using bind_result = Binding::into<u::try_::adt>;
     }
-
-    struct sockfd_t { int value; };
-
-    struct sockaddr_unix_path {
-        u::view::view<std::array<char, sizeof(::sockaddr_un{}.sun_path)>> value;
-    };
-    static_assert(sockaddr_unix_path{}.value.size() == 108);
-
-    using Creation = u::tmap::tpack<sockfd_t, errors::SocketCreation>;
-    using Binding = Creation::append<errors::SocketBinding>;
-
-    using create_result = Creation::into<u::try_::adt>;
-    using bind_result = Binding::into<u::try_::adt>;
 }
