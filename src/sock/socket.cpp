@@ -1,5 +1,4 @@
 #include "./socket.h"
-#include "u/try.h"      // u::try_::*
 #include <type_traits>  // std::is_*
 #include <utility>      // std::forward
 #include <sys/socket.h> // ::shutdown
@@ -34,7 +33,7 @@ namespace
 
         using close_result = adt<int, StandardError>;
 
-        close_result close()
+        Closing close()
         {
             if (!is_fd_valid())
                 return StandardError {
@@ -62,7 +61,7 @@ namespace
             self.fd.value = INVALID_FD;
         }
 
-        close_result moved()
+        Closing moved()
         {
             auto&& try_close = close();
             clear_fd();
@@ -76,11 +75,15 @@ namespace sock
     socket::socket(socket&& other):
         fd { std::move(other.fd) }
     {
-        deco { other }.moved();
+        Closing result = deco { other }.moved();
+        if (is_error(result))
+            throw result;
     }
 
     socket::~socket()
     {
-        deco { *this }.moved();
+        Closing result = deco { *this }.moved();
+        if (is_error(result))
+            throw result;
     }
 }
