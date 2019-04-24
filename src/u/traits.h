@@ -1,4 +1,5 @@
 #pragma once
+#include "u/stdx.h"
 #include <type_traits>
 #define TRAIT(NAME, DECL)       \
     template <                  \
@@ -39,36 +40,8 @@ namespace u::traits
     template <bool cond>
     using enable_if = std::enable_if_t<cond, void>;
 
-    namespace _detail {
-        template <
-            template <class...> class Trait,
-            class Enabler,
-            class... Args
-        >
-        struct is_detected: public std::false_type{};
-
-        template <
-            template <class...> class Trait,
-            class... Args
-        >
-        struct is_detected<
-            Trait,
-            std::void_t<Trait<Args...>>,
-            Args...
-        >: public std::true_type{};
-      }
-
-    template <
-        template <typename...> typename Trait,
-        typename... Args
-    >
-    using is_detected = typename _detail::is_detected<Trait, void, Args...>::type;
-
-    template <
-        template <typename...> typename Trait,
-        typename... Args
-    >
-    constexpr auto is_detected_v = is_detected<Trait, Args...>::value;
+    using stdx::is_detected;
+    using stdx::is_detected_v;
 }
 
 #define TRAIT_TYPE(NAME)                    \

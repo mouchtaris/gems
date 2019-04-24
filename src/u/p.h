@@ -9,9 +9,18 @@ namespace u
     >
     constexpr std::string_view p()
     {
+        constexpr auto length = &std::char_traits<char>::length;
         auto result = std::string_view { __PRETTY_FUNCTION__ };
-        result.remove_prefix(29);
-        result.remove_suffix(1);
+#if defined(__clang__)
+        constexpr auto compiler_prefix = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        constexpr auto compiler_suffix = "]";
+        static_assert(length(compiler_prefix) == 29);
+#elif defined(__GNUC__) || defined(__GNUG__)
+        constexpr auto compiler_prefix = "constexpr std::string_view u::p() [with T = ";
+        constexpr auto compiler_suffix = "]";
+#endif
+        result.remove_prefix(length(compiler_prefix));
+        result.remove_suffix(length(compiler_suffix));
         return result;
     }
 

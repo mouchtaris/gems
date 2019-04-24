@@ -84,6 +84,7 @@ namespace sock
     {
         Closing result = deco { *this }.moved();
         if (is_error(result))
-            throw result;
+            // TODO: comment in
+        {} // throw result;
     }
 }
