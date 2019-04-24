@@ -50,6 +50,11 @@ namespace u::spec::str
     static_assert__(( char_ptr_t_detected_v<char8_t> ));
     static_assert__(( char_ptr_t_detected_v<char16_t> ));
     static_assert__(( char_ptr_t_detected_v<char32_t> ));
+    static_assert__(( !char_ptr_t_detected_v<short> ));
+    static_assert__(( !char_ptr_t_detected_v<int> ));
+    static_assert__(( !char_ptr_t_detected_v<long> ));
+    static_assert__(( !char_ptr_t_detected_v<unsigned short> ));
+    static_assert__(( !char_ptr_t_detected_v<unsigned long> ));
 
     void debug()
     {
