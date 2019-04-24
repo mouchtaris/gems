@@ -38,4 +38,42 @@ namespace u::traits
     /// correctly.
     template <bool cond>
     using enable_if = std::enable_if_t<cond, void>;
+
+    namespace _detail {
+        template <
+            template <class...> class Trait,
+            class Enabler,
+            class... Args
+        >
+        struct is_detected: public std::false_type{};
+
+        template <
+            template <class...> class Trait,
+            class... Args
+        >
+        struct is_detected<
+            Trait,
+            std::void_t<Trait<Args...>>,
+            Args...
+        >: public std::true_type{};
+      }
+
+    template <
+        template <typename...> typename Trait,
+        typename... Args
+    >
+    using is_detected = typename _detail::is_detected<Trait, void, Args...>::type;
+
+    template <
+        template <typename...> typename Trait,
+        typename... Args
+    >
+    constexpr auto is_detected_v = is_detected<Trait, Args...>::value;
 }
+
+#define TRAIT_TYPE(NAME)                    \
+    template <typename T> struct NAME { };  \
+    template <typename T> using NAME##_t = typename NAME<T>::type
+
+#define TRAIT_FIELD(NAME) \
+    template <typename T> struct NAME { }

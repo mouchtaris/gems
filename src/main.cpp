@@ -25,16 +25,22 @@ int select(
     struct timeval   *timeout
 );
 
+namespace {
 namespace inc
 {
-    template <
-        typename InputSockets
-    >
-    struct SocketInterface
-    {
-    };
+}
 }
 
+namespace
+{
+    constexpr auto nl = '\n';
+    void help(int, char const* argv[])
+    {
+        std::cerr
+            << "USAGE: " << argv[0] << " SOCKET_PATH" << nl
+        ;
+    }
+}
 
 int main(int argc, char const* argv[])
 {
@@ -42,5 +48,11 @@ int main(int argc, char const* argv[])
         && u::spec::main(argc, argv) == 0
         && msg::spec::main(argc, argv) == 0
         ;
+
+    if (argc < 2) {
+        help(argc, argv);
+        return 1;
+    }
+
     return success? 0 : 1;
 }

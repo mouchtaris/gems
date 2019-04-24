@@ -163,7 +163,7 @@ namespace u::try_
     {
         const auto errno_ = errno;
         StandardError result;
-        auto&& msg = ::u::str::view(::strerror(errno_));
+        auto&& msg = std::string_view { ::strerror(errno_) };
         strncpy(
             result.message.data(),
             msg.data(),
