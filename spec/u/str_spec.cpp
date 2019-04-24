@@ -28,30 +28,28 @@ namespace u::spec::str
         u::traits::is_detected<u::str::char_ptr_t, char_t * const >,
         u::traits::is_detected<u::str::char_ptr_t, char_t * &&>,
         u::traits::is_detected<u::str::char_ptr_t, char_t * &>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t * >
-        // TODO: comment in
-        //!u::traits::is_detected<u::str::char_ptr_t, char_t  const &&>,
-        //!u::traits::is_detected<u::str::char_ptr_t, char_t  const &>,
-        //!u::traits::is_detected<u::str::char_ptr_t, char_t  const >,
-        //!u::traits::is_detected<u::str::char_ptr_t, char_t  &&>,
-        //!u::traits::is_detected<u::str::char_ptr_t, char_t  &>,
-        //!u::traits::is_detected<u::str::char_ptr_t, char_t  >
+        u::traits::is_detected<u::str::char_ptr_t, char_t * >,
+        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  const &&> >,
+        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  const &> >,
+        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  const > >,
+        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  &&> >,
+        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  &> >,
+        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  > >
     >;
 
-    // TODO: comment in
-    //template <
-    //    typename char_t,
-    //    typename fail = std::false_type
-    //>
-    //constexpr auto char_ptr_t_detected_v = char_ptr_t_detected<char_t, fail>::value;
+    template <
+        typename char_t,
+        typename fail = std::false_type
+    >
+    constexpr auto char_ptr_t_detected_v = char_ptr_t_detected<char_t, fail>::value;
 
-    //static_assert__(( char_ptr_t_detected_v<char> ));
-    //static_assert__(( char_ptr_t_detected_v<signed char> ));
-    //static_assert__(( !char_ptr_t_detected_v<unsigned char> ));
-    //static_assert__(( char_ptr_t_detected_v<wchar_t> ));
-    //static_assert__(( char_ptr_t_detected_v<char8_t> ));
-    //static_assert__(( char_ptr_t_detected_v<char16_t> ));
-    //static_assert__(( char_ptr_t_detected_v<char32_t> ));
+    static_assert__(( char_ptr_t_detected_v<char> ));
+    static_assert__(( char_ptr_t_detected_v<signed char> ));
+    static_assert__(( !char_ptr_t_detected_v<unsigned char> ));
+    static_assert__(( char_ptr_t_detected_v<wchar_t> ));
+    static_assert__(( char_ptr_t_detected_v<char8_t> ));
+    static_assert__(( char_ptr_t_detected_v<char16_t> ));
+    static_assert__(( char_ptr_t_detected_v<char32_t> ));
 
     void debug()
     {
