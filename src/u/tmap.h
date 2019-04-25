@@ -314,6 +314,45 @@ namespace u::tmap
     }
 
 
+    //! Zip to packs togetha
+    struct zip { };
+    template <
+        typename PackA,
+        typename PackB,
+        typename Accum = tpack<>
+    >
+    constexpr auto eval(zip, PackA, PackB, Accum = {})
+    {
+        if constexpr (PackA::size != 0 && PackB::size != 0) {
+            using head_a = head<PackA>;
+            using head_b = head<PackB>;
+            using tail_a = tail<PackA>;
+            using tail_b = tail<PackB>;
+            using accum2 = typename Accum::template append<tpack<head_a, head_b>>;
+            return eval_t<zip, tail_a, tail_b, accum2>{};
+        }
+        else
+            return Accum{};
+    }
+
+    //! Map only type A to type B, leave rest untouched
+    struct map_if { };
+    template <
+        typename Predicate,
+        typename To,
+        typename Pack
+    >
+    constexpr auto eval(map_if, Predicate, To, Pack)
+    {
+        using predopt = _detail::predicate_to_option<Predicate>;
+        using opts = eval_t<map, predopt, Pack>;
+        using zipped = eval_t<zip, opts, Pack>;
+        using collider = tpack<reduce, or_else, tpack<>>;
+        using result = eval_t<map, collider, zipped>;
+        return result{};
+    }
+
+
     //! Compose
     template <
         typename F,

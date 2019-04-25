@@ -233,7 +233,7 @@ namespace u::try_
             u::tmap::eval_t<
                 u::tmap::contains,
                 StandardError,
-                adt<Alts...>::altpack
+                u::tmap::tpack<Alts...>
             >::value,
             int
         > = 0
@@ -241,16 +241,17 @@ namespace u::try_
     constexpr auto wrap_std_error(adt<Alts...> adt)
     ->
         u::tmap::eval_t<
-            u::tmap::drop_if,
+            u::tmap::map_if,
             u::tmap::tpack<>::f<std::is_same, StandardError>,
-            adt<Alts...>::altpack
-        >::append<Error>
+            Error,
+            u::tmap::tpack<Alts...>
+        >
     {
         return std::visit(
             [](auto&& v)
             {
                 if constexpr (std::is_same_v<stdx::remove_cvref_t<decltype(v)>, StandardError>)
-                    return Error { std::forward<decltype(v)>(v) };
+                    return Error { { { std::forward<decltype(v)>(v) } } };
                 else
                     return std::forward<decltype(v)>(v);
             },

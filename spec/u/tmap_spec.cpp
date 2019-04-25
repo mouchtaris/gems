@@ -27,6 +27,8 @@ namespace u::spec::tmap
     using ::u::tmap::append_optional;
     using ::u::tmap::select;
     using ::u::tmap::contains;
+    using ::u::tmap::zip;
+    using ::u::tmap::map_if;
     using ::u::tmap::compose;
     using ::u::tmap::prepend;
     using ::u::tmap::append;
@@ -300,6 +302,30 @@ namespace u::spec::tmap
         eval_t<select, Weird2, tpack<A, B, C, D>>,
         tpack<B, D>
     >));
+
+    //
+    // zip
+    //
+    local_static_assert__(( std::is_same_v<
+        eval_t<zip, tpack<A, B>, tpack<B, C>>,
+        tpack<
+            tpack<A, B>,
+            tpack<B, C>
+        >
+    > ));
+
+    //
+    // map_if
+    //
+    local_static_assert__(( std::is_same_v<
+        eval_t<
+            map_if,
+            tpack<B>::f<std::is_same>,
+            A,
+            tpack<A, B, C, D>
+        >,
+        tpack<A, A, C, D
+    > ));
 
     //
     // contains

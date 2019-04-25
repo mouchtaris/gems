@@ -7,12 +7,16 @@ namespace sock::listen::unix_
 {
     create_result create()
     {
-        const int sockfd = ::socket(AF_UNIX, SOCK_STREAM, 0);
+        return {};
+        // TODO: comment int
+        //const auto create_op = std::bind(
+        //    ::socket, AF_UNIX, SOCK_STREAM, 0
+        //);
+        //const auto create_try = wrap_std_error<errors::SocketCreation>(stdtry(create_op));
 
-        if (sockfd < 0)
-            return errors::SocketCreation{};
+        //RETURN_IF_ERROR(create_try);
 
-        return sockfd_t { sockfd };
+        //return sockfd_t { create_try.first() };
     }
 
     ::sockaddr_un address(sockaddr_unix_path path)
@@ -42,25 +46,26 @@ namespace sock::listen::unix_
 
     bind_result bind(const sockaddr_unix_path path)
     {
-        const auto sockfdTry = create();
+        return {};
+        //const auto sockfdTry = create();
 
-        if (is_error(sockfdTry))
-            return sockfdTry;
+        //if (is_error(sockfdTry))
+        //    return sockfdTry;
 
-        const auto sockfd = sockfdTry.first();
-        const auto serv_addr = address(path);
-        const auto serv_len = address_len(serv_addr);
+        //const auto sockfd = sockfdTry.first();
+        //const auto serv_addr = address(path);
+        //const auto serv_len = address_len(serv_addr);
 
-        const auto bind_op = std::bind(
-            ::bind,
-            sockfd.value,
-            reinterpret_cast<const struct ::sockaddr *>(&serv_addr),
-            serv_len
-        );
-        const auto bind_try = wrap_std_error<errors::SocketBinding>(stdtry(bind_op));
+        //const auto bind_op = std::bind(
+        //    ::bind,
+        //    sockfd.value,
+        //    reinterpret_cast<const struct ::sockaddr *>(&serv_addr),
+        //    serv_len
+        //);
+        //const auto bind_try = wrap_std_error<errors::SocketBinding>(stdtry(bind_op));
 
-        RETURN_IF_ERROR(bind_try);
+        //RETURN_IF_ERROR(bind_try);
 
-        return sockfd;
+        //return sockfd;
     }
 }
