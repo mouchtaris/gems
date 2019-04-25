@@ -157,13 +157,6 @@ namespace u::try_
         return _detail::is_error(v.value);
     }
 
-    template <
-        typename... Alts
-    >
-    constexpr auto map_error(adt<Alts...> const& v)
-    {
-    }
-
 
     //! The std way of checkiing for errors
     constexpr auto std_check_error = [](int result) -> bool

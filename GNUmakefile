@@ -27,6 +27,9 @@ setup:
 
 again: conf test
 
+dumpcpp:
+	g++ -dM -E -x c++ -
+
 .PHONY: \
 	again \
 	clean \
@@ -34,3 +37,4 @@ again: conf test
 	doc \
 	setup \
 	test \
+	dumpcpp

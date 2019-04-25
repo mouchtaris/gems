@@ -1,5 +1,6 @@
 #pragma once
 #include "u/traits.h"
+#include "u/p.h"
 #include <type_traits>
 #include <tuple>
 //! Type functional utilities
@@ -60,9 +61,9 @@ namespace u::tmap
     };
 
     template <
-        typename T
+        typename... T
     >
-    using head = typename has_head<T>::head;
+    using head = typename has_head<T...>::head;
 
 
     //! Check if a tpack has a tail (not empty)
@@ -142,7 +143,13 @@ namespace u::tmap
         typename F,
         typename... Args
     >
-    constexpr bool is_defined_v = is_defined<F, tpack<Args...>>::value;
+    using is_defined_t = is_defined<F, tpack<Args...>>;
+
+    template <
+        typename F,
+        typename... Args
+    >
+    constexpr bool is_defined_v = is_defined_t<F, Args...>::value;
 
 
     //! Apply a function to a pack of elements
@@ -335,24 +342,6 @@ namespace u::tmap
             return Accum{};
     }
 
-    //! Map only type A to type B, leave rest untouched
-    struct map_if { };
-    template <
-        typename Predicate,
-        typename To,
-        typename Pack
-    >
-    constexpr auto eval(map_if, Predicate, To, Pack)
-    {
-        using predopt = _detail::predicate_to_option<Predicate>;
-        using opts = eval_t<map, predopt, Pack>;
-        using zipped = eval_t<zip, opts, Pack>;
-        using collider = tpack<reduce, or_else, tpack<>>;
-        using result = eval_t<map, collider, zipped>;
-        return result{};
-    }
-
-
     //! Compose
     template <
         typename F,
@@ -380,6 +369,94 @@ namespace u::tmap
     constexpr auto eval(compose, F, G)
     -> composed<F, G>
     { }
+
+
+    //! Const: return a constant value
+    struct konst { };
+    template <
+        typename Val,
+        typename... Args
+    >
+    constexpr auto eval(konst, Val, Args...) -> Val
+    {
+        return {};
+    }
+
+
+    //! Is true
+    struct is_true { };
+    constexpr inline auto eval(is_true, std::true_type const&)
+    -> std::true_type
+    {
+        return {};
+    }
+
+    template <
+        typename T
+    >
+    constexpr auto eval(is_true, T&&)
+    -> std::false_type
+    {
+        return {};
+    }
+
+
+    //! Conditional
+    struct conditional { };
+    template <
+        typename Condition,
+        typename True,
+        typename False
+    >
+    constexpr auto eval(conditional, Condition, True, False)
+    ->
+        std::conditional_t<
+            std::conjunction_v<
+                eval_t<is_true, Condition>
+            >,
+            True,
+            False
+        >
+    {
+    }
+
+
+    //! Map only type A to type B, leave rest untouched
+    struct map_if { };
+    template <
+        typename Predicate,
+        typename F,
+        typename Pack
+    >
+    constexpr auto eval(map_if, Predicate, F, Pack)
+    {
+        // (T) => Predicate(T) ? [F(T)] : []
+        using predopt = composed<
+            _detail::predicate_to_option<Predicate>,
+            tpack<map, F>
+        >;
+
+        // ... ~> [ [], [], [D], [], ... ]
+        using opts = eval_t<map, predopt, Pack>;
+
+        // ... ~> [ [A], [B], [C], ... ]
+        using packed1 = eval_t<map, tpack<>::f<tpack>, Pack>;
+        // ... ~> [ [[], [A]], [[], [B]], [[D], [C]], ... ]
+        using zipped = eval_t<zip, opts, packed1>;
+        // f = reduce or_else (zero = []) ___
+        // ... ~> [[], [A]] ~> [A]
+        // ... ~> [[], [B]] ~> [B]
+        // ... ~> [[D], [C]] ~> [D]
+        // g = head
+        // fog = g(f(_))
+        // ... (f) ~> [ [A], [B], [D], ... ]
+        // ... (fog) ~> [ A, B, D, ... ]
+        using collider_f = tpack<reduce, or_else, tpack<>>;
+        using collider_g = tpack<>::f<head>;
+        using collider = composed<collider_f, collider_g>;
+        using result = eval_t<map, collider, zipped>;
+        return result{};
+    }
 
 
     //! Prepend as an evalable

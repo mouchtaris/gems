@@ -21,7 +21,12 @@ namespace sock
         struct sockaddr_unix_path {
             u::view::view<std::array<char, sizeof(::sockaddr_un{}.sun_path)>> value;
         };
+#if defined(unix)
         static_assert(sockaddr_unix_path{}.value.size() == 108);
+#elif defined(__APPLE__)
+        // TODO: figure mac size
+        //static_assert(sockaddr_unix_path{}.value.size() == 108);
+#endif
 
         using Creation = u::tmap::tpack<sockfd_t, errors::SocketCreation>;
         using Binding = Creation::append<errors::SocketBinding>;

@@ -46,6 +46,7 @@ namespace sock::listen::unix_
 
     bind_result bind(const sockaddr_unix_path path)
     {
+        (void)path;
         return {};
         //const auto sockfdTry = create();
 

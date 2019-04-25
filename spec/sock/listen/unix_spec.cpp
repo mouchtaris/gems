@@ -19,7 +19,11 @@ namespace sock::spec::listen::unix_
         say__(( "We were all wondering why namespace unix:: didn't work." ));
         say__(( "So we made this debug call and we find out that it is" ));
         say__(( "a preprocessing macro. Naturally." ));
+#ifdef unix
         debug__(( unix ));
+#else
+        debug__(( "Unix not defined, man" ));
+#endif
         say__(( "And then some weird template problems, as usual." ));
         debug__(( p<sock::listen::unix_::sockaddr_unix_path>() ));
         debug__(( p<decltype(*begin(std::array<char const, 108>{}))>() ));

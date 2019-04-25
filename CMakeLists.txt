@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(_compile_options INTERFACE)
 target_compile_features(_compile_options INTERFACE cxx_std_20)
-target_compile_options(_compile_options INTERFACE -Wall -Wextra -pedantic -O0 -g)
+target_compile_options(_compile_options INTERFACE -Wall -Wextra -pedantic -O0 -g -fdiagnostics-color=always)
 target_include_directories(_compile_options INTERFACE src)
 target_compile_definitions(_compile_options INTERFACE DEBUG=)
 

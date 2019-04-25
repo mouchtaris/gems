@@ -29,7 +29,9 @@ namespace u::spec::tmap
     using ::u::tmap::contains;
     using ::u::tmap::zip;
     using ::u::tmap::map_if;
+    using ::u::tmap::konst;
     using ::u::tmap::compose;
+    using ::u::tmap::composed;
     using ::u::tmap::prepend;
     using ::u::tmap::append;
     using ::u::tmap::less_equal;
@@ -321,11 +323,49 @@ namespace u::spec::tmap
         eval_t<
             map_if,
             tpack<B>::f<std::is_same>,
-            A,
+            tpack<konst, C>,
             tpack<A, B, C, D>
         >,
-        tpack<A, A, C, D
+        tpack<A, C, C, D>
     > ));
+    local_static_assert__(( !std::is_same_v<
+        eval_t<
+            map_if,
+            tpack<B>::f<std::is_same>,
+            tpack<konst, C>,
+            tpack<A, B, C, D>
+        >,
+        tpack<A, B, C, D>
+    > ));
+    local_static_assert__(( std::is_same_v<
+        eval_t<
+          map_if,
+          tpack<konst, std::true_type>,
+          partial<Weird2>,
+          tpack<A, B, C, D>
+        >,
+        tpack<tpack<B>, tpack<>, tpack<D>, tpack<>>
+    > ));
+    local_static_assert__(( std::is_same_v<
+        eval_t<
+          map_if,
+          composed<tpack<>::f<tpack>, tpack<Weird2>::f<is_defined>>,
+          Weird2,
+          tpack<A, B, C, D>
+        >,
+        tpack<B, B, D, D>
+    > ));
+
+
+    //
+    // konst
+    //
+    local_static_assert__(( std::is_same_v<
+        eval_t<konst, A, B, C, D>,
+        A
+    > ));
+
+
 
     //
     // contains
@@ -387,5 +427,13 @@ namespace u::spec::tmap
 
     void debug(spec)
     {
+        debug__(( p<
+        eval_t<
+          map_if,
+          tpack<Weird2>::f<is_defined>,
+          Weird2,
+          tpack<A, B, C, D>
+        >
+        >() ));
     }
 }
