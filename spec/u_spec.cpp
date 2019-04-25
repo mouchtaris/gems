@@ -3,19 +3,29 @@
 #include "./u/tmap_spec.h"
 #include "./u/str_spec.h"
 #include "./u/stdx_spec.h"
+#include <tuple>
 namespace u::spec
 {
-    void debug()
+    constexpr auto modules = std::make_tuple(
+        try_::spec{},
+        tmap::spec{},
+        str::spec{},
+        stdx::spec{}
+    );
+
+    void debug(spec)
     {
-        try_::debug();
-        tmap::debug();
-        str::debug();
-        stdx::debug();
+        std::apply(
+            [](auto... x) { (..., debug(x)); },
+            modules
+        );
     }
 
-    void runtime()
+    void runtime(spec)
     {
-        str::runtime();
-        stdx::runtime();
+        std::apply(
+            [](auto... x) { (..., runtime(x)); },
+            modules
+        );
     }
 }

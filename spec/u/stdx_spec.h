@@ -1,6 +1,7 @@
 #pragma once
 namespace u::spec::stdx
 {
-    void runtime();
-    void debug();
+    struct spec{};
+    void runtime(spec);
+    void debug(spec);
 }

@@ -1,6 +1,7 @@
 #pragma once
 namespace u::spec::str
 {
-    void debug();
-    void runtime();
+    struct spec{};
+    void debug(spec);
+    void runtime(spec);
 }

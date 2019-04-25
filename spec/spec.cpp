@@ -1,8 +1,15 @@
 #include "./spec.h"
+#include <tuple>
+namespace
+{
+    constexpr auto modules = std::make_tuple(
+        u::spec::spec{}
+    );
+}
 
 int main(int, char**)
 {
-    u::spec::debug();
-    sock::spec::debug();
+    std::apply(spec::run_runtime, modules);
+    std::apply(spec::run_debug, modules);
     return 0;
 }

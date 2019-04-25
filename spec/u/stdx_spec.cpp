@@ -13,11 +13,11 @@ namespace u::spec::stdx
     static_assert__(( is_same_v<remove_cvref_t<const int(&)[2]>, int[2]> ));
     static_assert__(( is_same_v<remove_cvref_t<int(int)>, int(int)> ));
 
-    void debug()
+    void debug(spec)
     {
     }
 
-    void runtime()
+    void runtime(spec)
     {
     }
 }

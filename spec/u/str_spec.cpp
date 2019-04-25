@@ -59,15 +59,12 @@ namespace u::spec::str
     static_assert__(( view(lol).size() == 3 ));
     static_assert__(( view(lol1).size() == lol1.size() ));
 
-    void debug()
+    void debug(spec)
     {
         debug__(( ::strlen("lol") ));
     }
 
-    void runtime()
+    void runtime(spec)
     {
     }
 }
-    constexpr char const* lol = "lol";
-    constexpr std::array<char, 4> lol1 { "lol" };
-

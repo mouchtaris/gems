@@ -355,7 +355,11 @@ namespace u::spec::tmap
         !eval_t<less_equal, tpack<A, B, C, D>, tpack<A, B, C>>::value
     ));
 
-    void debug()
+    void runtime(spec)
+    {
+    }
+
+    void debug(spec)
     {
     }
 }
