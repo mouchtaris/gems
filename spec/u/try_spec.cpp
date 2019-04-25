@@ -61,12 +61,17 @@ namespace
     struct custom_check_result
     {
         bool failed;
-        inline operator bool() const { return failed; }
+        constexpr inline operator bool() const { return failed; }
     };
-    custom_result       custom_fail() { return { true }; }
-    custom_result       custom_succ() { return { false }; }
-    custom_check_result custom_check_error(custom_result x) { return { x.failed }; }
-    custom_error        custom_to_error(custom_result) { return {}; }
+    constexpr custom_result       custom_fail() { return { true }; }
+    constexpr custom_result       custom_succ() { return { false }; }
+    constexpr custom_check_result custom_check_error(custom_result x) { return { x.failed }; }
+    constexpr custom_error        custom_to_error(custom_result) { return {}; }
+
+    struct custom_error_wrapper: public u::try_::StandardErrorWrapper{};
+
+    static_assert__(( is_error(stdtry(custom_fail, custom_check_error, custom_to_error)) ));
+    static_assert__(( not is_error(stdtry(custom_succ, custom_check_error, custom_to_error)) ));
 }
 
 namespace u::spec::try_
@@ -81,8 +86,5 @@ namespace u::spec::try_
 
         assert__(( is_error(stdtry(stdfail)) ));
         assert__(( not is_error(stdtry(stdok)) ));
-
-        assert__(( is_error(stdtry(custom_fail, custom_check_error, custom_to_error)) ));
-        assert__(( not is_error(stdtry(custom_succ, custom_check_error, custom_to_error)) ));
     }
 }

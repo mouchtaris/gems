@@ -4,6 +4,7 @@
 #include <variant>
 #include <cerrno>
 #include <cstring>
+#include <optional>
 namespace u::try_
 {
     struct Error { };
@@ -12,6 +13,11 @@ namespace u::try_
     {
         static constexpr auto MAX_MESSAGE_LENGTH = 1024;
         std::array<char, 1024> message;
+    };
+
+    struct StandardErrorWrapper: public Error
+    {
+        StandardError cause;
     };
 
     namespace _detail
@@ -151,6 +157,13 @@ namespace u::try_
         return _detail::is_error(v.value);
     }
 
+    template <
+        typename... Alts
+    >
+    constexpr auto map_error(adt<Alts...> const& v)
+    {
+    }
+
 
     //! The std way of checkiing for errors
     constexpr auto std_check_error = [](int result) -> bool
@@ -172,26 +185,77 @@ namespace u::try_
         return result;
     };
 
+    template <
+        typename Val,
+        typename Default
+    >
+    constexpr auto or_else(Val&& val, Default&& dflt)
+    {
+        if constexpr (std::is_same_v<stdx::remove_cvref_t<Val>, std::nullopt_t>)
+            return std::forward<Default>(dflt);
+        else
+            return std::forward<Val>(val);
+    }
+
     //! A typical try flow
     template <
         typename Op,
-        typename CheckError = std::add_lvalue_reference_t<decltype(std_check_error)>,
-        typename ToError = std::add_lvalue_reference_t<decltype(std_to_error)>
+        typename CheckError = std::nullopt_t,
+        typename ToError = std::nullopt_t
     >
-    auto stdtry(
+    constexpr auto stdtry(
         Op&& op,
-        CheckError&& check_error = std_check_error,
-        ToError&& to_error = std_to_error
+        CheckError&& check_error = std::nullopt_t { std::nullopt },
+        ToError&& to_error = std::nullopt_t { std::nullopt }
     )
     -> adt<
         std::invoke_result_t<Op>,
-        std::invoke_result_t<ToError, std::invoke_result_t<Op>>
+        std::invoke_result_t<
+            std::invoke_result_t<
+                decltype(or_else<ToError, decltype(std_to_error)>),
+                ToError,
+                decltype(std_to_error)
+            >,
+            std::invoke_result_t<Op>
+        >
     >
     {
         auto&& result = op();
-        if (check_error(result))
-            return to_error(result);
+        if (or_else(check_error, std_check_error)(result))
+            return or_else(to_error, std_to_error)(result);
         return result;
+    }
+
+    template <
+        typename Error,
+        typename... Alts,
+        std::enable_if_t<
+            u::tmap::eval_t<
+                u::tmap::contains,
+                StandardError,
+                adt<Alts...>::altpack
+            >::value,
+            int
+        > = 0
+    >
+    constexpr auto wrap_std_error(adt<Alts...> adt)
+    ->
+        u::tmap::eval_t<
+            u::tmap::drop_if,
+            u::tmap::tpack<>::f<std::is_same, StandardError>,
+            adt<Alts...>::altpack
+        >::append<Error>
+    {
+        return std::visit(
+            [](auto&& v)
+            {
+                if constexpr (std::is_same_v<stdx::remove_cvref_t<decltype(v)>, StandardError>)
+                    return Error { std::forward<decltype(v)>(v) };
+                else
+                    return std::forward<decltype(v)>(v);
+            },
+            adt.value
+        );
     }
 }
 

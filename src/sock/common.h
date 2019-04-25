@@ -8,7 +8,10 @@ namespace sock
     {
         namespace errors
         {
-            using u::try_::Error;
+            struct Error: public u::try_::Error
+            {
+                u::try_::StandardError stderror;
+            };
             struct SocketCreation: public Error{};
             struct SocketBinding: public Error{};
         }

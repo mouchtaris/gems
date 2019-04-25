@@ -1,6 +1,8 @@
 #include "./unix.h"
 #include <sys/socket.h>
 #include <sys/un.h>
+using u::try_::stdtry;
+using u::try_::wrap_std_error;
 namespace sock::listen::unix_
 {
     create_result create()
@@ -49,14 +51,15 @@ namespace sock::listen::unix_
         const auto serv_addr = address(path);
         const auto serv_len = address_len(serv_addr);
 
-        const int status = ::bind(
+        const auto bind_op = std::bind(
+            ::bind,
             sockfd.value,
             reinterpret_cast<const struct ::sockaddr *>(&serv_addr),
             serv_len
         );
+        const auto bind_try = wrap_std_error<errors::SocketBinding>(stdtry(bind_op));
 
-        if (status < 0)
-            return errors::SocketBinding{};
+        RETURN_IF_ERROR(bind_try);
 
         return sockfd;
     }
