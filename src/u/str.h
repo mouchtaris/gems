@@ -40,33 +40,32 @@ namespace u::str
     >
     using char_ptr_t = _detail::deptr_t<T>;
 }
-
-// TODO: comment in
-//! A char* is also an iterable!
-//template <
-//    typename CharPtr,
-//    std::enable_if_t<
-//        u::traits::is_detected_v<u::str::char_traits, CharPtr>,
-//        int
-//    > = 0
-//>
-//constexpr CharPtr begin(CharPtr&& cstr)
-//{
-//    return cstr;
-//}
 //
-//template <
-//    typename CharPtr,
-//    std::enable_if_t<
-//        u::traits::is_detected_v<u::str::char_traits, CharPtr>,
-//        int
-//    > = 0
-//>
-////! A char* is also an iterable!
-//constexpr CharPtr end(CharPtr&& cstr)
-//{
-//    return cstr + u::str::char_traits<CharPtr>::length(cstr);
-//}
+//! A char* is also an iterable!
+template <
+    typename CharPtr,
+    std::enable_if_t<
+        stdx::is_detected_v<u::str::char_ptr_t, CharPtr>,
+        int
+    > = 0
+>
+constexpr stdx::remove_cvref_t<CharPtr> begin(CharPtr&& cstr)
+{
+    return cstr;
+}
+
+template <
+    typename CharPtr,
+    std::enable_if_t<
+        stdx::is_detected_v<u::str::char_ptr_t, CharPtr>,
+        int
+    > = 0
+>
+//! A char* is also an iterable!
+constexpr stdx::remove_cvref_t<CharPtr> end(CharPtr&& cstr)
+{
+    return cstr + std::char_traits<u::str::char_ptr_t<CharPtr>>::length(cstr);
+}
 
 namespace u::str
 {

@@ -8,9 +8,6 @@ namespace u::spec::str
     using namespace ::u::str;
     using ::u::p;
 
-    constexpr char const* lol = "lol";
-    constexpr std::array<char, 4> lol1 { "lol" };
-
     template <
         typename char_t = char,
         typename fail = std::false_type
@@ -56,6 +53,12 @@ namespace u::spec::str
     static_assert__(( !char_ptr_t_detected_v<unsigned short> ));
     static_assert__(( !char_ptr_t_detected_v<unsigned long> ));
 
+    constexpr char const* lol = "lol";
+    constexpr std::array<char, 4> lol1 { "lol" };
+
+    static_assert__(( view(lol).size() == 3 ));
+    static_assert__(( view(lol1).size() == lol1.size() ));
+
     void debug()
     {
         debug__(( ::strlen("lol") ));
@@ -65,3 +68,6 @@ namespace u::spec::str
     {
     }
 }
+    constexpr char const* lol = "lol";
+    constexpr std::array<char, 4> lol1 { "lol" };
+
