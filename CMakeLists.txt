@@ -23,6 +23,7 @@ target_sources(u PRIVATE
     src/u/traitlib.cpp
     src/u/traits.cpp
     src/u/try.cpp
+    src/u/util.cpp
     src/u/view.cpp
 )
 
