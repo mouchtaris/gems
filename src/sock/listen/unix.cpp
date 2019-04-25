@@ -9,9 +9,10 @@ namespace sock::listen::unix_
     {
         return {};
         // TODO: comment int
-        //const auto create_op = std::bind(
-        //    ::socket, AF_UNIX, SOCK_STREAM, 0
-        //);
+        const auto create_op = std::bind(
+            ::socket, AF_UNIX, SOCK_STREAM, 0
+        );
+        (void)create_op;
         //const auto create_try = wrap_std_error<errors::SocketCreation>(stdtry(create_op));
 
         //RETURN_IF_ERROR(create_try);

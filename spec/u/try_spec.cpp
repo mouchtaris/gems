@@ -22,10 +22,17 @@ namespace
     using var_b = adt<AnError, NotAnError>;
     using var_c = adt<AnUnrelated, AnError>;
 
+    //
+    // is_error
+    //
     static_assert__(( is_error    (   AnError     {}  )                 ));
     static_assert__(( !is_error   (   NotAnError  {}  )                 ));
     static_assert__(( is_error    (   an_error        )                 ));
     static_assert__(( !is_error   (   not_an_error    )                 ));
+
+    //
+    // construction / returning / convertability
+    //
     static_assert__(( std::is_convertible_v<var_a, var_b>               ));
     static_assert__(( std::is_convertible_v<var_a::variant_type, var_b> ));
     static_assert__(( std::is_convertible_v<var_b::variant_type, var_b> ));
@@ -41,10 +48,16 @@ namespace
     static_assert__(( !std::is_convertible_v<var_c, var_b>              ));
 
 
+    //
+    // std_check_error
+    //
     static_assert__(( std_check_error(0) == false ));
     static_assert__(( std_check_error(1) == false ));
     static_assert__(( std_check_error(-1) == true ));
 
+    //
+    // (runtime) stdtry
+    //
     int stdfail()
     {
         errno = 12;
@@ -56,6 +69,9 @@ namespace
         return 12;
     }
 
+    //
+    // stdtry
+    //
     struct custom_result{bool failed;};
     struct custom_error: public u::try_::Error{};
     struct custom_check_result
@@ -84,6 +100,9 @@ namespace u::spec::try_
     {
         using u::try_::stdtry;
 
+        //
+        // stdtry defaults
+        //
         assert__(( is_error(stdtry(stdfail)) ));
         assert__(( not is_error(stdtry(stdok)) ));
     }

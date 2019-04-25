@@ -3,7 +3,8 @@
 namespace
 {
     constexpr auto modules = std::make_tuple(
-        u::spec::spec{}
+        u::spec::spec{},
+        sock::spec::spec{}
     );
 }
 

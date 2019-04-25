@@ -1,6 +1,7 @@
 #pragma once
 #include "u/tmap.h"
 #include "u/str.h"
+#include "u/util.h"
 #include <variant>
 #include <cerrno>
 #include <cstring>
@@ -178,18 +179,6 @@ namespace u::try_
         return result;
     };
 
-    template <
-        typename Val,
-        typename Default
-    >
-    constexpr auto or_else(Val&& val, Default&& dflt)
-    {
-        if constexpr (std::is_same_v<stdx::remove_cvref_t<Val>, std::nullopt_t>)
-            return std::forward<Default>(dflt);
-        else
-            return std::forward<Val>(val);
-    }
-
     //! A typical try flow
     template <
         typename Op,
@@ -205,7 +194,7 @@ namespace u::try_
         std::invoke_result_t<Op>,
         std::invoke_result_t<
             std::invoke_result_t<
-                decltype(or_else<ToError, decltype(std_to_error)>),
+                decltype(util::or_else<ToError, decltype(std_to_error)>),
                 ToError,
                 decltype(std_to_error)
             >,
@@ -213,6 +202,8 @@ namespace u::try_
         >
     >
     {
+        using util::or_else;
+
         auto&& result = op();
         if (or_else(check_error, std_check_error)(result))
             return or_else(to_error, std_to_error)(result);
@@ -233,18 +224,18 @@ namespace u::try_
     >
     constexpr auto wrap_std_error(adt<Alts...> adt)
     ->
-        u::tmap::eval_t<
+        typename u::tmap::eval_t<
             u::tmap::map_if,
             u::tmap::tpack<>::f<std::is_same, StandardError>,
-            Error,
+            u::tmap::tpack<u::tmap::konst, Error>,
             u::tmap::tpack<Alts...>
-        >
+        >::template into<try_::adt>
     {
         return std::visit(
             [](auto&& v)
             {
                 if constexpr (std::is_same_v<stdx::remove_cvref_t<decltype(v)>, StandardError>)
-                    return Error { { { std::forward<decltype(v)>(v) } } };
+                    return Error { std::forward<decltype(v)>(v) };
                 else
                     return std::forward<decltype(v)>(v);
             },

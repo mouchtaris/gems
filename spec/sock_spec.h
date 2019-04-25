@@ -1,5 +1,7 @@
 #pragma once
 namespace sock::spec
 {
-    void debug();
+    struct spec{};
+    void runtime(spec);
+    void debug(spec);
 }

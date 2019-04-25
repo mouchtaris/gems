@@ -11,8 +11,28 @@ namespace sock
             struct Error: public u::try_::Error
             {
                 u::try_::StandardError stderror;
+
+                Error() = default;
+
+                template <
+                    typename Arg,
+                    std::enable_if_t<
+                        std::is_same_v<
+                            stdx::remove_cvref_t<Arg>,
+                            u::try_::StandardError
+                        >,
+                        int
+                    > = 0
+                >
+                constexpr Error(Arg&& arg):
+                    u::try_::Error {},
+                    stderror { std::forward<Arg>(arg) }
+                {}
             };
-            struct SocketCreation: public Error{};
+            struct SocketCreation: public Error
+            {
+                using Error::Error;
+            };
             struct SocketBinding: public Error{};
         }
 
