@@ -3,6 +3,26 @@
 
 namespace stdx
 {
+    constexpr bool GCC =
+#if defined(__GNUC__) || defined(__GNUG__)
+#define STDX_GCC 1
+        true
+#else
+        false
+#endif
+        ;
+
+    constexpr bool CLANG =
+#if defined(__clang__)
+#define STDX_CLANG 1
+        true
+#else
+        false
+#endif
+        ;
+
+    static_assert(GCC | CLANG);
+
     template< class T >
     struct remove_cvref {
         typedef std::remove_cv_t<std::remove_reference_t<T>> type;
@@ -43,6 +63,6 @@ namespace stdx
     constexpr auto is_detected_v = is_detected<Trait, Args...>::value;
 }
 
-#ifndef __clang__
+#if defined(STDX_GCC) && STDX_GCC
 enum char8_t: char;
 #endif

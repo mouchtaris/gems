@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
 
-set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 cmake_minimum_required(VERSION 3.12)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
