@@ -281,6 +281,7 @@ namespace u::tmap
 
 
     //! Append a non-empty optional value to a list.
+    // TODO: question existence. This is just A::append<B>
     struct append_optional { };
     template <
         typename T,
@@ -396,17 +397,11 @@ namespace u::tmap
 
     //! Is true
     struct is_true { };
-    constexpr inline auto eval(is_true, std::true_type const&)
-    -> std::true_type
-    {
-        return {};
-    }
-
     template <
         typename T
     >
     constexpr auto eval(is_true, T&&)
-    -> std::false_type
+    -> std::is_base_of<std::true_type, T>
     {
         return {};
     }

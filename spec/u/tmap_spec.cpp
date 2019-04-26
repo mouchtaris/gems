@@ -15,6 +15,7 @@ namespace u::spec::tmap
     using ::u::tmap::eval_t;
     using ::u::tmap::is_defined;
     using ::u::tmap::is_defined_v;
+    using ::u::tmap::is_defined_f;
     using ::u::tmap::has_head;
     using ::u::tmap::head;
     using ::u::tmap::has_tail;
@@ -30,6 +31,7 @@ namespace u::spec::tmap
     using ::u::tmap::zip;
     using ::u::tmap::map_if;
     using ::u::tmap::konst;
+    using ::u::tmap::is_true;
     using ::u::tmap::compose;
     using ::u::tmap::composed;
     using ::u::tmap::prepend;
@@ -160,6 +162,15 @@ namespace u::spec::tmap
     ));
     local_static_assert__((
         !is_defined_v<int, float>
+    ));
+    local_static_assert__((
+        eval_t<is_defined_f, Feval, A>::value
+    ));
+    local_static_assert__((
+        eval_t<is_defined_f, Fcall, A>::value
+    ));
+    local_static_assert__((
+        !eval_t<is_defined_f, int, float>::value
     ));
 
     //
@@ -305,6 +316,21 @@ namespace u::spec::tmap
         tpack<B, D>
     >));
 
+
+    //
+    // contains
+    //
+    local_static_assert__((
+        eval_t<contains, A, l0>::value
+    ));
+    local_static_assert__((
+        eval_t<contains, B, l0>::value
+    ));
+    local_static_assert__((
+        !eval_t<contains, C, l0>::value
+    ));
+
+
     //
     // zip
     //
@@ -315,6 +341,43 @@ namespace u::spec::tmap
             tpack<B, C>
         >
     > ));
+
+
+    //
+    // compose
+    //
+    struct a2b { };
+    struct b2c { };
+    constexpr B eval(a2b, A) { return {}; }
+    constexpr C eval(b2c, B) { return {}; }
+    local_static_assert__((std::is_same_v<
+        eval_t<eval_t<compose, a2b, b2c>, A>,
+        C
+    >));
+
+
+    //
+    // konst
+    //
+    local_static_assert__(( std::is_same_v<
+        eval_t<konst, A, B, C, D>,
+        A
+    > ));
+
+
+    //
+    // is_true
+    //
+    local_static_assert__((
+        eval_t<is_true, std::true_type>::value
+    ));
+    local_static_assert__((
+        eval_t<is_true, std::conjunction<>>::value
+    ));
+    local_static_assert__((
+        !eval_t<is_true, std::disjunction<>>::value
+    ));
+
 
     //
     // map_if
@@ -355,43 +418,6 @@ namespace u::spec::tmap
         >,
         tpack<B, B, D, D>
     > ));
-
-
-    //
-    // konst
-    //
-    local_static_assert__(( std::is_same_v<
-        eval_t<konst, A, B, C, D>,
-        A
-    > ));
-
-
-
-    //
-    // contains
-    //
-    local_static_assert__((
-        eval_t<contains, A, l0>::value
-    ));
-    local_static_assert__((
-        eval_t<contains, B, l0>::value
-    ));
-    local_static_assert__((
-        !eval_t<contains, C, l0>::value
-    ));
-
-
-    //
-    // compose
-    //
-    struct a2b { };
-    struct b2c { };
-    constexpr B eval(a2b, A) { return {}; }
-    constexpr C eval(b2c, B) { return {}; }
-    local_static_assert__((std::is_same_v<
-        eval_t<eval_t<compose, a2b, b2c>, A>,
-        C
-    >));
 
 
     //
