@@ -14,6 +14,7 @@ namespace sock
 
                 Error() = default;
 
+                // TODO: move to try: StandardErrorWrapper
                 template <
                     typename Arg,
                     std::enable_if_t<

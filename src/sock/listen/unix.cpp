@@ -47,27 +47,22 @@ namespace sock::listen::unix_
 
     bind_result bind(const sockaddr_unix_path path)
     {
-        (void)path;
-        return {};
-        //const auto sockfdTry = create();
+        const auto sockfdTry = create();
+        RETURN_IF_ERROR(sockfdTry);
 
-        //if (is_error(sockfdTry))
-        //    return sockfdTry;
+        const auto sockfd = sockfdTry.first();
+        const auto serv_addr = address(path);
+        const auto serv_len = address_len(serv_addr);
+        const auto bind_op = std::bind(
+            ::bind,
+            sockfd.value,
+            reinterpret_cast<const struct ::sockaddr *>(&serv_addr),
+            serv_len
+        );
 
-        //const auto sockfd = sockfdTry.first();
-        //const auto serv_addr = address(path);
-        //const auto serv_len = address_len(serv_addr);
-
-        //const auto bind_op = std::bind(
-        //    ::bind,
-        //    sockfd.value,
-        //    reinterpret_cast<const struct ::sockaddr *>(&serv_addr),
-        //    serv_len
-        //);
-        //const auto bind_try = wrap_std_error<errors::SocketBinding>(stdtry(bind_op));
-
-        //RETURN_IF_ERROR(bind_try);
-
-        //return sockfd;
+        return map(
+            wrap_std_error<errors::SocketBinding>(stdtry(bind_op)),
+            [sockfd](int) { return sockfd; }
+        );
     }
 }
