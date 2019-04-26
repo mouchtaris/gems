@@ -123,7 +123,7 @@ namespace u::try_
                 std::disjunction_v<
                     ::u::tmap::eval_t<
                         ::u::tmap::contains,
-                        Arg,
+                        stdx::remove_cvref_t<Arg>,
                         altpack
                     >
                 >,
@@ -210,6 +210,37 @@ namespace u::try_
         return result;
     }
 
+    //! Wrap an operation so that it returns its result
+    /// if it is defined at the input, and the input
+    /// itself otherwise
+
+    //! Map the success side of a try
+    template <
+        typename Op,
+        typename... Alts
+    >
+    constexpr auto map(adt<Alts...> tr, Op&& op)
+    {
+        using u::tmap::eval_t;
+        using u::tmap::map_if;
+        using u::tmap::tpack;
+        using u::tmap::is_defined_f;
+
+        using invoke_result_f = tpack<>::f<std::invoke_result_t, Op>;
+        using result_t = typename eval_t<
+            map_if,
+            tpack<is_defined_f, invoke_result_f>,
+            invoke_result_f,
+            tpack<Alts...>
+        >::template into<adt>;
+
+        const auto op_if_defined = util::if_defined<result_t>{}.rebind(std::forward<Op>(op));
+        return std::visit(op_if_defined, tr.value);
+    }
+
+
+    //! Wrap the case of a StandardError in another Error type,
+    /// constructible by StandardError.
     template <
         typename Error,
         typename... Alts,
@@ -223,24 +254,13 @@ namespace u::try_
         > = 0
     >
     constexpr auto wrap_std_error(adt<Alts...> adt)
-    ->
-        typename u::tmap::eval_t<
-            u::tmap::map_if,
-            u::tmap::tpack<>::f<std::is_same, StandardError>,
-            u::tmap::tpack<u::tmap::konst, Error>,
-            u::tmap::tpack<Alts...>
-        >::template into<try_::adt>
     {
-        return std::visit(
-            [](auto&& v)
-            {
-                if constexpr (std::is_same_v<stdx::remove_cvref_t<decltype(v)>, StandardError>)
-                    return Error { std::forward<decltype(v)>(v) };
-                else
-                    return std::forward<decltype(v)>(v);
-            },
-            adt.value
-        );
+        const auto& tr = adt;
+        const auto&& make_error = [](StandardError const& v) -> Error
+        {
+            return { v };
+        };
+        return map(tr, make_error);
     }
 }
 

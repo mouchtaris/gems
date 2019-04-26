@@ -151,6 +151,17 @@ namespace u::tmap
     >
     constexpr bool is_defined_v = is_defined_t<F, Args...>::value;
 
+    struct is_defined_f { };
+    template <
+        typename F,
+        typename... Args
+    >
+    constexpr auto eval(is_defined_f, F, Args...)
+    -> is_defined_t<F, Args...>
+    {
+        return {};
+    }
+
 
     //! Apply a function to a pack of elements
     struct map { };

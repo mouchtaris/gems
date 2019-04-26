@@ -17,7 +17,7 @@ namespace u
         static_assert(length(compiler_prefix) == 29);
 #elif defined(__GNUC__) || defined(__GNUG__)
         constexpr auto compiler_prefix = "constexpr std::string_view u::p() [with T = ";
-        constexpr auto compiler_suffix = "]";
+        constexpr auto compiler_suffix = "; std::string_view = std::basic_string_view<char>]";
 #endif
         result.remove_prefix(length(compiler_prefix));
         result.remove_suffix(length(compiler_suffix));

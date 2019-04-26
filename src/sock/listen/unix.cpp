@@ -7,17 +7,17 @@ namespace sock::listen::unix_
 {
     create_result create()
     {
-        return {};
-        // TODO: comment int
-        const auto create_op = std::bind(
+        const auto&& create_op = std::bind(
             ::socket, AF_UNIX, SOCK_STREAM, 0
         );
-        (void)create_op;
-        //const auto create_try = wrap_std_error<errors::SocketCreation>(stdtry(create_op));
 
-        //RETURN_IF_ERROR(create_try);
+        const auto&& create_try = wrap_std_error<errors::SocketCreation>(stdtry(create_op));
 
-        //return sockfd_t { create_try.first() };
+        const auto&& mapped = map(create_try, [](int fd) {
+            return sockfd_t { fd };
+        });
+
+        return mapped;
     }
 
     ::sockaddr_un address(sockaddr_unix_path path)
