@@ -1,13 +1,25 @@
 #include "./try_spec.h"
 #include "u/try.h"
 #include "u/p.h"
+#include "u/traitlib.h"
 #include <iostream>
-#define st(EXPR) static_assert__(EXPR); assert__(EXPR);
+#define st__(EXPR) static_assert__(EXPR)
 namespace
 {
     using ::u::p;
     using namespace ::u::try_;
     using ::u::try_::_detail::is_error;
+
+    //
+    // Error
+    //
+    st__(sizeof(Error)); // it exists
+
+    //
+    // StandardError
+    //
+    st__(( std::is_base_of_v<Error, StandardError> ));
+    st__(( stdx::is_detected_v<u::traitlib::message_t, StandardError> ));
 
     struct AnError: public Error {};
     struct NotAnError {};

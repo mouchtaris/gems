@@ -1,7 +1,10 @@
 #pragma once
 #include "./traits.h"
+#define _U__TRAITLIB__MEM(NAME)     \
+    template <typename T>   constexpr auto NAME = &T::NAME; \
+    template <typename T>   using NAME##_t = decltype(NAME<T>)
 namespace u::traitlib
 {
-    template <typename T> constexpr auto length = &T::length;
-    template <typename T> using length_t = decltype(length<T>);
+    _U__TRAITLIB__MEM(length);
+    _U__TRAITLIB__MEM(message);
 }

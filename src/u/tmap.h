@@ -408,23 +408,23 @@ namespace u::tmap
 
 
     //! Conditional
-    struct conditional { };
-    template <
-        typename Condition,
-        typename True,
-        typename False
-    >
-    constexpr auto eval(conditional, Condition, True, False)
-    ->
-        std::conditional_t<
-            std::conjunction_v<
-                eval_t<is_true, Condition>
-            >,
-            True,
-            False
-        >
-    {
-    }
+    //struct conditional { };
+    //template <
+    //    typename Condition,
+    //    typename True,
+    //    typename False
+    //>
+    //constexpr auto eval(conditional, Condition, True, False)
+    //->
+    //    std::conditional_t<
+    //        std::conjunction_v<
+    //            eval_t<is_true, Condition>
+    //        >,
+    //        True,
+    //        False
+    //    >
+    //{
+    //}
 
 
     //! Map only type A to type B, leave rest untouched
