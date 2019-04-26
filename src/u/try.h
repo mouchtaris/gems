@@ -253,9 +253,8 @@ namespace u::try_
             int
         > = 0
     >
-    constexpr auto wrap_std_error(adt<Alts...> adt)
+    constexpr auto wrap_std_error(adt<Alts...> tr)
     {
-        const auto& tr = adt;
         const auto&& make_error = [](StandardError const& v) -> Error
         {
             return { v };

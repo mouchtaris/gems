@@ -43,4 +43,6 @@ namespace stdx
     constexpr auto is_detected_v = is_detected<Trait, Args...>::value;
 }
 
+#ifndef __clang__
 enum char8_t: char;
+#endif

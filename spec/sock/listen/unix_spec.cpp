@@ -1,11 +1,7 @@
 #include "./unix_spec.h"
-
 #include "sock/listen/unix.h"
-
 #include "u/p.h"
-
 #include <iostream>
-
 namespace
 {
 
@@ -47,6 +43,7 @@ namespace sock::spec::listen::unix_
         using creation_adt = u::try_::adt<sockfd_t, StandardError>;
         debug__(( p< decltype(error) >() ));
         debug__(( p< decltype(creation_error) >() ));
+        debug__(( p< creation_adt >() ));
         debug__(( p<
             u::tmap::eval_t<
                 u::tmap::contains,
@@ -61,6 +58,10 @@ namespace sock::spec::listen::unix_
                 )
             )
         >() ));
+        const auto explode0 = u::try_::adt<int, StandardError>{};
+        (void) explode0;
+        const auto explode1 = wrap_std_error<errors::SocketCreation>(explode0);
+        (void) explode1;
         debug__(( p<
         u::tmap::eval_t<
             u::tmap::map_if,
