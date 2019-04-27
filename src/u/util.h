@@ -51,4 +51,23 @@ namespace u::util
     {
         return val;
     }
+
+
+    //! Strip all cv-ptr-cv-ref qualifiers from a type.
+    template <
+        typename T
+    >
+    using deptr_t = std::remove_const_t<std::remove_pointer_t<stdx::remove_cvref_t<T>>>;
+
+    template <
+        typename char_t
+    >
+    using is_char = std::disjunction<
+        std::is_same<char_t, char>,
+        std::is_same<char_t, signed char>,
+        std::is_same<char_t, wchar_t>,
+        std::is_same<char_t, char8_t>,
+        std::is_same<char_t, char16_t>,
+        std::is_same<char_t, char32_t>
+    >;
 }

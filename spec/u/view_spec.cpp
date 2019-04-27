@@ -1,65 +1,10 @@
-#include "./test_u.h"
-#include "./arr/make_array.h"
-#include "./f/compose.h"
-#include "./p.h"
-#include "./view.h"
-#include "./str.h"
-#include <iostream>
-#include <type_traits>
-#include <algorithm>
-using u::p;
-
+#include "./view_spec.h"
+#include "u/view.h"
+#include "u/p.h"
+#include <array>
 namespace {
-namespace spec {
-namespace make_array {
-    constexpr std::size_t length = 58;
-    using type = char;
-    constexpr type source[length] = {1, 2, 3, 4, 5, 90, 34, 121, 67, 2};
+    using namespace u::view;
 
-    constexpr auto subj = u::arr::make_array(source);
-
-    template <std::size_t... I>
-    constexpr bool check(std::index_sequence<I...>)
-    {
-        return
-            std::is_same_v<decltype(subj)::value_type, std::add_const_t<type>> &&
-            ((source[I] == subj[I]) && ...) &&
-            true
-        ;
-    }
-
-    static_assert(check(std::make_index_sequence<length>{}));
-
-    void debug()
-    {
-        debug__(( p<decltype(subj)>() ));
-        debug__(( p<decltype(subj)::value_type>() ));
-    }
-}//make_array::
-namespace compose {
-    using u::f::compose;
-    constexpr auto f = [](int x) { return x + 1; };
-    constexpr auto g = [](int x) { return x - 1; };
-    constexpr auto fog = compose(f, g, f, g, f, g);
-    static_assert(fog(0) == 0);
-
-    void runtime() {
-        auto f_ = f;
-        auto g_ = g;
-        auto fog_ = compose(f_, g_, f_, g_, f_, g_);
-        auto oops = []() { return false; };
-        assert__(( fog_(0) == 0 ));
-        assert__(( oops() ));
-
-        auto persists = []() {
-           auto f = ([](int x) { return x + 1; });
-           auto g = ([](int x) { return x - 1; });
-           return compose(f, g, f, g, f, g);
-        };
-        assert__(( persists()(0) == 0 ));
-    }
-}//compose::
-namespace view {
     constexpr auto back = std::array<int, 4> {4,5,6,7};
     constexpr auto v0 = ::u::view::view { back };
     static_assert(v0.size() == 4);
@@ -158,7 +103,7 @@ namespace view {
     static_assert(*std::next(begin(v4->container), 2) == 2);
     static_assert(*std::next(begin(v4->container), 3) == 3);
     //static_assert(*begin(*v4) == 7);
-    static_assert(::u::view::is_view<std::remove_reference_t<decltype(*v4)>>::value);
+    static_assert(is_view<std::remove_reference_t<decltype(*v4)>>::value);
     //static_assert(*::u::view::begin(*v4) == 7);
 
     constexpr auto v5 = v4->emplace_back(4);
@@ -166,8 +111,10 @@ namespace view {
 
     constexpr auto v6 = v4->flip();
     static_assert(v6.remaining() == 4);
-
-    void debug()
+}
+namespace u::spec::view
+{
+    void debug(spec)
     {
         debug__(( v0 ));
         debug__(( *v1 ));
@@ -175,28 +122,9 @@ namespace view {
         debug__(( *v3 ));
         debug__(( *v4 ));
         debug__(( (v5 == std::nullopt ? "nullopt" : "SOMETHING") ));
-        debug__(( ::u::p<decltype(v4->flip())>() ));
+        debug__(( p<decltype(v4->flip())>() ));
     }
-}//view::
-namespace str {
-    constexpr auto src0 = std::array<char, 12>{};
-    constexpr auto src1 = u::view::view { src0 };
-    constexpr auto v0 = u::str::view(src0);
-    constexpr auto v1 = u::str::view(src1);
-    static_assert(v0.size() == src0.size());
-    static_assert(v1.size() == src1.size());
-    void debug()
+    void runtime(spec)
     {
     }
-}//str::
-}//spec::
-}//<anon>::
-
-int u::spec::main(int, char const*[])
-{
-    ::spec::make_array::debug();
-    ::spec::compose::runtime();
-    ::spec::view::debug();
-    ::spec::str::debug();
-    return 0;
 }

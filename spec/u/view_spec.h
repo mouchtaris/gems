@@ -1,7 +1,7 @@
 #pragma once
-namespace u::spec::traitlib
+namespace u::spec::view
 {
     struct spec{};
-    void runtime(spec);
     void debug(spec);
+    void runtime(spec);
 }

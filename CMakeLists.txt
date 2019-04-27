@@ -18,7 +18,6 @@ target_sources(u PRIVATE
     src/u/f/compose.cpp
     src/u/stdx.cpp
     src/u/str.cpp
-    src/u/test_u.cpp
     src/u/tmap.cpp
     src/u/traitlib.cpp
     src/u/traits.cpp
@@ -51,12 +50,15 @@ target_sources(spec PRIVATE
     spec/sock/listen/unix_spec.cpp
     spec/sock_spec.cpp
     spec/spec.cpp
+    spec/u/compose_spec.cpp
+    spec/u/make_array_spec.cpp
     spec/u_spec.cpp
     spec/u/stdx_spec.cpp
     spec/u/str_spec.cpp
     spec/u/tmap_spec.cpp
     spec/u/traitlib_spec.cpp
     spec/u/try_spec.cpp
+    spec/u/view_spec.cpp
 )
 
 add_executable(main)

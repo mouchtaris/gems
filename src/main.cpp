@@ -4,7 +4,6 @@
 
 #include "msg/input_socket.h"
 
-#include "u/test_u.h"
 #include "msg/input_socket.h"
 #include "msg/test_msg.h"
 
@@ -45,7 +44,6 @@ namespace
 int main(int argc, char const* argv[])
 {
     const bool success = true
-        && u::spec::main(argc, argv) == 0
         && msg::spec::main(argc, argv) == 0
         ;
 

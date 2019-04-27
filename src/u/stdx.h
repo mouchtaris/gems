@@ -23,32 +23,36 @@ namespace stdx
 
     static_assert(GCC | CLANG);
 
-    template< class T >
+    template<
+        typename T
+    >
     struct remove_cvref {
         typedef std::remove_cv_t<std::remove_reference_t<T>> type;
     };
 
-    template< class T >
+    template<
+        typename T
+    >
     using remove_cvref_t = typename remove_cvref<T>::type;
 
     namespace _detail {
         template <
-            template <class...> class Trait,
-            class Enabler,
-            class... Args
+            template <typename...> typename Trait,
+            typename Enabler,
+            typename ... Args
         >
         struct is_detected: public std::false_type{};
 
         template <
-            template <class...> class Trait,
-            class... Args
+            template <typename...> typename Trait,
+            typename... Args
         >
         struct is_detected<
             Trait,
             std::void_t<Trait<Args...>>,
             Args...
         >: public std::true_type{};
-      }
+    }
 
     template <
         template <typename...> typename Trait,

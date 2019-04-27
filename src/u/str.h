@@ -1,6 +1,7 @@
 #pragma once
 #include "u/traitlib.h"
 #include "u/stdx.h"
+#include "u/util.h"
 #include <type_traits>
 #include <string_view>
 #include <iterator>
@@ -8,38 +9,19 @@
 
 namespace u::str
 {
-    namespace _detail
-    {
-        template <
-            typename T
-        >
-        using deptr_t = std::remove_const_t<std::remove_pointer_t<stdx::remove_cvref_t<T>>>;
-
-        template <
-            typename char_t
-        >
-        using is_char = std::disjunction<
-            std::is_same<char_t, char>,
-            std::is_same<char_t, signed char>,
-            std::is_same<char_t, wchar_t>,
-            std::is_same<char_t, char8_t>,
-            std::is_same<char_t, char16_t>,
-            std::is_same<char_t, char32_t>
-        >;
-    }
-
     template <
         typename T,
         typename = std::enable_if_t<
             std::conjunction_v<
                 std::is_pointer<stdx::remove_cvref_t<T>>,
-                _detail::is_char<_detail::deptr_t<T>>
+                util::is_char<util::deptr_t<T>>
             >,
             void
         >
     >
-    using char_ptr_t = _detail::deptr_t<T>;
+    using char_ptr_t = util::deptr_t<T>;
 }
+
 //
 //! A char* is also an iterable!
 template <

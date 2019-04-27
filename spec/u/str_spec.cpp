@@ -1,37 +1,42 @@
 #include "./str_spec.h"
 #include "u/str.h"
 #include "u/p.h"
+#include "u/view.h"
 #include <array>
 #include <iostream>
-namespace u::spec::str
+namespace
 {
     using namespace ::u::str;
-    using ::u::p;
+    using stdx::is_detected;
+    using std::negation;
 
+    //
+    // char_ptr_t
+    //
     template <
         typename char_t = char,
         typename fail = std::false_type
     >
     using char_ptr_t_detected = std::conjunction<
-        std::negation<fail>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t const* const &&>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t const* const &>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t const* const >,
-        u::traits::is_detected<u::str::char_ptr_t, char_t const* &&>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t const* &>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t const* >,
-        u::traits::is_detected<u::str::char_ptr_t, char_t * const &&>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t * const &>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t * const >,
-        u::traits::is_detected<u::str::char_ptr_t, char_t * &&>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t * &>,
-        u::traits::is_detected<u::str::char_ptr_t, char_t * >,
-        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  const &&> >,
-        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  const &> >,
-        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  const > >,
-        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  &&> >,
-        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  &> >,
-        std::negation< u::traits::is_detected<u::str::char_ptr_t, char_t  > >
+        negation<fail>,
+        is_detected<char_ptr_t, char_t const* const &&>,
+        is_detected<char_ptr_t, char_t const* const &>,
+        is_detected<char_ptr_t, char_t const* const >,
+        is_detected<char_ptr_t, char_t const* &&>,
+        is_detected<char_ptr_t, char_t const* &>,
+        is_detected<char_ptr_t, char_t const* >,
+        is_detected<char_ptr_t, char_t * const &&>,
+        is_detected<char_ptr_t, char_t * const &>,
+        is_detected<char_ptr_t, char_t * const >,
+        is_detected<char_ptr_t, char_t * &&>,
+        is_detected<char_ptr_t, char_t * &>,
+        is_detected<char_ptr_t, char_t * >,
+        negation< is_detected<char_ptr_t, char_t  const &&> >,
+        negation< is_detected<char_ptr_t, char_t  const &> >,
+        negation< is_detected<char_ptr_t, char_t  const > >,
+        negation< is_detected<char_ptr_t, char_t  &&> >,
+        negation< is_detected<char_ptr_t, char_t  &> >,
+        negation< is_detected<char_ptr_t, char_t  > >
     >;
 
     template <
@@ -53,12 +58,24 @@ namespace u::spec::str
     static_assert__(( !char_ptr_t_detected_v<unsigned short> ));
     static_assert__(( !char_ptr_t_detected_v<unsigned long> ));
 
+    //
+    // view
+    //
     constexpr char const* lol = "lol";
     constexpr std::array<char, 4> lol1 { "lol" };
 
     static_assert__(( view(lol).size() == 3 ));
-    static_assert__(( view(lol1).size() == lol1.size() ));
+    static_assert__(( view(lol1).size() == 4 ));
 
+    constexpr auto src0 = std::array<char, 12>{};
+    constexpr auto src1 = u::view::view { src0 };
+    constexpr auto v0 = u::str::view(src0);
+    constexpr auto v1 = u::str::view(src1);
+    static_assert(v0.size() == src0.size());
+    static_assert(v1.size() == src1.size());
+}
+namespace u::spec::str
+{
     void debug(spec)
     {
         debug__(( ::strlen("lol") ));
