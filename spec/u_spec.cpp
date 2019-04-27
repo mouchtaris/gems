@@ -7,6 +7,7 @@
 #include "./u/view_spec.h"
 #include "./u/make_array_spec.h"
 #include "./u/compose_spec.h"
+#include "./u/f_spec.h"
 #include <tuple>
 namespace u::spec
 {
@@ -19,6 +20,7 @@ namespace u::spec
         view::spec{},
         make_array::spec{},
         compose::spec{},
+        f::spec{},
     };
 
     void debug(spec)

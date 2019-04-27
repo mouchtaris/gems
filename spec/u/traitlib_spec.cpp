@@ -45,6 +45,11 @@ namespace
 
     EXPECT(length);
     EXPECT(message);
+
+    struct has_call_operator { void operator()() const; };
+    struct has_no_call_operator { };
+    static_assert__((  is_detected_v<call_operator_t, has_call_operator> ));
+    static_assert__(( !is_detected_v<call_operator_t, has_no_call_operator> ));
 }
 
 namespace u::spec::traitlib

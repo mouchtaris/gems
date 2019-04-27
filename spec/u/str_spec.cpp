@@ -67,12 +67,27 @@ namespace
     static_assert__(( view(lol).size() == 3 ));
     static_assert__(( view(lol1).size() == 4 ));
 
-    constexpr auto src0 = std::array<char, 12>{};
+    constexpr auto src0 = std::array<char, 12>{"hi bob"};
     constexpr auto src1 = u::view::view { src0 };
     constexpr auto v0 = u::str::view(src0);
     constexpr auto v1 = u::str::view(src1);
     static_assert(v0.size() == src0.size());
     static_assert(v1.size() == src1.size());
+
+    //
+    // cmp
+    //
+    static_assert__(( cmp(lol, lol1) == 0 ));
+    static_assert__(( cmp(lol1, lol) == 0 ));
+    static_assert__(( cmp(src0, v0) == 0 ));
+    static_assert__(( cmp(src0, src1) == 0 ));
+    static_assert__(( cmp(v0, v1) == 0 ));
+    static_assert__(( cmp(v0, lol1) != 0 ));
+
+    //
+    // copy
+    //
+    static_assert__(( cmp("hi", copy("hi", std::array<char, 5>{}.data())) == 0 ));
 }
 namespace u::spec::str
 {

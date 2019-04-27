@@ -1,11 +1,14 @@
 #include "config.h"
 #include "u/view.h"
 #include "u/p.h"
+#include "u/str.h"
 
 #include "msg/input_socket.h"
 
 #include "msg/input_socket.h"
 #include "msg/test_msg.h"
+
+#include "sock/listen/unix.h"
 
 #include <type_traits>
 #include <tuple>
@@ -14,6 +17,7 @@
 #include <cstdint>
 #include <iostream>
 #include <tuple>
+#include <functional>
 //
 #include <sys/select.h>
 int select(
@@ -27,6 +31,16 @@ int select(
 namespace {
 namespace inc
 {
+    struct Configuration
+    {
+        sock::sockaddr_unix_path    socket_path;
+    };
+
+    constexpr auto option_handlers = std::tuple {
+        std::tuple {
+            [](std::string_view arg) { return std::starts_with(arg, "--socket_path="); },
+        }
+    };
 }
 }
 

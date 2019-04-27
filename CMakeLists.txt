@@ -16,6 +16,8 @@ target_link_libraries(u PRIVATE _compile_options)
 target_sources(u PRIVATE
     src/u/arr/make_array.cpp
     src/u/f/compose.cpp
+    src/u/f.cpp
+    src/u/p.cpp
     src/u/stdx.cpp
     src/u/str.cpp
     src/u/tmap.cpp
@@ -51,6 +53,7 @@ target_sources(spec PRIVATE
     spec/sock_spec.cpp
     spec/spec.cpp
     spec/u/compose_spec.cpp
+    spec/u/f_spec.cpp
     spec/u/make_array_spec.cpp
     spec/u_spec.cpp
     spec/u/stdx_spec.cpp

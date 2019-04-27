@@ -3,7 +3,7 @@ BUILD_DIR ?= /,/m2_build
 build:
 	cmake --build ${BUILD_DIR}
 run: build
-	${BUILD_DIR}/main 1 2 3 4 5 6
+	${BUILD_DIR}/main /tmp/lol.sock
 spec: build
 	${BUILD_DIR}/spec 1 2 3 4 5 6
 conf: clean
