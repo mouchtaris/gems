@@ -50,6 +50,17 @@ namespace
     struct has_no_call_operator { };
     static_assert__((  is_detected_v<call_operator_t, has_call_operator> ));
     static_assert__(( !is_detected_v<call_operator_t, has_no_call_operator> ));
+
+    //
+    // iterable interface
+    //
+    constexpr int* begin(length0) { return nullptr; }
+    constexpr int* end(length0) { return nullptr; }
+    static_assert__(( stdx::is_detected_v<iterator_element_t, length0> ));
+
+    //static_assert__(( is_iterable_of<length0, int>::value ));
+    //static_assert__(( !is_iterable_of<length0, char>::value ));
+    //static_assert__(( !is_iterable_of<length1, int>::value ));
 }
 
 namespace u::spec::traitlib

@@ -54,20 +54,33 @@ namespace u::util
 
 
     //! Strip all cv-ptr-cv-ref qualifiers from a type.
+    ///
+    /// Essentially we are trying to get the base type under a pointer
+    /// or array indirection.
+    ///
+    /// Step0:
+    ///     T const& => T: remove any extra cvrefs (could be const int* const&)
+    /// Step1:
+    ///     decay: if array turn to pointer (cvrefs removed alredy)
+    /// Step2:
+    ///     T* => T: remove pointer
+    /// Step3:
+    ///     const T& => T: remove cvrefs again
     template <
         typename T
     >
-    using deptr_t = std::remove_const_t<std::remove_pointer_t<stdx::remove_cvref_t<T>>>;
-
-    template <
-        typename char_t
-    >
-    using is_char = std::disjunction<
-        std::is_same<char_t, char>,
-        std::is_same<char_t, signed char>,
-        std::is_same<char_t, wchar_t>,
-        std::is_same<char_t, char8_t>,
-        std::is_same<char_t, char16_t>,
-        std::is_same<char_t, char32_t>
-    >;
+    using deptr_t =
+        // step3
+        stdx::remove_cvref_t<
+            // step2
+            std::remove_pointer_t<
+                // step1
+                std::decay_t<
+                    // step0
+                    stdx::remove_cvref_t<
+                        T
+                    >
+                >
+            >
+        >;
 }

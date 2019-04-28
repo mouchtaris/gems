@@ -3,6 +3,11 @@
 
 namespace stdx
 {
+    using namespace std;
+}
+
+namespace stdx
+{
     constexpr bool GCC =
 #if defined(__GNUC__) || defined(__GNUG__)
 #define STDX_GCC 1
