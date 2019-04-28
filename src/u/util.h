@@ -83,4 +83,12 @@ namespace u::util
                 >
             >
         >;
+
+    //! A template that is always false_type.
+    ///
+    /// Used to static_assert(false) in template metaprogramming.
+    template <
+        typename T
+    >
+    struct failure_guard: public std::false_type { };
 }

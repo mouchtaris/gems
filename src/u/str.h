@@ -30,11 +30,6 @@ namespace u::str
     namespace _detail
     {
         template <
-            typename T
-        >
-        struct failure_guard: public std::false_type { };
-
-        template <
             typename Str
         >
         using is_char_ptr = std::conjunction<
@@ -58,7 +53,7 @@ namespace u::str
         if constexpr (_detail::is_char_ptr<Str>::value)
             return str;
         else
-            static_assert(_detail::failure_guard<Str>::value,
+            static_assert(util::failure_guard<Str>::value,
                 "view not defined for this type yet"
             );
     }
@@ -83,12 +78,12 @@ namespace u::str
             if constexpr (stdx::is_same_v<traitlib::iterator_element_t<T>, char>)
                 ;
             else
-                static_assert(_detail::failure_guard<T>::value,
+                static_assert(util::failure_guard<T>::value,
                     "iterable of not char* not supported yet"
                 );
 
         else
-            static_assert(_detail::failure_guard<T>::value,
+            static_assert(util::failure_guard<T>::value,
                 "scanf not defined for this yet"
             );
     }
