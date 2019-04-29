@@ -172,9 +172,27 @@ namespace inc
     >
     constexpr auto handle_options(const Iter first, const Iter last)
     {
-        for (Iter i = first; i != last; i = std::next(i))
-            ;
+        auto&& handle = [first, last](Configuration config)
+        {
+            for (Iter i = first; i != last; i = std::next(i))
+                config = make_option_handler_for_option(*i)(config);
+            return config;
+        };
+        return std::move(handle);
     }
+
+    //
+    // Test options
+    //
+    constexpr auto testopts = std::array {
+        "--socket_path=/socker/path.sock"
+    };
+    constexpr auto testconfig = handle_options(begin(testopts), end(testopts))({});
+    //static_assert__(
+    //    std::string_view(begin(testconfig.socket_path.value), testconfig.socket_path.value.size())
+    //    .compare("/socker/path.sock")
+    //    == 0
+    //);
 }
 }
 
@@ -199,6 +217,7 @@ int main(int argc, char const* argv[])
         help(argc, argv);
         return 1;
     }
+    debug__(( begin(inc::testconfig.socket_path.value) ));
 
     return success? 0 : 1;
 }
