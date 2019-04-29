@@ -29,6 +29,7 @@ namespace u::str
 {
     namespace _detail
     {
+        //! Is Str a char_ptr after removing all indirections?
         template <
             typename Str
         >
@@ -58,11 +59,13 @@ namespace u::str
             );
     }
 
+    // Result of view(Str) -- can be used for is_detected.
     template <
         typename Str
     >
     using view_t = decltype(view(std::declval<Str>()));
 
+    //! Scanf in a typesafe and constexpr way
     template <
         typename T,
         typename Str
@@ -88,6 +91,7 @@ namespace u::str
             );
     }
 
+    // Result of calling scanf() -- can be used in is_detected
     template <
         typename T,
         typename Str

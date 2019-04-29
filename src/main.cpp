@@ -41,6 +41,8 @@ namespace inc
     using chars = std::char_traits<char>;
 
     //! Create a setter factory.
+    /// 
+    /// conf::*ptr => value:string_value => (config => config)
     ///
     /// Setter factory is configured with a pointer to a Configuration member.
     /// Calling the factory with a value will create a setter,
@@ -62,7 +64,8 @@ namespace inc
             const auto&& setter = [ptr, value](Configuration config)
             {
                 //TODO: comment in
-                (void)ptr;
+                (void) ptr;
+                (void) value;
                 //u::str::scanf(config.*ptr, value);
                 return config;
             };
@@ -71,6 +74,12 @@ namespace inc
         };
 
         return factory;
+    }
+
+    //! A mod that does nothign
+    constexpr Configuration noop(Configuration&& c)
+    {
+        return c;
     }
 
     //! Create a prefix-based value extractor.
@@ -97,22 +106,74 @@ namespace inc
     ///
     ///     value_extractor => configuration_mod
     ///
-    constexpr auto option_handlers = std::tuple {
+    constexpr auto option_handlers = std::make_tuple(
         std::tuple { make_prefix_based_value_extractor("--socket_path="), make_setter_factory(&Configuration::socket_path) }
-    };
+    );
 
-
-    //! Handle an option
+    //! Make a handler factory from a handler pair
     ///
-    /// Pass the option through all handlers.
-    constexpr auto handle_option(std::string_view)
+    /// opt:std::string_view => (Config => Config)
+    ///
+    /// This simply combines the extractor and the configuration mod into
+    /// a single handler function that applies mod() if value_extractor()
+    /// gives a value, and passes Configuration through otherwise.
+    template <
+        typename ValueExtractor,
+        typename ConfigurationMod
+    >
+    constexpr auto make_option_handler_factory(ValueExtractor&& extract, ConfigurationMod&& config_mod)
+    {
+        auto&& factory = [extract, config_mod](std::string_view option)
+        {
+            auto&& option_handler = [extract, config_mod, option](Configuration config)
+            {
+                const auto&& value_opt = extract(option);
+                if (value_opt)
+                    return config_mod(*value_opt)(config);
+                else
+                    return config;
+            };
+
+            return std::move(option_handler);
+        };
+
+        return std::move(factory);
+    }
+
+    //! Compose all option handlers into a total.
+    template <
+        typename... HandlerPairs
+    >
+    constexpr auto make_total_option_handler(std::string_view option, HandlerPairs&&... pairs)
     {
         using stdx::get;
 
-        //auto&& handler0 = get<0>(option_handlers);
-        //auto&& extr0 = get<0>(handler0);
-        //auto&& mod0 = get<1>(handler0);
-        return 0;
+        return u::f::compose(make_option_handler_factory(get<0>(pairs), get<1>(pairs))(option)...);
+    }
+
+    //! Create an option handler
+    /// (Config) => Config
+    ///
+    /// Pass the option through all handlers. Given a Configuration instance it will return a
+    /// modified Configuration instance.
+    constexpr auto make_option_handler_for_option(std::string_view option)
+    {
+        auto&& make_total_option_handler_for_option = [option](auto&&... pairs)
+        {
+            return make_total_option_handler(std::move(option), std::forward<decltype(pairs)>(pairs)...);
+        };
+        auto&& total_option_handler = apply(make_total_option_handler_for_option, option_handlers);
+        return std::move(total_option_handler);
+    }
+
+    //! Handle all passed options.
+    template <
+        typename Iter
+    >
+    constexpr auto handle_options(const Iter first, const Iter last)
+    {
+        for (Iter i = first; i != last; i = std::next(i))
+            ;
     }
 }
 }

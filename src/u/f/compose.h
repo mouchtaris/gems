@@ -2,12 +2,20 @@
 #include <functional>
 namespace u::f
 {
-    //! Function composition for any number of functions
-    //
+    //! Basic compose 2 functions implementation
     template <
-        typename... Fs
+        typename F,
+        typename G
     >
-    struct Composer;
+    constexpr auto operator >>(F&& f, G&& g)
+    {
+        // Necessarily capture functions by copy.
+        return [f, g] (auto&& x)
+        {
+            // Forward argument properly.
+            return g(f(std::forward<decltype(x)>(x)));
+        };
+    }
 
     //! Compose any number of functions.
     template <
@@ -15,52 +23,16 @@ namespace u::f
     >
     constexpr auto compose(Fs&&... fs)
     {
-        return Composer<Fs...>{}(std::forward<Fs>(fs)...);
-    }
-
-    //! Operator decoration for any number of functions
-    template <
-        typename F,
-        typename G
-    >
-    constexpr auto operator >>(F&& f, G&& g)
-    {
-        return compose(
-            std::forward<F>(f),
-            std::forward<G>(g)
-        );
-    }
-
-    //! Composer specilization for more than 2 functions
-    template <
-        typename F,
-        typename... Fs
-    >
-    struct Composer<F, Fs...>
-    {
-        constexpr auto operator () (F&& f, Fs&&... fs) const &&
-        {
-            return f >> compose(std::forward<Fs>(fs)...);
-        }
-    };
-
-    //! Composer specilization for 2 functions
-    template <
-        typename F,
-        typename G
-    >
-    struct Composer<F, G>
-    {
-        constexpr auto operator () (F&& f, G&& g) const
-        {
-            // Necessarily capture functions by copy.
-            return [f, g] (auto&& x)
+        if constexpr (sizeof...(Fs) == 0)
+            return [](auto&& x)
             {
-                // Forward argument properly.
-                return g(f(std::forward<decltype(x)>(x)));
+                return std::forward<decltype(x)>(x);
             };
-        }
-    };
+        else if constexpr (sizeof...(Fs) == 1)
+            return ( ... , std::forward<Fs>(fs));
+        else
+            return (std::forward<Fs>(fs) >> ...);
+    }
 
     template <
         std::size_t N,

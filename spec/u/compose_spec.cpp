@@ -1,13 +1,17 @@
 #include "./compose_spec.h"
 #include "u/f/compose.h"
 #include "u/p.h"
+#define st__(EXPR) static_assert__(EXPR)
 namespace
 {
     using u::f::compose;
     constexpr auto f = [](int x) { return x + 1; };
     constexpr auto g = [](int x) { return x - 1; };
     constexpr auto fog = compose(f, g, f, g, f, g);
-    static_assert(fog(0) == 0);
+    st__(fog(0) == 0);
+    st__(compose(f, g)(0) == 0);
+    st__(compose(f)(0) == 1);
+    st__(compose()(0) == 0);
 
     struct anon{};
     void runtime(anon)
