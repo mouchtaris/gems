@@ -453,13 +453,5 @@ namespace u::spec::tmap
 
     void debug(spec)
     {
-        debug__(( p<
-        eval_t<
-          map_if,
-          tpack<Weird2>::f<is_defined>,
-          Weird2,
-          tpack<A, B, C, D>
-        >
-        >() ));
     }
 }

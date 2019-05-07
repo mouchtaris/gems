@@ -116,7 +116,6 @@ namespace u::spec::str
 {
     void debug(spec)
     {
-        debug__(( ::strlen("lol") ));
     }
 
     void runtime(spec)

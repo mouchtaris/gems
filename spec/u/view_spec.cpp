@@ -121,8 +121,6 @@ namespace u::spec::view
         debug__(( *v2 ));
         debug__(( *v3 ));
         debug__(( *v4 ));
-        debug__(( (v5 == std::nullopt ? "nullopt" : "SOMETHING") ));
-        debug__(( p<decltype(v4->flip())>() ));
     }
     void runtime(spec)
     {

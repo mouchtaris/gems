@@ -46,25 +46,47 @@ namespace u
         constexpr auto SUCC = palelime;
         constexpr auto FAIL = bloody;
         constexpr auto SAY = methystos;
+        constexpr auto ID = methystos;
+    }
+
+    constexpr std::string_view _basename(char const* file)
+    {
+        std::string_view file_view { file };
+        const auto slash = file_view.rfind("/");
+        if (slash == std::string_view::npos)
+            return file_view;
+
+        const auto begin = slash + 1;
+        const auto end = file_view.rfind(".");
+        if (end == std::string_view::npos)
+            return file_view.substr(begin);
+
+        const auto len = end - begin;
+        return file_view.substr(begin, len);
     }
 
     template <
         typename T
     >
-    void _debug__(std::ostream& o, char const* expr, T&& val)
-    {
-        o
-        << u::c::BG
-        << u::c::SEG << expr << ": "
-        << u::c::SAY << val
-        << u::c::RSNL;
-    }
-
-    inline void _assert__(std::ostream& o, char const* expr, bool val)
+    void _debug__(std::ostream& o, char const* file, char const* expr, T&& val)
     {
         o
         << u::c::BG
         << u::c::SEG << "[:. "
+        << u::c::ID << _basename(file)
+        << u::c::SEG << " .:] "
+        << u::c::T << expr << ": "
+        << u::c::SAY << val
+        << u::c::RSNL;
+    }
+
+    inline void _assert__(std::ostream& o, char const* file, char const* expr, bool val)
+    {
+        o
+        << u::c::BG
+        << u::c::SEG << "[:. "
+        << u::c::ID << _basename(file)
+        << u::c::SEG << " .:] "
         << u::c::T << expr
         << u::c::SEG << " .::. "
         << (val ? (o << u::c::SUCC << "¯\\_(ツ)_/¯")
@@ -74,19 +96,20 @@ namespace u
         ;
     }
 
-    inline void _say__(std::ostream& o, char const* msg)
+    inline void _say__(std::ostream& o, char const* file, char const* msg)
     {
         o
         << u::c::BG
         << u::c::SEG << "[:. "
+        << u::c::ID << _basename(file)
+        << u::c::SEG << " .:] "
         << u::c::SAY << msg
-        << u::c::SEG << " .:]"
         << u::c::RSNL
         ;
     }
 
 }
-#define debug__(EXPR)   u::_debug__(std::cerr, #EXPR, (EXPR))
-#define assert__(EXPR)  u::_assert__(std::cerr, #EXPR, (EXPR))
-#define say__(EXPR)     u::_say__(std::cerr, #EXPR)
+#define debug__(EXPR)   u::_debug__(std::cerr, __FILE__, #EXPR, (EXPR))
+#define assert__(EXPR)  u::_assert__(std::cerr, __FILE__, #EXPR, (EXPR))
+#define say__(EXPR)     u::_say__(std::cerr, __FILE__, #EXPR)
 #define static_assert__(EXPR)   static_assert(EXPR)

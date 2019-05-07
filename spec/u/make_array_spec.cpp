@@ -27,8 +27,6 @@ namespace u::spec::make_array
 {
     void debug(spec)
     {
-        debug__(( p<decltype(subj)>() ));
-        debug__(( p<decltype(subj)::value_type>() ));
     }
 
     void runtime(spec)

@@ -31,8 +31,7 @@ namespace
     static_assert__(( is_detected_v<length_t, length3> ));
     static_assert__(( is_detected_v<length_t, length4> ));
     static_assert__(( is_detected_v<length_t, length5> ));
-    //static_assert__(( !is_detected_v<length_t, length6> ));
-    using wat = stdx::is_detected<length_t, length6>;
+    static_assert__(( !is_detected_v<length_t, length6> ));
 
     //
     // Expected trait names
@@ -57,10 +56,6 @@ namespace
     constexpr int* begin(length0) { return nullptr; }
     constexpr int* end(length0) { return nullptr; }
     static_assert__(( stdx::is_detected_v<iterator_element_t, length0> ));
-
-    //static_assert__(( is_iterable_of<length0, int>::value ));
-    //static_assert__(( !is_iterable_of<length0, char>::value ));
-    //static_assert__(( !is_iterable_of<length1, int>::value ));
 }
 
 namespace u::spec::traitlib
@@ -71,11 +66,5 @@ namespace u::spec::traitlib
 
     void debug(spec)
     {
-        debug__(( p<::u::traitlib::length_t<length0>>() ));
-        debug__(( p<::u::traitlib::length_t<length1>>() ));
-        debug__(( p<::u::traitlib::length_t<length2>>() ));
-        debug__(( p<::u::traitlib::length_t<length3>>() ));
-        debug__(( p<::u::traitlib::length_t<length4>>() ));
-        debug__(( p<::u::traitlib::length_t<length5>>() ));
     }
 }
