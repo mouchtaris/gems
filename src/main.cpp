@@ -52,7 +52,18 @@ namespace
     >
     struct FCGI_Record
     {
+        byte_t version;
+        byte_t type;
+        byte_t requestIdB1;
+        byte_t requestIdB0;
+        byte_t contentLengthB1;
+        byte_t contentLengthB0;
+        byte_t paddingLengthB0;
+        byte_t reserved;
+        byte_t contentData[contentLength];
+        byte_t paddingData[paddingLength];
     };
+
 
     constexpr auto trecord_content = stdx::array { 1, 2, 3, 4, 5, 6, 7, };
     constexpr auto trecord_padding = stdx::array { 0, 0, 0, };

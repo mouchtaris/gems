@@ -65,6 +65,13 @@ target_sources(app PRIVATE
 )
 
 
+add_library(fcgi)
+target_link_libraries(fcgi PRIVATE _compile_options)
+target_sources(fcgi PRIVATE
+    src/fcgi/record.cpp
+)
+
+
 add_executable(spec)
 target_link_libraries(spec PRIVATE _compile_options)
 target_include_directories(spec PRIVATE spec)
@@ -84,6 +91,8 @@ target_sources(spec PRIVATE
     spec/u/traitlib_spec.cpp
     spec/u/try_spec.cpp
     spec/u/view_spec.cpp
+    spec/fcgi_spec.cpp
+    spec/fcgi/record_spec.cpp
 )
 
 add_executable(main)
