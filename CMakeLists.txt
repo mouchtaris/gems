@@ -77,6 +77,8 @@ target_sources(spec PRIVATE
     spec/u/traitlib_spec.cpp
     spec/u/try_spec.cpp
     spec/u/view_spec.cpp
+    spec/config_spec.cpp
+    spec/config/parse_spec.cpp
 )
 
 add_executable(main)

@@ -27,6 +27,13 @@ namespace u::str
         *dst = *src;
         return strncpy(src + 1, dst + 1, n - 1);
     }
+
+    constexpr std::size_t strlen(char const* str, std::size_t accum = 0)
+    {
+        if (*str == '\0')
+            return accum;
+        return strlen(str + 1, accum + 1);
+    }
 }
 
 namespace std

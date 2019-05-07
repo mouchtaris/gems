@@ -1,10 +1,14 @@
 #include "./spec.h"
+#include "./sock_spec.h"
+#include "./u_spec.h"
+#include "./config_spec.h"
 #include <tuple>
 namespace
 {
     constexpr auto modules = std::make_tuple(
         u::spec::spec{},
-        sock::spec::spec{}
+        sock::spec::spec{},
+        config::spec::spec{}
     );
 }
 
