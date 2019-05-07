@@ -8,6 +8,27 @@
 #include <cstring>
 #include <algorithm>
 #include <type_traits>
+namespace u::str
+{
+    constexpr int strncmp(char const* a, char const* b, std::size_t n)
+    {
+        if (n == 0)
+            return 0;
+        int diff = *a - *b;
+        if (diff == 0)
+            return strncmp(a + 1, b + 1, n - 1);
+        return diff;
+    }
+
+    constexpr char* strncpy(char const* src, char* dst, std::size_t n)
+    {
+        if (n == 0)
+            return dst;
+        *dst = *src;
+        return strncpy(src + 1, dst + 1, n - 1);
+    }
+}
+
 namespace std
 {
     //! Start_with seems to be sometimes missing
@@ -16,7 +37,7 @@ namespace std
 #if defined(HAS_STD_STRING_VIEW_STARTS_WITH)
         return view.starts_with(prefix);
 #else
-        return std::char_traits<char>::compare(
+        return u::str::strncmp(
             view.data(),
             prefix.data(),
             prefix.size()
@@ -41,17 +62,18 @@ namespace u::str
 
     //! Anything to string view
     template <
-        typename Str,
-        std::enable_if_t<
-            stdx::disjunction_v<
-                _detail::is_char_ptr<Str>
-            >,
-            int
-        > = 0
+        typename Str
     >
     constexpr std::string_view view(Str&& str)
     {
         if constexpr (_detail::is_char_ptr<Str>::value)
+            return str;
+        else if constexpr (
+            stdx::is_detected_v<traitlib::iterator_element_t, Str> &&
+            stdx::is_same_v<util::deptr_t<traitlib::begin_t<Str>>, char>
+        )
+            return { begin(str), util::iterable_size(str) };
+        else if constexpr (std::is_same_v<stdx::remove_cvref_t<Str>, std::string_view>)
             return str;
         else
             static_assert(util::failure_guard<Str>::value,
@@ -65,21 +87,57 @@ namespace u::str
     >
     using view_t = decltype(view(std::declval<Str>()));
 
+    template <
+        typename Char
+    >
+    constexpr int to_int(Char&& c)
+    {
+        using traits = stdx::char_traits<stdx::remove_reference_t<Char>>;
+        constexpr auto zero = traits::to_int_type('0');
+        auto val = traits::to_int_type(stdx::forward<Char>(c));
+        return val - zero;
+    }
+
+    template <
+        typename Char
+    >
+    constexpr int to_int(stdx::basic_string_view<Char> view)
+    {
+        int result = 0;
+        int radix = 1;
+        const auto end = rend(view);
+        for (auto i = rbegin(view); i != end; ++i) {
+            result += radix * to_int(*i);
+            radix *= 10;
+        }
+        return result;
+    }
+
     //! Scanf in a typesafe and constexpr way
     template <
         typename T,
         typename Str
     >
-    constexpr void scanf(T& into, Str&& str)
+    constexpr void scanf(T&& into, Str&& str)
     {
-        constexpr auto v = view(stdx::forward<Str>(str));
+        const std::string_view v = view(stdx::forward<Str>(str));
 
-        if constexpr (stdx::is_same_v<T, char>)
+        if constexpr (stdx::is_same_v<T, char&>)
             into = v[0];
 
+        else if constexpr (stdx::is_same_v<T, int&>)
+            into = to_int(v);
+
         else if constexpr (stdx::is_detected_v<traitlib::iterator_element_t, T>)
-            if constexpr (stdx::is_same_v<traitlib::iterator_element_t<T>, char>)
-                ;
+            if constexpr (stdx::is_same_v<traitlib::begin_t<T>, char*>)
+                u::str::strncpy(
+                    v.data(),
+                    begin(into),
+                    stdx::min(
+                        util::iterable_size(into),
+                        v.size()
+                    )
+                );
             else
                 static_assert(util::failure_guard<T>::value,
                     "iterable of not char* not supported yet"

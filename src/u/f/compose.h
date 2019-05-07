@@ -10,7 +10,7 @@ namespace u::f
     constexpr auto operator >>(F&& f, G&& g)
     {
         // Necessarily capture functions by copy.
-        return [f, g] (auto&& x)
+        return [f, g] (auto&& x) -> decltype(auto)
         {
             // Forward argument properly.
             return g(f(std::forward<decltype(x)>(x)));
@@ -21,10 +21,10 @@ namespace u::f
     template <
         typename... Fs
     >
-    constexpr auto compose(Fs&&... fs)
+    constexpr auto compose(Fs&&... fs) -> decltype(auto)
     {
         if constexpr (sizeof...(Fs) == 0)
-            return [](auto&& x)
+            return [](auto&& x) -> decltype(auto)
             {
                 return std::forward<decltype(x)>(x);
             };

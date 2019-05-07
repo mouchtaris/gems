@@ -44,7 +44,7 @@ namespace u::traitlib
     //! Get the iterator element type, as seen by dereferencing
     /// begin(T) or end(T).
     ///
-    /// This template is enables if both begin(T) and end(T) yield
+    /// This template is enabled if both begin(T) and end(T) yield
     /// the same dereferenced type.
     template <
         typename T,

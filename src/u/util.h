@@ -1,6 +1,7 @@
 #pragma once
 #include "u/stdx.h"
 #include <optional>
+#define FWD(VAR) stdx::forward<decltype(VAR)>(VAR)
 namespace u::util
 {
     template <
@@ -91,4 +92,13 @@ namespace u::util
         typename T
     >
     struct failure_guard: public std::false_type { };
+
+    //! Calculate the size of an iterable
+    template <
+        typename T
+    >
+    constexpr std::size_t iterable_size(T&& iterable)
+    {
+        return stdx::distance(begin(iterable), end(iterable));
+    }
 }

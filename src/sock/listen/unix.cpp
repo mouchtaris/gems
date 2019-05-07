@@ -29,7 +29,7 @@ namespace sock::listen::unix_
 
         ::strncpy(
             serv_addr.sun_path,
-            path.value.container.data(),
+            path.container.data(),
             sizeof(serv_addr.sun_path) - 1
         );
 

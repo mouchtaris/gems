@@ -6,6 +6,14 @@
 #include <iostream>
 namespace
 {
+    //
+    // strncmp
+    //
+    static_assert__(( u::str::strncmp("aab", "aac", 2) == 0 ));
+    static_assert__(( u::str::strncmp("a", "b", 0) == 0 ));
+    static_assert__(( u::str::strncmp("a", "b", 1) < 0 ));
+    static_assert__(( u::str::strncmp("aac", "aab", 3) > 0 ));
+
 //    using stdx::is_detected;
 //    using std::negation;
 //

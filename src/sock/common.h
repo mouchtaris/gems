@@ -39,11 +39,9 @@ namespace sock
 
         struct sockfd_t { int value; };
 
-        struct sockaddr_unix_path {
-            u::view::view<std::array<char, sizeof(::sockaddr_un{}.sun_path)>> value;
-        };
+        using sockaddr_unix_path = u::view::view<std::array<char, sizeof(::sockaddr_un{}.sun_path)>>;
 #if defined(unix)
-        static_assert(sockaddr_unix_path{}.value.size() == 108);
+        static_assert(sockaddr_unix_path{}.size() == 108);
 #elif defined(__APPLE__)
         // TODO: figure mac size
         //static_assert(sockaddr_unix_path{}.value.size() == 108);

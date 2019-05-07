@@ -30,170 +30,127 @@ int select(
     struct timeval   *timeout
 );
 
-namespace {
-namespace inc
+namespace
 {
     struct Configuration
     {
+        int test1 = 2;
+        char test0;
         sock::sockaddr_unix_path    socket_path;
     };
 
-    using chars = std::char_traits<char>;
+    using chars = stdx::char_traits<char>;
 
-    //! Create a setter factory.
-    /// 
-    /// conf::*ptr => value:string_value => (config => config)
-    ///
-    /// Setter factory is configured with a pointer to a Configuration member.
-    /// Calling the factory with a value will create a setter,
-    /// which when called with a Configuration instance will set
-    /// the member pointed by ptr with the value passed to the factory.
-    template <
-        typename T
-    >
-    constexpr auto make_setter_factory(T Configuration::*ptr)
+    TRAIT_COND(is_config_mod, (
+        stdx::is_same_v<
+            stdx::invoke_result_t<T, Configuration&&>,
+            Configuration&&
+        >
+    ));
+    static_assert( !is_config_mod<chars>::value );
+
+    constexpr auto handler0 = [](Configuration&& config) -> Configuration&&
     {
-        //! A setter factory
-        /// Called with a value, creates setters that will set this value
-        /// on the member pointed by ptr when called with a Configuration
-        /// instance.
-        const auto&& factory = [ptr](std::string_view value)
-        {
-            //! A setter
-            /// Will set value into *ptr.
-            const auto&& setter = [ptr, value](Configuration config)
-            {
-                //TODO: comment in
-                (void) ptr;
-                (void) value;
-                //u::str::scanf(config.*ptr, value);
-                return config;
-            };
+        config.test0 = 'h';
+        return stdx::move(config);
+    };
+    static_assert__(( is_config_mod<decltype(handler0)>::value ));
+    static_assert__(( handler0({}).test0 == 'h' ));
 
-            return setter;
-        };
-
-        return factory;
-    }
-
-    //! A mod that does nothign
-    constexpr Configuration noop(Configuration&& c)
+    constexpr Configuration&& handler1(Configuration&& config)
     {
-        return c;
+        config.test1 = 3;
+        return stdx::move(config);
     }
+    static_assert__(( is_config_mod<decltype(handler1)>::value ));
+    static_assert__(( handler1({}).test1 == 3 ));
 
-    //! Create a prefix-based value extractor.
-    ///
-    /// When called with a value, will extract the value if the prefix matches.
-    constexpr auto make_prefix_based_value_extractor(char const* prefix)
-    {
-        //! A prefix-based value extractor
-        /// Will extract a value if the prefix matches, returns nullopt otherwise.
-        const auto&& extractor = [prefix](std::string_view arg) -> std::optional<std::string_view>
-        {
-            if (starts_with(arg, prefix))
-                return arg.substr(chars::length(prefix));
-            else
-                return std::nullopt;
-        };
+    constexpr auto handler01 = u::f::compose(handler0, handler1);
+    static_assert__(( is_config_mod<decltype(handler01)>::value ));
+    static_assert__(( handler01(Configuration{}).test0 == 'h' ));
+    static_assert__(( handler01(Configuration{}).test1 == 3 ));
 
-        return extractor;
-    }
-
-    //! All option handlers
-    ///
-    /// Option handlers are pairs of
-    ///
-    ///     value_extractor => configuration_mod
-    ///
-    constexpr auto option_handlers = std::make_tuple(
-        std::tuple { make_prefix_based_value_extractor("--socket_path="), make_setter_factory(&Configuration::socket_path) }
+    constexpr auto handlers = stdx::make_tuple(
+        stdx::make_tuple( "--test0=", &Configuration::test0 ),
+        stdx::make_tuple( "--test1=", &Configuration::test1 ),
+        stdx::make_tuple("--socket_path=", &Configuration::socket_path )
     );
 
-    //! Make a handler factory from a handler pair
-    ///
-    /// opt:std::string_view => (Config => Config)
-    ///
-    /// This simply combines the extractor and the configuration mod into
-    /// a single handler function that applies mod() if value_extractor()
-    /// gives a value, and passes Configuration through otherwise.
     template <
-        typename ValueExtractor,
-        typename ConfigurationMod
+        typename Self,
+        typename T
     >
-    constexpr auto make_option_handler_factory(ValueExtractor&& extract, ConfigurationMod&& config_mod)
+    constexpr Self& set(Self& self, T Self::*ptr, stdx::string_view value)
     {
-        auto&& factory = [extract, config_mod](std::string_view option)
-        {
-            auto&& option_handler = [extract, config_mod, option](Configuration config)
-            {
-                const auto&& value_opt = extract(option);
-                if (value_opt)
-                    return config_mod(*value_opt)(config);
-                else
-                    return config;
-            };
-
-            return std::move(option_handler);
-        };
-
-        return std::move(factory);
+        u::str::scanf(self.*ptr, stdx::move(value));
+        return self;
     }
 
-    //! Compose all option handlers into a total.
     template <
-        typename... HandlerPairs
+        typename Self,
+        typename T
     >
-    constexpr auto make_total_option_handler(std::string_view option, HandlerPairs&&... pairs)
+    constexpr auto make_set_if_prefix_handler(
+            stdx::tuple<char const*, T Self::*> pair,
+            stdx::string_view arg)
     {
         using stdx::get;
 
-        return u::f::compose(make_option_handler_factory(get<0>(pairs), get<1>(pairs))(option)...);
-    }
-
-    //! Create an option handler
-    /// (Config) => Config
-    ///
-    /// Pass the option through all handlers. Given a Configuration instance it will return a
-    /// modified Configuration instance.
-    constexpr auto make_option_handler_for_option(std::string_view option)
-    {
-        auto&& make_total_option_handler_for_option = [option](auto&&... pairs)
+        return [&pair, arg](Configuration& config) -> Configuration&
         {
-            return make_total_option_handler(std::move(option), std::forward<decltype(pairs)>(pairs)...);
-        };
-        auto&& total_option_handler = apply(make_total_option_handler_for_option, option_handlers);
-        return std::move(total_option_handler);
-    }
+            const stdx::string_view prefix = u::str::view(get<0>(pair));
 
-    //! Handle all passed options.
-    template <
-        typename Iter
-    >
-    constexpr auto handle_options(const Iter first, const Iter last)
-    {
-        auto&& handle = [first, last](Configuration config)
-        {
-            for (Iter i = first; i != last; i = std::next(i))
-                config = make_option_handler_for_option(*i)(config);
+            if (starts_with(arg, prefix)) {
+                auto&& target = get<1>(pair);
+                stdx::string_view&& value = arg.substr(prefix.size());
+
+                set(config, FWD(target), stdx::move(value));
+            }
+
             return config;
         };
-        return std::move(handle);
     }
 
-    //
-    // Test options
-    //
-    constexpr auto testopts = std::array {
-        "--socket_path=/socker/path.sock"
+    constexpr auto make_total_handler_factory = [](auto&&... pairs)
+    {
+        return [&pairs...](stdx::string_view arg)
+        {
+            return u::f::compose(make_set_if_prefix_handler(pairs, stdx::move(arg))...);
+        };
     };
-    constexpr auto testconfig = handle_options(begin(testopts), end(testopts))({});
-    //static_assert__(
-    //    std::string_view(begin(testconfig.socket_path.value), testconfig.socket_path.value.size())
-    //    .compare("/socker/path.sock")
-    //    == 0
-    //);
-}
+
+    //! arg => (Conf => Conf)
+    constexpr auto total_handler_factory = stdx::apply(make_total_handler_factory, handlers);
+
+    template <
+        typename Args
+    >
+    constexpr Configuration parse_args(Args&& args, Configuration config)
+    {
+        for (std::string_view arg: FWD(args))
+            total_handler_factory(stdx::move(arg))(config);
+        return config;
+    }
+
+    constexpr auto testargs = stdx::array {
+        "--test1=3",
+        "--test0=h",
+        "--socket_path=/tmp/m2_cgi.sock",
+    };
+
+    constexpr Configuration config = parse_args(testargs, {});
+    static_assert__(( config.test0 == 'h' ));
+    static_assert__(( config.test1 == 3 ));
+    constexpr auto socket_path_arg = stdx::string_view { stdx::get<2>(testargs) };
+    constexpr auto socket_path_prefix = stdx::string_view { "--socket_path=" };
+    constexpr auto socket_path_expected_value = socket_path_arg.substr(socket_path_prefix.size());
+    constexpr auto socket_path_value = stdx::string_view { begin(config.socket_path) };
+    static_assert__(( socket_path_value.compare(socket_path_expected_value) == 0 ));
+
+    void debug()
+    {
+        debug__(( socket_path_value ));
+    }
 }
 
 namespace
@@ -201,7 +158,7 @@ namespace
     constexpr auto nl = '\n';
     void help(int, char const* argv[])
     {
-        std::cerr
+        stdx::cerr
             << "USAGE: " << argv[0] << " SOCKET_PATH" << nl
         ;
     }
@@ -217,7 +174,7 @@ int main(int argc, char const* argv[])
         help(argc, argv);
         return 1;
     }
-    debug__(( begin(inc::testconfig.socket_path.value) ));
+    debug();
 
     return success? 0 : 1;
 }
