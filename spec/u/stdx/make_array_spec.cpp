@@ -1,6 +1,7 @@
 #include "./make_array_spec.h"
-#include "u/arr/make_array.h"
+#include "u/stdx/make_array.h"
 #include "u/p.h"
+#include "spec.h"
 #include <cstddef>
 using u::p;
 namespace
@@ -9,7 +10,7 @@ namespace
     using type = char;
     constexpr type source[length] = {1, 2, 3, 4, 5, 90, 34, 121, 67, 2};
 
-    constexpr auto subj = u::arr::make_array(source);
+    constexpr auto subj = stdx::make_array(source);
 
     template <std::size_t... I>
     constexpr bool check(std::index_sequence<I...>)
@@ -23,7 +24,7 @@ namespace
 
     static_assert(check(std::make_index_sequence<length>{}));
 }
-namespace u::spec::make_array
+namespace u::spec::stdx::make_array
 {
     void debug(spec)
     {

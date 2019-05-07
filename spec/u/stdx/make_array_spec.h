@@ -1,5 +1,5 @@
 #pragma once
-namespace u::spec::make_array
+namespace u::spec::stdx::make_array
 {
     struct spec{};
     void debug(spec);

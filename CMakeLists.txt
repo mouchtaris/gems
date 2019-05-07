@@ -14,11 +14,15 @@ target_compile_definitions(_compile_options INTERFACE DEBUG=)
 add_library(u)
 target_link_libraries(u PRIVATE _compile_options)
 target_sources(u PRIVATE
-    src/u/arr/make_array.cpp
     src/u/f/compose.cpp
     src/u/f.cpp
     src/u/p.cpp
+    src/u/stdx/compiler.cpp
     src/u/stdx.cpp
+    src/u/stdx/is_detected.cpp
+    src/u/stdx/is_detected.cpp
+    src/u/stdx/make_array.cpp
+    src/u/stdx/remove_cvref.cpp
     src/u/str.cpp
     src/u/tmap.cpp
     src/u/traitlib.cpp
@@ -63,22 +67,23 @@ target_sources(app PRIVATE
 
 add_executable(spec)
 target_link_libraries(spec PRIVATE _compile_options)
+target_include_directories(spec PRIVATE spec)
 target_sources(spec PRIVATE
+    spec/config/parse_spec.cpp
+    spec/config_spec.cpp
     spec/sock/listen/unix_spec.cpp
     spec/sock_spec.cpp
     spec/spec.cpp
     spec/u/compose_spec.cpp
     spec/u/f_spec.cpp
-    spec/u/make_array_spec.cpp
     spec/u_spec.cpp
+    spec/u/stdx/make_array_spec.cpp
     spec/u/stdx_spec.cpp
     spec/u/str_spec.cpp
     spec/u/tmap_spec.cpp
     spec/u/traitlib_spec.cpp
     spec/u/try_spec.cpp
     spec/u/view_spec.cpp
-    spec/config_spec.cpp
-    spec/config/parse_spec.cpp
 )
 
 add_executable(main)

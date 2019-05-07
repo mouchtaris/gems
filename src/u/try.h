@@ -19,6 +19,22 @@ namespace u::try_
     struct StandardErrorWrapper: public Error
     {
         StandardError cause;
+
+        StandardErrorWrapper() = default;
+
+        template <
+            typename CauseError,
+            typename = std::enable_if_t<
+                std::is_same_v<
+                    stdx::remove_cvref_t<CauseError>,
+                    u::try_::StandardError
+                >
+            >
+        >
+        constexpr StandardErrorWrapper(CauseError&& cause):
+            Error {},
+            cause { std::forward<CauseError>(cause) }
+        {}
     };
 
     namespace _detail

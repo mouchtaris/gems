@@ -1,8 +1,15 @@
 #include "./stdx_spec.h"
+#include "./stdx/make_array_spec.h"
 #include "u/p.h"
 #include "u/stdx.h"
+#include "spec.h"
+#include <tuple>
 namespace u::spec::stdx
 {
+    constexpr auto modules = ::stdx::make_tuple(
+        make_array::spec{}
+    );
+
     using namespace ::std;
     using namespace ::stdx;
 
@@ -41,9 +48,11 @@ namespace u::spec::stdx
 
     void debug(spec)
     {
+        stdx::apply(::spec::run_debug, modules);
     }
 
     void runtime(spec)
     {
+        stdx::apply(::spec::run_runtime, modules);
     }
 }

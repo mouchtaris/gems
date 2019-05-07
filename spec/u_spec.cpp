@@ -5,7 +5,6 @@
 #include "./u/stdx_spec.h"
 #include "./u/traitlib_spec.h"
 #include "./u/view_spec.h"
-#include "./u/make_array_spec.h"
 #include "./u/compose_spec.h"
 #include "./u/f_spec.h"
 #include <tuple>
@@ -18,7 +17,6 @@ namespace u::spec
         stdx::spec{},
         traitlib::spec{},
         view::spec{},
-        make_array::spec{},
         compose::spec{},
         f::spec{},
     };

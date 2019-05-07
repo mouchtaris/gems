@@ -1,6 +1,6 @@
 #pragma once
 #include <array>
-namespace u::arr
+namespace stdx
 {
     namespace _detail::make_array
     {

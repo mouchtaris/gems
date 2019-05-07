@@ -45,6 +45,23 @@ namespace
     constexpr auto socket_path_value = stdx::string_view { begin(config.socket_path) };
     static_assert__(( socket_path_value.compare(socket_path_expected_value) == 0 ));
 
+    using byte_t = unsigned char;
+    template <
+        stdx::uint16_t contentLength,
+        stdx::uint8_t paddingLength
+    >
+    struct FCGI_Record
+    {
+    };
+
+    constexpr auto trecord_content = stdx::array { 1, 2, 3, 4, 5, 6, 7, };
+    constexpr auto trecord_padding = stdx::array { 0, 0, 0, };
+    constexpr auto trecord = FCGI_Record<
+        trecord_content.size(),
+        trecord_padding.size()
+    > {
+    };
+
     void debug()
     {
         debug__(( socket_path_value ));

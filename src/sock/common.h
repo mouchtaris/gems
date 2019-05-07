@@ -4,37 +4,32 @@
 #include <sys/un.h>
 namespace sock
 {
+    //! Common types and fun for all of socketing
     inline namespace common
     {
+        //! Errors that can happen when having fun with sockets.
         namespace errors
         {
-            struct Error: public u::try_::Error
+            //! Base error type for socket fun
+            struct Error: public u::try_::StandardErrorWrapper
             {
-                u::try_::StandardError stderror;
-
-                Error() = default;
-
-                // TODO: move to try: StandardErrorWrapper
-                template <
-                    typename Arg,
-                    std::enable_if_t<
-                        std::is_same_v<
-                            stdx::remove_cvref_t<Arg>,
-                            u::try_::StandardError
-                        >,
-                        int
-                    > = 0
-                >
-                constexpr Error(Arg&& arg):
-                    u::try_::Error {},
-                    stderror { std::forward<Arg>(arg) }
-                {}
+                using u::try_::StandardErrorWrapper::StandardErrorWrapper;
             };
+
+            //! A socket creation error
+            /// Can happen when trying to create a socket.
             struct SocketCreation: public Error
             {
                 using Error::Error;
             };
+
+            //! A socket binding error
+            /// Can happen when trying to bind a socket.
             struct SocketBinding: public Error{};
+
+            //! A socket de-initialization error
+            /// Can happen when closing/destroying a socket.
+            struct Closing: public Error{};
         }
 
         struct sockfd_t { int value; };
