@@ -46,6 +46,21 @@ target_sources(msg PRIVATE
 )
 
 
+add_library(config)
+target_link_libraries(config PRIVATE _compile_options)
+target_sources(config PRIVATE
+    src/config/parse.cpp
+    src/config/config.cpp
+)
+
+
+add_library(app)
+target_link_libraries(app PRIVATE _compile_options)
+target_sources(app PRIVATE
+    src/app/Configuration.cpp
+)
+
+
 add_executable(spec)
 target_link_libraries(spec PRIVATE _compile_options)
 target_sources(spec PRIVATE

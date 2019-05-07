@@ -1,5 +1,5 @@
 #pragma once
-#include "config.h"
+#include "config/config.h"
 #include "u/view.h"
 #include <array>
 namespace msg::input_socket
