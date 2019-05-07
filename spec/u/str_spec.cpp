@@ -6,6 +6,14 @@
 #include <iostream>
 namespace
 {
+
+    //
+    // strlen
+    //
+    static_assert__(( u::str::strlen("") == 0 ));
+    static_assert__(( u::str::strlen("1") == 1 ));
+    static_assert__(( u::str::strlen("1234") == 4 ));
+
     //
     // strncmp
     //
@@ -13,6 +21,14 @@ namespace
     static_assert__(( u::str::strncmp("a", "b", 0) == 0 ));
     static_assert__(( u::str::strncmp("a", "b", 1) < 0 ));
     static_assert__(( u::str::strncmp("aac", "aab", 3) > 0 ));
+
+    //
+    // strncpy
+    //
+    // ???
+    // It SHOULD be possible to constexpr test this,
+    // because strncpy() is actually used in constexprs....
+    //
 
 //    using stdx::is_detected;
 //    using std::negation;
