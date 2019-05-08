@@ -60,15 +60,4 @@ namespace u::traitlib
     using iterator_element_t =
         decltype(*stdx::declval<begin_t<T>>())
     ;
-
-    //! Check if a type is an iterable yielding elements of
-    /// type ElementType.
-    template <
-        typename T,
-        typename ElementType
-    >
-    using is_iterable_of = std::is_same<
-        iterator_element_t<T>,
-        ElementType
-    >;
 }

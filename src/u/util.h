@@ -91,7 +91,8 @@ namespace u::util
     template <
         typename T
     >
-    struct failure_guard: public std::false_type { };
+    struct failure_guard: public std::false_type
+    { };
 
     //! Calculate the size of an iterable
     template <

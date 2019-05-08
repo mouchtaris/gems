@@ -3,6 +3,7 @@
 #include <ostream>
 #include <deque>
 #include <iostream>
+#include <array>
 namespace u
 {
     template <
@@ -96,20 +97,25 @@ namespace u
         ;
     }
 
-    inline void _say__(std::ostream& o, char const* file, char const* msg)
+    template <
+        std::size_t N
+    >
+    inline void _say__(std::ostream& o, char const* file, std::array<char const*, N> msgs)
     {
         o
         << u::c::BG
         << u::c::SEG << "[:. "
         << u::c::ID << _basename(file)
         << u::c::SEG << " .:] "
-        << u::c::SAY << msg
-        << u::c::RSNL
+        ;
+        for (char const* msg: msgs)
+            o << u::c::SAY << msg << '\n';
+        o << u::c::RSNL
         ;
     }
 
 }
 #define debug__(EXPR)   u::_debug__(std::cerr, __FILE__, #EXPR, (EXPR))
 #define assert__(EXPR)  u::_assert__(std::cerr, __FILE__, #EXPR, (EXPR))
-#define say__(EXPR)     u::_say__(std::cerr, __FILE__, #EXPR)
+#define say__(EXPR)     u::_say__(std::cerr, __FILE__, { #EXPR })
 #define static_assert__(EXPR)   static_assert(EXPR)

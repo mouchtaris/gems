@@ -30,6 +30,7 @@ target_sources(u PRIVATE
     src/u/try.cpp
     src/u/util.cpp
     src/u/view.cpp
+    src/bytebuf.cpp
 )
 
 

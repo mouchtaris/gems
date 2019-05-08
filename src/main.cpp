@@ -5,14 +5,13 @@
 #include "u/f/compose.h"
 #include "config/parse.h"
 #include "app/Configuration.h"
-
+#include "fcgi/record.h"
+#include "u/stdx.h"
 #include "msg/input_socket.h"
-
 #include "msg/input_socket.h"
 #include "msg/test_msg.h"
-
 #include "sock/listen/unix.h"
-
+#include "bytebuf.h"
 #include <type_traits>
 #include <tuple>
 #include <array>
@@ -34,48 +33,78 @@ int select(
 
 namespace
 {
+    namespace stx { using namespace stdx; }
     constexpr auto testargs = stdx::array {
         "--socket_path=/tmp/m2_cgi.sock",
     };
 
     constexpr auto config = config::parse_args(app::handlers, testargs, app::Configuration{});
-    constexpr auto socket_path_arg = stdx::string_view { stdx::get<0>(testargs) };
-    constexpr auto socket_path_prefix = stdx::string_view { "--socket_path=" };
-    constexpr auto socket_path_expected_value = socket_path_arg.substr(socket_path_prefix.size());
-    constexpr auto socket_path_value = stdx::string_view { begin(config.socket_path) };
-    static_assert__(( socket_path_value.compare(socket_path_expected_value) == 0 ));
+        constexpr auto socket_path_arg = stdx::string_view { stdx::get<0>(testargs) };
+        constexpr auto socket_path_prefix = stdx::string_view { "--socket_path=" };
+        constexpr auto socket_path_expected_value = socket_path_arg.substr(socket_path_prefix.size());
+        constexpr auto socket_path_value = stdx::string_view { begin(config.socket_path) };
+        static_assert__(( socket_path_value.compare(socket_path_expected_value) == 0 ));
 
-    using byte_t = unsigned char;
-    template <
-        stdx::uint16_t contentLength,
-        stdx::uint8_t paddingLength
-    >
-    struct FCGI_Record
+
+    namespace event
     {
-        byte_t version;
-        byte_t type;
-        byte_t requestIdB1;
-        byte_t requestIdB0;
-        byte_t contentLengthB1;
-        byte_t contentLengthB0;
-        byte_t paddingLengthB0;
-        byte_t reserved;
-        byte_t contentData[contentLength];
-        byte_t paddingData[paddingLength];
+        struct FcgiData { bytebuf buf; };
+        using all = stdx::variant<
+            FcgiData
+        >;
+    }
+
+    namespace handler
+    {
+        struct FcgiRecord { adt::bytes<fcgi::record::adt> bytes; };
+        struct PrintFcgiRecord { FcgiRecord rec; };
+        using all = stdx::variant<
+            FcgiRecord,
+            PrintFcgiRecord
+        >;
+    }
+
+    struct State
+    {
+        handler::all handler;
+        bytebuf fcgi_data;
     };
 
 
-    constexpr auto trecord_content = stdx::array { 1, 2, 3, 4, 5, 6, 7, };
-    constexpr auto trecord_padding = stdx::array { 0, 0, 0, };
-    constexpr auto trecord = FCGI_Record<
-        trecord_content.size(),
-        trecord_padding.size()
-    > {
+    State&& reduce(State&& state, handler::FcgiRecord rec)
+    {
+        state.fcgi_data = read(state.fcgi_data, rec.bytes);
+        if (rec.bytes.has_remaining())
+            state.handler = stx::move(rec);
+        else
+            state.handler = handler::PrintFcgiRecord { stx::move(rec) };
+        return stx::move(state);
+    }
+
+    State&& reduce(State&& state, handler::PrintFcgiRecord)
+    {
+        return stx::move(state);
+    }
+
+    State&& reduce(State&& state)
+    {
+        return stx::visit(
+            [&state](auto&& handler) -> State&& { return reduce(stx::move(state), stx::move(handler)); },
+            state.handler
+        );
+    }
+
+
+    constexpr auto test_source_buf = bytebuf {
+        { 1, 2, 3, 4 },
+        0, 0, 4, 4
     };
+    static_assert__(( test_source_buf.remaining() == 4 ));
 
     void debug()
     {
         debug__(( socket_path_value ));
+        debug__(( sizeof(bytebuf) ));
     }
 }
 

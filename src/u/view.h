@@ -123,6 +123,20 @@ namespace u::view
                 pos, last
             };
         }
+
+        static constexpr std::size_t npos = -1;
+        constexpr this_type subview(std::size_t from = 0, std::size_t n = npos) const
+        {
+            const auto first2 = first;
+            const auto pos2 = stdx::min(pos + from, limit);
+            const auto limit2 = 
+                pos2 < stdx::numeric_limits<stdx::size_t>::max() - n ?
+                    stdx::min(pos2 + n, limit) :
+                    limit
+                ;
+            const auto last2 = last;
+            return { container, first2, pos2, limit2, last2 };
+        }
     };
 
     //
@@ -169,6 +183,15 @@ namespace u::view
         typename T
     >
     using if_view = std::enable_if_t<is_view<T>::value, void>;
+
+    //
+    // External API
+    //
+    template <
+        typename T
+    >
+    using container_type = typename T::container_type;
+
 
     //! Get the adapted begin() of a view.
     template <

@@ -111,6 +111,31 @@ namespace {
 
     constexpr auto v6 = v4->flip();
     static_assert(v6.remaining() == 4);
+
+    //
+    // Subviewing
+    //
+    static_assert(v6.subview(0).remaining() == 4);
+    static_assert(v6.subview(1).remaining() == 3);
+    static_assert(v6.subview(2).remaining() == 2);
+    static_assert(v6.subview(3).remaining() == 1);
+    static_assert(v6.subview(4).remaining() == 0);
+    static_assert(v6.subview(0, 1).remaining() == 1);
+    static_assert(v6.subview(1, 1).remaining() == 1);
+    static_assert(v6.subview(2, 1).remaining() == 1);
+    static_assert(v6.subview(3, 1).remaining() == 1);
+    static_assert(v6.subview(4, 1).remaining() == 0);
+    static_assert(v6.subview(0, 4).remaining() == 4);
+    static_assert(v6.subview(1, 4).remaining() == 3);
+    static_assert(v6.subview(2, 4).remaining() == 2);
+    static_assert(v6.subview(3, 4).remaining() == 1);
+    static_assert(v6.subview(4, 4).remaining() == 0);
+    static_assert(v6.subview(0, 5).remaining() == 4);
+    static_assert(v6.subview(1, 5).remaining() == 3);
+    static_assert(v6.subview(2, 5).remaining() == 2);
+    static_assert(v6.subview(3, 5).remaining() == 1);
+    static_assert(v6.subview(4, 5).remaining() == 0);
+
 }
 namespace u::spec::view
 {

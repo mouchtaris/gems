@@ -3,6 +3,8 @@
 #include "u/traits.h"
 #include "u/p.h"
 #include "u/tmap.h"
+#include <optional>
+#include <memory>
 using u::p;
 namespace
 {
@@ -53,18 +55,30 @@ namespace
     //
     // iterable interface
     //
-    constexpr int* begin(length0) { return nullptr; }
-    constexpr int* end(length0) { return nullptr; }
+    constexpr stdx::optional<int> begin(length0) { return 12; }
+    constexpr stdx::optional<int> end(length0) { return stdx::nullopt; }
     static_assert__(( stdx::is_detected_v<iterator_element_t, length0> ));
+    static_assert__(( stdx::is_same_v<iterator_element_t<length0>, int&&> ));
+    constexpr const int* begin(length2) { return nullptr; }
+    constexpr const int* end(length2) { return nullptr; }
+    static_assert__(( stdx::is_detected_v<iterator_element_t, length2> ));
+    static_assert__(( stdx::is_same_v<iterator_element_t<length2>, const int&> ));
+    // Cannot have different begin() end() types
+    constexpr stdx::optional<int> begin(length1) { return stdx::nullopt; }
+    constexpr int* end(length1) { return nullptr; }
+    static_assert__(( !stdx::is_detected_v<iterator_element_t, length1> ));
 }
 
 namespace u::spec::traitlib
 {
+    using namespace u::traitlib;
+
     void runtime(spec)
     {
     }
 
     void debug(spec)
     {
+        debug__(( u::p<iterator_element_t<length0>>() ));
     }
 }

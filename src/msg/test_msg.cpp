@@ -62,10 +62,6 @@ namespace input_socket {
 #endif
     void debug()
     {
-        debug__(( p<ByteChunk>() ));
-        debug__(( p<ByteChunk::container_type::value_type>() ));
-        debug__(( p<ByteChunk::container_type::value_type>() ));
-        debug__(( p<decltype(*begin(ByteChunk::container_type{}))>() ));
     }
 }//input_socket::
 }//spec::
