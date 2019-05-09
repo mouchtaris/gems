@@ -1,35 +1,45 @@
 #pragma once
 #include "sock/common.h"
 #include "u/tmap.h"
+#include "u/stdx.h"
 #include "bytebuf.h"
+#include "adt.h"
 namespace adt
 {
-    struct byte_t{};
-    struct stream_t{};
 
-    //! Type byte size
-    constexpr stdx::size_t bytesize(byte_t) { return 1; }
-    constexpr stdx::size_t bytesize(stream_t) { return 0; }
-    template <
-        typename... Ts
-    >
-    constexpr stdx::size_t bytesize(u::tmap::tpack<Ts...> = {})
-    {
-        return stdx::apply(
-            [](auto&&... vals)
-            {
-                return (
-                    bytesize(stdx::forward<decltype(vals)>(vals)) + ...
-                );
-            },
-            stdx::tuple<Ts...>{}
-        );
-    }
-
+    //! A bytes{} struct for the bytesize of T{}
     template <
         typename T
     >
     using bytes = ::bytes<bytesize(T{})>;
+
+//    //! The runtime representation of an ADT
+//    template <typename T> struct runtime;
+//    template <typename... T> using runtime_t = typename runtime<T...>::type;
+//    template <> struct runtime<byte_t> { using type = uint8_t; };
+//    // runtime<stream_t> : not defined
+//    template <
+//        typename... Ts
+//    >
+//    struct runtime<u::tmap::tpack<Ts...>>
+//    {
+//        using type = typename u::tmap::eval_t<
+//            u::tmap::select,
+//            u::tmap::tpack<>::f<runtime_t>,
+//            u::tmap::tpack<Ts...>
+//        >
+//        ::template prepend<adt_tag>
+//        ::template into<stx::tuple>
+//        ;
+//    };
+//
+//    static_assert__(( stx::is_same_v<
+//        runtime_t<u::tmap::tpack<byte_t, stream_t>>,
+//        stx::tuple<adt_tag, uint8_t>
+//    > ));
+//
+//    //! 
+//    template <typename Runtime, typename T> struct get_impl;
 }
 namespace fcgi::record
 {

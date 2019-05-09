@@ -95,16 +95,22 @@ namespace
     }
 
 
-    constexpr auto test_source_buf = bytebuf {
-        { 1, 2, 3, 4 },
-        0, 0, 4, 4
-    };
-    static_assert__(( test_source_buf.remaining() == 4 ));
-
+    constexpr State test_state()
+    {
+        return {
+            .handler = handler::FcgiRecord{},
+            .fcgi_data = {
+                { 1, 2, 3, 4 },
+                0, 0, 4, 4
+            },
+        };
+    }
+    static_assert__(( test_state().fcgi_data.remaining() == 4 ));
     void debug()
     {
         debug__(( socket_path_value ));
         debug__(( sizeof(bytebuf) ));
+        assert__(( !reduce(test_state()).fcgi_data.has_remaining() ));
     }
 }
 

@@ -34,6 +34,16 @@ target_sources(u PRIVATE
 )
 
 
+add_library(adt)
+target_link_libraries(adt PRIVATE _compile_options)
+target_sources(adt PRIVATE
+    src/adt/adt_tag.cpp
+    src/adt/bytesize.cpp
+    src/adt/types.cpp
+    src/adt.cpp
+)
+
+
 add_library(sock)
 target_link_libraries(sock PRIVATE _compile_options)
 target_sources(sock PRIVATE
