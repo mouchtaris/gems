@@ -5,25 +5,12 @@
 #include "io.h"
 #include <iostream>
 #include <sys/select.h>
+#include <unistd.h>
 
 struct fd_source
 {
     int fd;
 };
-
-bool can_pull(fd_source src)
-{
-    ::fd_set readfds;
-    FD_ZERO(&readfds);
-    FD_SET(src.fd, &readfds);
-    constexpr ::timespec timespec{};
-    static_assert(timespec.tv_sec == 0);
-    static_assert(timespec.tv_nsec == 0);
-    int status = ::pselect(1, &readfds, nullptr, nullptr, &timespec, nullptr);
-    if (status < 0)
-        return false;
-    return FD_ISSET(src.fd, &readfds) != 0;
-}
 
 int main(int, char**)
 {
@@ -36,8 +23,17 @@ int main(int, char**)
     debug__(( io::is_blocking(fcgi_client.fd) ));
 
     ::fd_source source { fcgi_client.fd };
-    debug__(( can_pull(source) ));
+    debug__(( io::is_blocking(source.fd) ));
+    debug__(( io::can_read(source.fd) ));
+    io::set_nonblocking(fcgi_client.fd, false);
     debug__(( io::is_blocking(source.fd) ));
 
+    while (!io::can_read(source.fd))
+        ;
+    debug__(( io::can_read(source.fd) ));
+
+    ::fcgi_record::bytes fcgi_record{};
+    debug__(( ::read(source.fd, begin(fcgi_record.bytes), fcgi_record.remaining) ));
+    debug__(( io::is_blocking(source.fd) ));
     return 0;
 }
