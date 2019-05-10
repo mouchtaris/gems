@@ -20,5 +20,9 @@ target_sources(spec PRIVATE
 add_executable(main)
 target_link_libraries(main PRIVATE _compile_options)
 target_sources(main PRIVATE
+    src/buffer.cpp
+    src/error.cpp
+    src/fcgi.cpp
     src/main.cpp
+    src/unix_socket.cpp
 )

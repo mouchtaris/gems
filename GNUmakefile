@@ -8,7 +8,7 @@ spec: build
 	${BUILD_DIR}/spec
 conf: clean
 	mkdir -pv ${BUILD_DIR}
-	root="$$(pwd)" && cd ${BUILD_DIR} && cmake -G 'Unix Makefiles' "$$root"
+	root="$$(pwd)" && cd ${BUILD_DIR} && cmake -G 'Ninja' "$$root"
 	ln -svf ${BUILD_DIR}/compile_commands.json .
 doc:
 	${MAKE} -C doc
