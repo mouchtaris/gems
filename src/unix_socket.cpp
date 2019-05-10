@@ -1,4 +1,6 @@
 #include "./unix_socket.h"
+#include "p.h"
+#include "io.h"
 #include <sys/socket.h> // sockaddr, sockert(), bind(), listen(), accept()
 #include <sys/un.h> // sockaddr_un
 #include <algorithm>
@@ -41,20 +43,6 @@ namespace unix_socket
                 sizeof(sockaddr_un)
             );
         }
-
-        int set_blocking(int sockfd, bool blocking = true)
-        {
-            int flags = ::fcntl(sockfd, F_GETFL, 0);
-            if (flags < 0)
-                return flags;
-
-            if (blocking)
-                flags &= ~O_NONBLOCK;
-            else
-                flags |= O_NONBLOCK;
-
-            return ::fcntl(sockfd, F_SETFL, flags) != -1 ? 0 : -1;
-        }
     }
 
     int create()
@@ -72,10 +60,6 @@ namespace unix_socket
             return status;
 
         status = ::chmod(path.data(), 0777);
-        if (status < 0)
-            return status;
-
-        status = set_blocking(sockfd, false);
         if (status < 0)
             return status;
 
@@ -108,7 +92,10 @@ namespace unix_socket
         if (clifd < 0)
             return clifd;
 
-        fprintf(stderr, "Accepted %d %s.\n", clifd, cli_addr.sun_path);
+        int status = io::set_nonblocking(clifd);
+        if (status < 0)
+            return status;
+
         return clifd;
     }
 }

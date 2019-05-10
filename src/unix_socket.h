@@ -5,16 +5,16 @@ namespace unix_socket
     int close(int sockfd);
     int accept(int sockfd);
 
-    struct listening_socket
+    struct socket_manager
     {
-        int fd = create();
+        int fd;
 
         int accept()
         {
             return unix_socket::accept(fd);
         }
 
-        ~listening_socket()
+        ~socket_manager()
         {
             close(fd);
         }
