@@ -25,9 +25,23 @@ namespace bytes
             return { bytes, 0, offset, };
         }
 
-        constexpr chunk next(std::size_t n = 1) const
+        constexpr chunk&& next(std::size_t n = 1) &&
         {
-            return { bytes, offset + n, remaining - n, };
+            offset += n;
+            remaining -= n;
+            return std::move(*this);
+        }
+
+        template <
+            std::size_t SizeTo
+        >
+        constexpr chunk&& copy(chunk<SizeTo>& into) &&
+        {
+            const auto n = std::min(remaining, into.remaining);
+            std::copy_n(begin(*this), n, begin(into));
+
+            into = into.next(n);
+            return next(n);
         }
     };
 
@@ -53,20 +67,5 @@ namespace bytes
     constexpr byte_t const* end(chunk<Size> const& chunk)
     {
         return std::next(begin(chunk), chunk.remaining);
-    }
-
-    template <
-        std::size_t SizeFrom,
-        std::size_t SizeTo
-    >
-    constexpr chunk<SizeFrom> copy(chunk<SizeFrom> const& from, chunk<SizeTo>& into)
-    {
-        const auto n = std::min(from.remaining, into.remaining);
-        std::copy_n(begin(from), n, begin(into));
-
-        auto result = from;
-        result.remaining -= n;
-        into.remaining -= n;
-        return result;
     }
 }
