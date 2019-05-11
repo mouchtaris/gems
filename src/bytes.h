@@ -19,6 +19,16 @@ namespace bytes
         std::array<byte_t, Size> bytes;
         std::size_t offset = 0;
         std::size_t remaining = Size;
+
+        constexpr chunk flip() const
+        {
+            return { bytes, 0, offset, };
+        }
+
+        constexpr chunk next(std::size_t n = 1) const
+        {
+            return { bytes, offset + n, remaining - n, };
+        }
     };
 
     template <
