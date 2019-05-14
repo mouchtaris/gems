@@ -4,7 +4,7 @@ build:
 	cmake --build ${BUILD_DIR}
 run: build
 	${BUILD_DIR}/main &
-	http :7001/satan
+	http :7001/satan 2>&1 | head -3
 spec: build
 	${BUILD_DIR}/spec
 conf: clean

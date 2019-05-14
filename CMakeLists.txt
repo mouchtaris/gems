@@ -1,12 +1,12 @@
 # vim: et ts=4 sw=4
 
-#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+set(CMAKE_CXX_COMPILER /usr/bin/clang++)
 cmake_minimum_required(VERSION 3.12)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(_compile_options INTERFACE)
 target_compile_features(_compile_options INTERFACE cxx_std_20)
-target_compile_options(_compile_options INTERFACE -Wall -Wextra -Werror -pedantic -O0 -g -fdiagnostics-color=always)
+target_compile_options(_compile_options INTERFACE -Wall -Wextra -Werror -pedantic -O0 -g -fdiagnostics-color=always ) #-include ${CMAKE_SOURCE_DIR}/src/stdx.h)
 target_include_directories(_compile_options INTERFACE src)
 target_compile_definitions(_compile_options INTERFACE DEBUG=)
 
@@ -26,4 +26,9 @@ target_sources(main PRIVATE
     src/main.cpp
     src/p.cpp
     src/unix_socket.cpp
+    src/stream.cpp
+    src/fd_source.cpp
+    src/std_error.cpp
+    src/stdx.cpp
+    src/stream.cpp
 )

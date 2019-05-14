@@ -40,7 +40,7 @@ namespace unix_socket
             return ::bind(
                 sockfd,
                 reinterpret_cast<sockaddr const*>(&address),
-                sizeof(sockaddr_un)
+                addr_len
             );
         }
     }

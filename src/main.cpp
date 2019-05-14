@@ -2,90 +2,70 @@
 #include "fcgi.h"
 #include "bytes.h"
 #include "p.h"
+#include "fd_source.h"
 #include "io.h"
+#include "std_error.h"
 #include <iostream>
 #include <sys/select.h>
 #include <unistd.h>
 #include <optional>
 #include <variant>
+#include <cstring>
+#include <tuple>
 
-template <
-    std::size_t ChunkSize
->
-struct fd_source
-{
-    constexpr static std::size_t chunk_size = ChunkSize;
-    int fd;
-};
 
-struct std_error
-{
-    int code = errno;
-};
 
-template <
-    std::size_t ChunkSize
->
-auto emit(fd_source<ChunkSize> source)
-->
-    std::variant<
-        std_error,
-        std::optional<bytes::chunk<ChunkSize>>
-    >
-{
-    const int can_read = io::can_read(source.fd);
-    if (can_read < 0)
-        return std_error{};
-    if (can_read == 0)
-        return std::nullopt;
+#include "stream.h"
 
-    bytes::chunk<ChunkSize> bs;
-    const int read = ::read(source.fd, begin(bs), bs.remaining);
-    if (read < 0)
-        return std_error{};
-    return bs.next(read).flip();
-}
+
+
+
+
+
+
+
+
 
 
 
 template <
-    std::size_t ChunkSize
+    typename Chunk
 >
 struct read_completely_stage
 {
-    bytes::chunk<ChunkSize> chunk;
+    Chunk chunk;
+    // TODO add send_back for unconsumed bytes
 };
+template <
+    typename Chunk
+>
+read_completely_stage(Chunk&&) -> read_completely_stage<Chunk>;
 
 template <
-    typename Stream,
+    typename Network,
+    typename Chunk,
     std::size_t ChunkSize
 >
-Stream&& push(Stream&& stream, read_completely_stage<ChunkSize> stage, bytes::chunk<ChunkSize> chunk)
+decltype(auto) on_push(Network&& net, read_completely_stage<Chunk>& stage, bytes::chunk<ChunkSize> chunk)
 {
     auto&& remainder = chunk.copy(stage.chunk);
+    (void) remainder; // TODO: send_back
 
+    if (stage.chunk.remaining == 0) {
+        return push(std::forward<Network>(net), std::move(stage.chunk));
+    }
+
+    return std::forward<Network>(net);
 }
+
+
+template <typename... Ops> struct overload: Ops... { using Ops::operator()...; };
+template <typename... Ops> overload(Ops&&...) -> overload<Ops...>;
+
 
 
 int main(int, char**)
 {
-    unix_socket::socket_manager fcgi_socket { unix_socket::create() };
-    unix_socket::socket_manager fcgi_client { fcgi_socket.accept() };
-
-    using fd_source = ::fd_source<1>;
-    fd_source source { fcgi_client.fd };
-    io::set_nonblocking(fcgi_client.fd, false);
-
-    while (!io::can_read(source.fd))
-        ;
-
-    const auto bs_try = emit(source);
-    const auto bs_opt = std::get<std::optional<bytes::chunk<fd_source::chunk_size>>>(bs_try);
-    const auto bs = *bs_opt;
-
-    ::fcgi_record::bytes fcgi_record{};
-
-    (void)bs;
-    (void)fcgi_record;
+    unix_socket::socket_manager fcgi_listener { unix_socket::create() };
     return 0;
 }
