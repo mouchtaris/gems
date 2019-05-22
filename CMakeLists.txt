@@ -20,15 +20,5 @@ target_sources(spec PRIVATE
 add_executable(main)
 target_link_libraries(main PRIVATE _compile_options)
 target_sources(main PRIVATE
-    src/bytes.cpp
-    src/fcgi.cpp
-    src/io.cpp
     src/main.cpp
-    src/p.cpp
-    src/unix_socket.cpp
-    src/stream.cpp
-    src/fd_source.cpp
-    src/std_error.cpp
-    src/stdx.cpp
-    src/stream.cpp
 )
