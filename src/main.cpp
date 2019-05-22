@@ -12,60 +12,47 @@
 #include <variant>
 #include <cstring>
 #include <tuple>
-
-
-
 #include "stream.h"
-
-
-
-
-
-
-
-
-
-
-
-
-template <
-    typename Chunk
->
-struct read_completely_stage
-{
-    Chunk chunk;
-    // TODO add send_back for unconsumed bytes
-};
-template <
-    typename Chunk
->
-read_completely_stage(Chunk&&) -> read_completely_stage<Chunk>;
-
-template <
-    typename Network,
-    typename Chunk,
-    std::size_t ChunkSize
->
-decltype(auto) on_push(Network&& net, read_completely_stage<Chunk>& stage, bytes::chunk<ChunkSize> chunk)
-{
-    auto&& remainder = chunk.copy(stage.chunk);
-    (void) remainder; // TODO: send_back
-
-    if (stage.chunk.remaining == 0) {
-        return push(std::forward<Network>(net), std::move(stage.chunk));
-    }
-
-    return std::forward<Network>(net);
-}
-
 
 template <typename... Ops> struct overload: Ops... { using Ops::operator()...; };
 template <typename... Ops> overload(Ops&&...) -> overload<Ops...>;
 
+struct socket_accepting_source
+{
+    int fd;
+};
+auto emit(socket_accepting_source source)
+    -> std::variant<
+        std_error,
+        std::optional<int>
+    >
+{
+    io::unblocker tmp_unblock { source.fd };
+    if (tmp_unblock.blocking < 0 || tmp_unblock.setting < 0)
+        return std_error { tmp_unblock.errno_ };
 
+    const int accepted = unix_socket::accept(source.fd);
+
+    if (accepted < 0)
+        if (errno == EWOULDBLOCK || errno == EAGAIN)
+            return std::nullopt;
+        else
+            return std_error{};
+    else
+        return accepted;
+}
+
+struct filter_emittions_stage{};
+template <
+    typename Sink
+>
+auto on_push(filter_emittions_stage&&, std::variant<std_error, std::optional<int>> && val, Sink&& sink)
+{
+
+}
 
 int main(int, char**)
 {
-    unix_socket::socket_manager fcgi_listener { unix_socket::create() };
+    socket_accepting_source source { unix_socket::create() };
     return 0;
 }

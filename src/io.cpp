@@ -108,4 +108,21 @@ namespace io
             return true; // can read
 #endif
     }
+
+    unblocker::unblocker(int fd):
+        fd { fd }
+    {
+        if (fd > 2) {
+            blocking = is_blocking(fd);
+            if (blocking >= 0)
+                errno_ = errno;
+                setting = set_nonblocking(fd);
+        }
+    }
+
+    unblocker::~unblocker()
+    {
+        if (fd > 2 && blocking >= 0 && setting >= 0)
+            set_nonblocking(fd, blocking);
+    }
 }
